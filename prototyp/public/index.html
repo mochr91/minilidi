@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minilidi · Život v údolí</title>
+<link rel="stylesheet" href="village.css?v=13"><link rel="stylesheet" href="village-panel.css?v=9"><script src="season-clock.js?v=14" defer></script><script src="map.js?v=17" defer></script><script src="village.js?v=21" defer></script></head>
+<body class="comparison-page village-comparison">
+<header class="mast">
+  <h1>Minilidi</h1>
+  <section class="season-clock" data-season-clock aria-label="Společný kalendář a počasí obou vesnic">
+    <canvas width="172" height="172" aria-label="Roční ciferník"></canvas>
+    <div><p class="season-date" data-date>Načítám kalendář…</p><p class="season-hour" data-hour></p>
+    </div>
+  </section>
+  <nav class="game-nav" aria-label="Minilidi"><a href="./" aria-current="page">Mapa</a><a href="prehled.html">Přehled</a><a href="schema.html">Schéma</a><a href="vira.html">Víra</a></nav>
+</header>
+<main>
+
+  <div class="comparison-grid">
+    <section class="village-panel" data-village="ai"></section>
+    <section class="village-panel" data-village="control"></section>
+  </div>
+</main>
+<footer class="game-status" aria-label="Stav vesnic">
+  <span data-simulation>Čekám na simulaci…</span>
+  <span data-ai></span>
+  <span data-weather-status></span>
+  <span data-growth-status></span>
+  <span data-next-task></span>
+</footer>
+</body></html>

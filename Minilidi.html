@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Minilidi — návrhová tabule</title>
+<style>:root{color-scheme:light;--bg:#f1f3ed;--paper:#fffef9;--line:#d5dcd1;--ink:#17241c;--muted:#526458;--accent:#206443;--soft:#e4eee4;font:16px/1.55 system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink)}.wrap{width:min(1220px,100% - 48px);margin-inline:auto}
+header{background:#17382b;color:#f9fcf7;border-bottom:4px solid #a5c398}.heading{display:flex;align-items:end;justify-content:space-between;gap:24px;padding-block:36px}
+.eyebrow{letter-spacing:.16em;font-size:.75rem;font-weight:750;color:#c2d7bc;margin:0 0 7px}.eyebrow span{margin-right:6px}h1{font-size:clamp(2.65rem,7vw,4.3rem);letter-spacing:-.065em;line-height:1.05;margin:0}.subtitle{margin:.6rem 0 0;color:#e0eade}
+main{padding-block:22px 45px}.toolbar{display:flex;align-items:end;flex-wrap:wrap;gap:12px}.views{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:10px;background:var(--paper);margin-right:auto}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer;background:var(--paper);padding:8px 12px;border:1px solid var(--line);border-radius:7px;font-weight:650}button:disabled{cursor:default;opacity:.58}button:hover:not(:disabled){border-color:var(--accent)}button[aria-pressed=true],.primary{background:var(--accent);border-color:var(--accent);color:white}.heading .primary{background:#e0eddb;color:#17382b;border-color:#e0eddb;white-space:nowrap}
+:focus-visible{outline:3px solid #43845d;outline-offset:3px}label{display:grid;gap:4px;font-weight:650}.filter{font-size:.85rem;color:var(--muted)}input,select,textarea{background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:8px 10px;min-width:0;width:100%}
+#message{color:var(--muted);margin:16px 0 12px;font-size:.9rem}#board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.lane{background:#e9ede5;border:1px solid var(--line);border-radius:11px;padding:12px;min-width:0}.lane h2{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 9px;font-size:1.04rem}.count,.tag{font-size:.77rem;background:var(--soft);color:#304e3b;border-radius:999px;padding:2px 8px;font-weight:650}.count{background:var(--paper)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;margin-top:8px;overflow-wrap:anywhere}.card h3{margin:0;font-size:1rem}.card p{margin:5px 0 10px;color:var(--muted);font-size:.9rem;white-space:pre-wrap}.card-footer{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:9px}.edit{margin-left:auto;padding:3px 7px;font-size:.8rem}.empty{font-size:.88rem;margin:4px 0;color:var(--muted)}
+.architecture{margin-top:20px;padding:12px 16px;background:var(--paper);border:1px solid var(--line);border-radius:9px}.architecture summary{cursor:pointer;font-weight:700}.flow{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px}.flow span{background:var(--soft);padding:6px 9px;border-radius:6px}.architecture p{margin:8px 0 0;color:var(--muted)}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);width:min(540px,100% - 24px);padding:20px}dialog::backdrop{background:#12271eb0}form{display:grid;gap:11px}form h2{margin:0}textarea{resize:vertical}.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions{display:flex;justify-content:flex-end;gap:8px}#error{color:#932b20;margin:0}
+@media(max-width:890px){#board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:570px){.wrap{width:calc(100% - 28px)}.heading{align-items:start;flex-direction:column;gap:14px;padding-block:24px}#board{grid-template-columns:minmax(0,1fr)}.views{width:100%}.filter{flex:1 1 135px}}
+
+.file-actions{margin-bottom:16px}.file-actions p{color:var(--muted);margin:6px 0 0}</style>
+
+</head>
+<body>
+<header>
+<div class="wrap heading">
+<div><p class="eyebrow"><span aria-hidden="true">◆</span> PROJEKT / FÁZE NÁVRHU</p><h1>Minilidi</h1><p class="subtitle">Tabule nápadů a návrhů pro naši minihru.</p></div>
+<button id="add" class="primary" type="button" disabled>+ Přidat nápad</button>
+</div>
+</header>
+<main class="wrap">
+<div class="file-actions"><button id="open-notes" type="button">Otevřít soubor s nápady</button> <button id="export-notes" type="button" disabled>Stáhnout JSON</button><input id="select-notes" type="file" accept=".json" hidden><p id="store-status" role="status">Pro aktuální návrhy a úpravy otevři soubor <strong>tabule/data/napady.json</strong>.</p></div>
+<div class="toolbar">
+<div class="views" aria-label="Zobrazení">
+<button type="button" id="by-category" aria-pressed="true">Kategorie</button>
+<button type="button" id="by-status" aria-pressed="false">Podle stavu</button>
+</div>
+<label class="filter">Hledat <input id="query" type="search" placeholder="Název nebo popis"></label>
+<label class="filter">Priorita <select id="priority-filter"></select></label>
+</div>
+<p id="message" role="status">Načítám návrhy…</p>
+<div id="board"></div>
+<details class="architecture">
+<summary>Pracovní schéma techniky</summary>
+<div class="flow"><span>Prohlížeč</span><b aria-hidden="true">↔</b><span>PHP / Laragon</span><b aria-hidden="true">↔</b><span>Ollama / NVIDIA</span></div>
+<p>PHP obsluhuje pravidla a ukládá herní stav do SQLite. Když potřebuje AI, zavolá Ollamu, která může využít GPU. Jde o návrh architektury hry.</p>
+</details>
+</main>
+<dialog id="editor" aria-labelledby="editor-title">
+<form id="form">
+<h2 id="editor-title">Nový nápad</h2>
+<label>Název<input name="title" required maxlength="120" autofocus></label>
+<label>Popis<textarea name="body" rows="5" maxlength="6000"></textarea></label>
+<label>Kategorie<select name="category"></select></label>
+<div class="pair"><label>Stav<select name="status"></select></label><label>Priorita<select name="priority"></select></label></div>
+<p id="error" role="alert" hidden></p>
+<div class="actions"><button type="button" id="cancel">Zrušit</button><button type="submit" class="primary" id="save">Uložit</button></div>
+</form>
+</dialog>
+<script>
+'use strict';
+const categories={concept:'Koncept a cíl hry',gameplay:'Herní pravidla a smyčka',world:'Svět a postavy',ai:'AI a chování',ui:'Obrazovky a ovládání',tech:'Technika a ukládání',parking:'Nápady na později'};
+const statuses={idea:'Nápad',discuss:'K diskusi',agreed:'Dohodnuto',later:'Odloženo'};
+const priorities={none:'Bez priority',high:'Vysoká',medium:'Střední',low:'Nízká'};
+const $=id=>document.getElementById(id);
+const form=$('form'), dialog=$('editor');
+let items=[], view='category', editing=null;
+function element(tag,cls,content){
+  const node=document.createElement(tag);
+  if(cls)node.className=cls;
+  if(content!==undefined)node.textContent=content;
+  return node;
+}
+function options(select,values){for(const [id,label] of Object.entries(values))select.add(new Option(label,id));}
+options(form.elements.category,categories);
+options(form.elements.status,statuses);
+options(form.elements.priority,priorities);
+options($('priority-filter'),{all:'Všechny',...priorities});
+function folded(value){return value.toLocaleLowerCase('cs').normalize('NFD').replace(/\p{M}/gu,'');}
+function render(){
+  const q=folded($('query').value.trim()), p=$('priority-filter').value;
+  const visible=items.filter(x=>(p==='all'||p===x.priority)&&folded(x.title+' '+x.body).includes(q));
+  $('message').textContent=(visible.length===items.length?'Celkem: '+items.length:'Zobrazeno: '+visible.length+' z '+items.length)+' · Pracovní návrhy';
+  const board=$('board');board.replaceChildren();
+  for(const [key,label] of Object.entries(view==='category'?categories:statuses)){
+    const list=visible.filter(x=>x[view]===key);
+    if(!list.length&&(q||p!=='all'))continue;
+    const lane=element('section','lane'), title=element('h2','',label);
+    title.append(element('span','count',String(list.length)));lane.append(title);
+    if(!list.length)lane.append(element('p','empty','Zatím tu není žádný návrh.'));
+    for(const item of list){
+      const card=element('article','card');
+      card.append(element('h3','',item.title));
+      if(item.body)card.append(element('p','',item.body));
+      const footer=element('div','card-footer');
+      footer.append(element('span','tag',view==='category'?statuses[item.status]:categories[item.category]));
+      if(item.priority!=='none')footer.append(element('span','tag','Priorita: '+priorities[item.priority]));
+      const edit=element('button','edit','Upravit');edit.type='button';edit.disabled=$('add').disabled;
+      edit.setAttribute('aria-label','Upravit: '+item.title);
+      edit.addEventListener('click',()=>openEditor(item));
+      footer.append(edit);card.append(footer);lane.append(card);
+    }
+    board.append(lane);
+  }
+  if(!board.childElementCount)board.append(element('p','empty','Žádný návrh neodpovídá filtru.'));
+}
+function openEditor(item){
+  editing=item?.id??null;
+  $('editor-title').textContent=item?'Upravit nápad':'Nový nápad';
+  $('error').hidden=true;
+  for(const [k,v] of Object.entries(item??{title:'',body:'',category:'concept',status:'idea',priority:'none'})){
+    if(form.elements[k])form.elements[k].value=v;
+  }
+  dialog.showModal();
+}
+$('add').addEventListener('click',()=>openEditor());
+$('cancel').addEventListener('click',()=>dialog.close());
+for(const key of ['category','status'])$('by-'+key).addEventListener('click',()=>{
+  view=key;
+  for(const k of ['category','status'])$('by-'+k).setAttribute('aria-pressed',String(k===key));
+  render();
+});
+$('query').addEventListener('input',render);
+$('priority-filter').addEventListener('change',render);
+dialog.addEventListener('cancel',e=>{if($('save').disabled)e.preventDefault();});
+form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const note=Object.fromEntries(new FormData(form));
+  if(editing)note.id=editing;
+  $('save').disabled=$('cancel').disabled=true;
+  $('error').hidden=true;
+  try{items=await saveOffline(note);dialog.close();render();}
+  catch(e){$('error').textContent='Uložení se nezdařilo. '+e.message;$('error').hidden=false;}
+  finally{$('save').disabled=$('cancel').disabled=false;}
+});
+
+const offlineData = [{"id":"role","category":"concept","status":"agreed","priority":"none","title":"Dohlížet na vesnici jako její bůh","body":"Hráč pomáhá vesnici přežít a prosperovat. Působí převážně nepřímo: dává vnuknutí, pomáhá, odměňuje a trestá neposlušnost. Usiluje o to, aby obyvatelé uvěřili v něj. Těžištěm je každodenní život a vztahy, výstavba slouží jako zázemí."},{"id":"loop","category":"gameplay","status":"agreed","priority":"none","title":"Vesnice žije i bez hráče","body":"Po otevření vidíme malou vesnici v pohybu. Postavy samy pracují, odpočívají a udržují vztahy. Hráč může zasáhnout a později se vrátit k důsledkům. Cíl: běh i týden bez zásahu. Běžné tempo: 1 herní den za 4 skutečné hodiny, tedy 6 herních dní za skutečný den a 42 za týden nepřetržitého běhu. V prototypu lze testovat pětkrát rychleji, 1 herní den za 48 skutečných minut."},{"id":"world","category":"world","status":"agreed","priority":"none","title":"Vesnička kolem roku 1500–1600","body":"Výchozí svět bez elektřiny: pole, chov zvířat, lov, rybolov, těžba dřeva, uhlí a železné rudy. Orientačně pět rodin a kolem třiceti lidí. Domácnosti mohou mít různé velikosti a věk: tři generace pod jednou střechou, otec s více dětmi nebo dva staří lidé."},{"id":"ai","category":"ai","status":"agreed","priority":"none","title":"AI řídí důležité volby a paměť postav","body":"Postavy reagují podle své povahy, vztahů, historie a vztahu k hráči. Stejný pokyn může vyvolat radost, odpor nebo odmítnutí. Model navrhuje jednání a pomáhá shrnovat důležité vzpomínky. Herní pravidla ověří dostupné možnosti a uloží skutečný výsledek. Lokální AI je součást prvního prototypu. Při výpadku rozhodnou herní pravidla."},{"id":"first-screen","category":"ui","status":"agreed","priority":"none","title":"Izometrická pixelartová mapa","body":"První obrazovka je malá izometrická mapa s jednoduchými postavami a prostředím. Počítat s otočením o 90°, první verze může mít jeden pohled. 3D připadá v úvahu až po ověření hlavní herní logiky."},{"id":"local-stack","category":"tech","status":"discuss","priority":"none","title":"Nepřetržitý svět a občasná AI na RTX 3060 Ti","body":"Server posouvá svět i bez otevřeného prohlížeče. Ollama vyhodnocuje jen důležité situace v dávkách a s časovým limitem. Základní život běží i při nedostupném modelu. RTX 3060 Ti má 8 GB VRAM; nejprve kandidát kolem 4B v kvantizaci. Výkon zatím nezměřen."},{"id":"faith-and-trust","category":"gameplay","status":"discuss","priority":"none","title":"Víra, důvěra a strach","body":"Rozlišit, zda postava v hráče věří, zda mu důvěřuje a zda se ho bojí. Trest může zvýšit poslušnost nebo strach a současně poškodit důvěru. Příjemný pokyn může být odměnou, ale jeho účinek záleží na vztazích a okolnostech."},{"id":"inventions","category":"parking","status":"idea","priority":"none","title":"Vynálezy napříč generacemi","body":"Vesničané zkoušejí nové postupy podle potřeb, talentu a dostupných prostředků. Příklady: zlepšovák na orbu, větrný mlýn, vodní kolo, později dynamit pro těžbu a elektřina. Herní pravidla určí předpoklady a šíření znalostí."},{"id":"research","category":"concept","status":"discuss","priority":"none","title":"Srovnání a proveditelnost","body":"Clanfolk: rodiny, generace a obživa. Norland: vztahy a osobnosti. Black & White: víra ve hráče. WorldBox: soběstačný svět a božské zásahy. Smallville a AI Town: vzpomínky a sociální chování AI postav. Zdroje a návrh zátěže jsou v KONCEPT.md ve složce projektu."},{"id":"prototype-people","category":"world","status":"agreed","priority":"none","title":"Prototyp má pět postav ze tří rodin","body":"První zkouška běží jen na PC. Každá postava má vlastní statistiky a potřeby. Rozšíření na přibližně třicet obyvatel patří do další fáze."},{"id":"prototype-needs","category":"gameplay","status":"agreed","priority":"none","title":"Jídlo, dřevo a únava","body":"Únava snižuje výkonnost a náladu. Unavená postava má menší ochotu pomáhat a stýkat se s ostatními. Alkoholismus je námět na později."},{"id":"prototype-inspiration","category":"ui","status":"agreed","priority":"none","title":"Vnuknutí z české nabídky","body":"Hráč vybere postavu a vnuknutí z nabídky. Na důležitou reakci se použije místní AI. Při nedostupnosti nebo nepřípustné odpovědi rozhodnou pravidla hry."},{"id":"prototype-process","category":"tech","status":"discuss","priority":"none","title":"Simulace běží na pozadí na PC","body":"Návrh počítá se samostatným procesem simulace vedle místního webového serveru. Ukládá stav a běží dál po zavření prohlížeče. Po vypnutí či uspání PC navržený prototyp pokračuje od uloženého okamžiku."},{"id":"tasks-1400-1600","category":"gameplay","status":"discuss","priority":"none","title":"Katalog vesnických prací kolem let 1400–1600","body":"56 návrhů pro pole, zvířata, kuchyni, řemesla, dopravu, opravy, rodiny a obecní život. První kandidáti: donést vodu, rozvézt hnůj, připravit palivo, otesat kámen, opravit plot, donést jídlo sousedovi a uspořádat posezení. Zdroje a celý seznam jsou v UKOLY-1400-1600.md."},{"id":"weather-calendar","category":"gameplay","status":"discuss","priority":"none","title":"Počasí a roční období s ručičkou","body":"Návrh: start v březnu, 1 měsíc = 10 hodin běžící hry, období = 30 hodin, rok = 120 hodin. Počasí je pro obě vesnice stejné. První dopady: topení v chladu, únava ve vedru, pomalejší trakař v blátě nebo sněhu a sezonní práce na polích. Normály ČHMÚ a měsíční tabulka jsou v POCASI-A-OBDOBI.md."}];
+let offlineHandle = null;
+let offlineItems = offlineData;
+let offlinePending = false;
+const storeStatus = $('store-status');
+
+function readNotes(text) {
+  const data = JSON.parse(text.replace(/^\uFEFF/, ''));
+  if (!Array.isArray(data) || !data.every(note => note &&
+    typeof note.id === 'string' && typeof note.title === 'string' &&
+    typeof note.body === 'string' && Object.hasOwn(categories, note.category) &&
+    Object.hasOwn(statuses, note.status) && Object.hasOwn(priorities, note.priority)) ||
+    new Set(data.map(note => note.id)).size !== data.length) {
+    throw new Error('Vyber soubor napady.json z projektu Minilidi.');
+  }
+  return data;
+}
+
+async function saveOffline(note) {
+  const current = offlineHandle ? readNotes(await (await offlineHandle.getFile()).text()) : offlineItems;
+  let updated;
+  if (note.id) {
+    if (!current.some(item => item.id === note.id)) throw new Error('Tato karta v souboru už není. Otevři data znovu.');
+    updated = current.map(item => item.id === note.id ? note : item);
+  } else {
+    updated = [{id: crypto.randomUUID?.() ?? 'n-' + Date.now().toString(36) + Math.random().toString(36).slice(2), ...note}, ...current];
+  }
+  if (offlineHandle) {
+    const writer = await offlineHandle.createWritable();
+    try {
+      await writer.write(JSON.stringify(updated, null, 2) + '\n');
+      await writer.close();
+    } catch (error) {
+      await writer.abort().catch(() => {});
+      throw error;
+    }
+    storeStatus.textContent = 'Uloženo do napady.json.';
+  } else {
+    offlinePending = true;
+    storeStatus.textContent = 'Změna čeká na export. Stáhni aktualizovaný soubor a nahraď jím původní napady.json.';
+  }
+  offlineItems = updated;
+  return updated;
+}
+
+function useOfflineData(data, handle) {
+  offlineItems = items = data;
+  offlineHandle = handle;
+  offlinePending = false;
+  $('add').disabled = false;
+  $('export-notes').disabled = false;
+  storeStatus.textContent = handle
+    ? 'Soubor připojen. Změny se zapisují přímo do napady.json.'
+    : 'Soubor načten. Změny uložíš tlačítkem Stáhnout JSON.';
+  render();
+}
+
+$('open-notes').addEventListener('click', async () => {
+  if (offlinePending && !confirm('Některé změny čekají na export. Otevřít jiný soubor?')) return;
+  if (!window.showOpenFilePicker) {
+    $('select-notes').click();
+    return;
+  }
+  try {
+    const [handle] = await window.showOpenFilePicker({
+      types: [{description:'Návrhy Minilidí', accept:{'application/json':['.json']}}]
+    });
+    const file = await handle.getFile();
+    if (file.name.toLowerCase() !== 'napady.json') throw new Error('Vyber soubor napady.json z projektu Minilidi.');
+    const data = readNotes(await file.text());
+    let writable = false;
+    try { writable = await handle.requestPermission({mode:'readwrite'}) === 'granted'; } catch {}
+    useOfflineData(data, writable ? handle : null);
+  } catch (error) {
+    if (error.name === 'AbortError') return;
+    if (error.name === 'SecurityError' || error.name === 'NotAllowedError') {
+      $('select-notes').click();
+      return;
+    }
+    storeStatus.textContent = error.message;
+  }
+});
+$('select-notes').addEventListener('change', async event => {
+  const file = event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+  try { useOfflineData(readNotes(await file.text()), null); }
+  catch (error) { storeStatus.textContent = error.message; }
+});
+$('export-notes').addEventListener('click', () => {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(offlineItems, null, 2) + '\n'], {type:'application/json'}));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'napady.json';
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  offlinePending = false;
+  if (!offlineHandle) storeStatus.textContent = 'Staženým souborem nahraď původní napady.json ve složce tabule/data.';
+});
+window.addEventListener('beforeunload', event => {
+  if (offlinePending) { event.preventDefault(); event.returnValue = true; }
+});
+items = offlineItems;
+render();
+
+</script>
+</body>
+</html>

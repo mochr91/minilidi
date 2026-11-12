@@ -1,0 +1,18 @@
+.overview { padding-top: 16px; display: grid; gap: 14px; }
+.charts, .relations { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.overview-card { background: var(--paper); border: 1px solid var(--line); border-radius: 9px; padding: 14px 16px; min-width: 0; }
+.overview-card h2 { margin-bottom: 4px; }
+.overview-card canvas { width: 100%; height: auto; image-rendering: auto; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 0; margin: 8px 0; list-style: none; font-size: .88rem; }
+.chart-legend li { display: flex; align-items: center; gap: 5px; }
+.chart-legend i { width: 10px; height: 10px; border-radius: 2px; }
+.section-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.section-head label { display: flex; align-items: center; gap: 7px; }
+.relations { align-items: center; }
+.table-wrap { overflow: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+caption { text-align: left; color: var(--muted); padding-bottom: 6px; }
+th,td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { font-variant-numeric: tabular-nums; }
+#relation-table tr[data-selected=true] { background: #e6ead8; }
+@media (max-width: 850px) { .charts, .relations { grid-template-columns: 1fr; } }

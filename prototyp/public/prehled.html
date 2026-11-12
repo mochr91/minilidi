@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minilidi · Porovnání vesnic</title>
+<link rel="stylesheet" href="village.css?v=13"><script src="comparison.js?v=9" defer></script><script src="season-clock.js?v=14" defer></script></head>
+<body class="comparison-page">
+<header class="mast">
+  <h1>Přehled vesnic</h1>
+  <nav class="game-nav" aria-label="Minilidi"><a href="./">Mapa</a><a href="prehled.html" aria-current="page">Přehled</a><a href="schema.html">Schéma</a><a href="vira.html">Víra</a></nav>
+</header>
+<main>
+
+  <div class="comparison-grid">
+    <section class="comparison-pane" aria-labelledby="ai-title"><h2 id="ai-title">Vesnice s AI</h2><iframe title="Přehled s AI" src="prehled-panel.html?branch=ai"></iframe></section>
+  <section class="season-clock" data-season-clock aria-label="Společný kalendář a počasí obou vesnic">
+    <canvas width="172" height="172" aria-label="Roční ciferník"></canvas>
+    <div><p class="season-date" data-date>Načítám kalendář…</p><p class="season-hour" data-hour></p>
+    </div>
+  </section>
+    <section class="comparison-pane" aria-labelledby="control-title"><h2 id="control-title">Vesnice bez AI</h2><iframe title="Přehled bez AI" src="prehled-panel.html?branch=control"></iframe></section>
+  </div>
+</main>
+<footer class="game-status" aria-label="Stav vesnic">
+  <span data-simulation>Čekám na simulaci…</span>
+  <span data-ai></span>
+  <span data-weather-status></span>
+  <span data-growth-status></span>
+  <span data-next-task></span>
+</footer>
+</body></html>

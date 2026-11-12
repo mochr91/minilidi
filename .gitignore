@@ -1,0 +1,12 @@
+/prototyp/data/
+/tabule/data/
+*.sqlite*
+*.db
+*.log
+*.log.*
+*.zip
+.env
+.env.*
+*.pem
+*.key
+/.claude/settings.local.json

@@ -1,0 +1,15 @@
+.faith-page { display:grid; gap:12px; padding-top:12px; }
+.faith-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; align-items:start; }
+.faith-panel { padding:14px 18px; }
+.faith-panel p { margin:6px 0 10px; }
+.faith-panel h3 { margin:13px 0 3px; font-size:1rem; }
+.faith-panel ul { padding-left:21px; margin:5px 0; }
+.faith-panel li { margin:5px 0; }
+.faith-numbers { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; margin:10px 0; }
+.faith-numbers div { background:#eae2cf; padding:6px 9px; border-radius:4px; }
+.faith-numbers strong { display:block; font-size:1.25rem; }
+.faith-toolbar,.faith-buttons { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.faith-toolbar { justify-content:space-between; }
+#feedback { margin:0; }
+#feedback:empty { display:none; }
+@media(max-width:700px) { .faith-grid { grid-template-columns:1fr; } }

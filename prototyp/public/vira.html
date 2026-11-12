@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Minilidi · Víra</title><link rel="stylesheet" href="village.css?v=13"><link rel="stylesheet" href="schema.css?v=3"><link rel="stylesheet" href="vira.css"><script src="vira.js" defer></script></head>
+<body class="comparison-page schema-page"><header class="mast"><h1>Víra</h1><nav class="game-nav" aria-label="Minilidi"><a href="./">Mapa</a><a href="prehled.html">Přehled</a><a href="schema.html">Schéma</a><a href="vira.html" aria-current="page">Víra</a></nav></header>
+<main class="faith-page">
+  <p id="feedback" class="connection" role="status"></p>
+  <div class="faith-grid">
+    <section class="shared faith-panel" id="ai"><h2>Vesnice s AI</h2><div class="faith-content"></div></section>
+    <section class="shared faith-panel" id="control"><h2>Vesnice bez AI</h2><div class="faith-content"></div></section>
+  </div>
+  <section class="shared faith-panel">
+    <h2>Zásahy hráče</h2>
+    <p id="grace">Načítám přízeň obou vesnic…</p>
+    <div id="miracles" class="faith-buttons"></div>
+  </section>
+  <section class="shared faith-panel">
+    <div class="faith-toolbar"><h2>Místní model</h2><button id="pause" disabled>Pozastavit AI</button></div>
+    <p id="metrics"></p>
+    <details><summary>Poslední volání</summary><ul id="calls"></ul></details>
+  </section>
+</main>
+</body></html>
