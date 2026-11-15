@@ -4,6 +4,7 @@
   const branchNames = {ai:'Vesnice s AI',control:'Vesnice bez AI'};
   const branchInUrl = new URLSearchParams(location.search).get('branch') === 'control' ? 'control' : 'ai';
   const resources = {food:'Jídlo',wood:'Dřevo',stone:'Kámen'};
+  const stockLabels = {...resources,quarryStone:'Kámen u lomu',grain:'Obilí',flour:'Mouka',hay:'Seno',planks:'Prkna',tools:'Nářadí',eggs:'Vejce',veg:'Zelenina',kraut:'Kyselé zelí',legumes:'Luštěniny',herbs:'Byliny',herbsDry:'Sušené byliny',forestWood:'Dřevo u lesa',charcoal:'Dřevěné uhlí',game:'Zvěřina',meatSmoked:'Uzené maso',barley:'Ječmen',malt:'Slad',hops:'Chmel',beerYoung:'Mladé pivo',beer:'Pivo',ore:'Železná ruda',iron:'Železo',ironTools:'Železné nářadí',salt:'Sůl',cloth:'Látka',hides:'Kožky',grapes:'Hrozny',wine:'Víno',barrels:'Sudy',leather:'Useň',boots:'Boty',flax:'Len',milk:'Mléko',cheese:'Sýr'};
   const sources = ['AI','Hra','Hráč','Příběh','Víra'];
   const metricNames = {food:'Jídlo',energy:'Energie',fun:'Zábava',mood:'Nálada',productivity:'Výkon',willingness:'Ochota'};
   const beliefs = {faith:'Víra',trust:'Důvěra',fear:'Strach'};
@@ -11,6 +12,41 @@
     food:'<path d="M4 2v5m3-5v5m3-5v5c0 2-1.5 3-3 3S4 9 4 7m3 3v8m8 0V2c-2 2-3 5-3 8h3"/>',
     wood:'<path d="M3 13 12 4l5 3v5l-9 6-5-2Zm0 0 5 2 9-8M8 15v3"/>',
     stone:'<path d="m2 15 3-8 6-4 6 4 1 8-7 3Zm3-8 6 2 6-2m-6 2v9"/>',
+    quarryStone:'<path d="m2 17 4-8 5 3 2-4 5 9ZM4 7l8-5m-2 0 5 3"/>',
+    grain:'<path d="M10 18V4m0 4C6 8 5 6 5 3c3 0 5 2 5 5Zm0 4c4 0 5-2 5-5-3 0-5 2-5 5Zm0 4c-4 0-5-2-5-5 3 0 5 2 5 5Z"/>',
+    flour:'<path d="m7 3 3 2 3-2-1 4c3 3 5 6 5 8 0 2-2 3-7 3s-7-1-7-3c0-2 2-5 5-8Zm1 4h4m-4 6h4"/>',
+    hay:'<path d="M2 11 6 6h9l3 5v6H2Zm0 0h16M7 6v11m6-11v11M4 14h2m9 0h2"/>',
+    planks:'<path d="M2 12 13 3l5 4-11 9Zm0 0v3l5 4 11-9V7M7 16v3m-2-7 9-7"/>',
+    tools:'<path d="m9 8 3 3-6 7-3-3Zm1-1 3-4 5 4-3 4Zm2 8 3 3 3-3-3-3"/>',
+    veg:'<path d="M10 17c-3 0-5-2-5-5 0-4 3-7 5-9 2 2 5 5 5 9 0 3-2 5-5 5Zm0-12v12"/>',
+    kraut:'<path d="M5 6h10v2H5Zm1 2h8l1 8H5Zm2-4h4"/>',
+    legumes:'<path d="M3 13c4 5 11 3 14-5-6-1-11 0-14 5Zm4 0 5-3"/>',
+    herbs:'<path d="M10 18V8m0 3C6 11 5 8 5 5c3 0 5 2 5 6Zm0 2c4 0 5-3 5-6-3 0-5 2-5 6Z"/>',
+    forestWood:'<path d="M2 15h16M3 12h14M5 9h10M4 18h12"/>',
+    charcoal:'<path d="M3 14c2-5 5-8 7-8s5 3 7 8Zm4-3h6M10 6V3"/>',
+    game:'<path d="M5 16c0-5 3-9 6-9 2 0 3 1 3 3 0 4-4 6-9 6Zm6-9c0-3 1-5 2-5m2 5c0-3 1-4 2-4"/>',
+    meatSmoked:'<path d="M5 5c4-3 10 0 10 5s-5 8-8 7-4-9-2-12Zm5-5v5"/>',
+    herbsDry:'<path d="M10 18V6m-3 3 3-3 3 3M6 12l4-3 4 3M6 15h8"/>',
+    barley:'<path d="M10 18V3m0 4-3-2m3 4-3-2m3 4-3-2m3-4 3-2m-3 4 3-2m-3 4 3-2"/>',
+    malt:'<path d="M10 18V3m0 4-3-2m3 4-3-2m3 4-3-2m3-4 3-2m-3 4 3-2m-3 4 3-2M4 18h12"/>',
+    hops:'<path d="M10 2v3m-3 1c0 4 2 6 3 9 1-3 3-5 3-9-2-1-4-1-6 0Zm1 3h4m-4 3h3"/>',
+    ore:'<path d="m3 16 3-7 5-3 6 4 1 6Zm3-7 5 2 4-1m-4 1v6"/>',
+    iron:'<path d="M3 8h14l-2 4H5Zm2 4v3h10v-3"/>',
+    ironTools:'<path d="m4 16 8-8m-2-4 6 6-2 2-6-6Zm-6 12 2 2"/>',
+    salt:'<path d="M6 8h8l1 9H5Zm1-4h6v4H7Zm2 1v1m2-1v1"/>',
+    cloth:'<path d="M3 6c4-2 10 2 14 0v8c-4 2-10-2-14 0Zm0 4c4-2 10 2 14 0"/>',
+    hides:'<path d="M6 3 4 6l2 3-2 5 3 3h6l3-3-2-5 2-3-2-3-2 2H8Z"/>',
+    grapes:'<path d="M10 2v4m-3 2a2 2 0 1 0 0 .1m6-.1a2 2 0 1 0 0 .1m-3 3.9a2 2 0 1 0 0 .1m0 3.9a2 2 0 1 0 0 .1"/>',
+    wine:'<path d="M6 3h8c0 5-1 8-4 8S6 8 6 3Zm4 8v6m-3 0h6"/>',
+    barrels:'<path d="M6 3h8c2 4 2 10 0 14H6C4 13 4 7 6 3Zm-1 4h10M5 13h10"/>',
+    leather:'<path d="M4 5h12l-1 10H5Zm3 3h6M7 11h6"/>',
+    boots:'<path d="M6 3h5v8l5 2v4H5V3Zm0 9h5"/>',
+    flax:'<path d="M10 18V6m0 3-3-3m3 5-3-3m3 3 3-3m-3 5 3-3m-3-2c-2-1-1-4 0-5 1 1 2 4 0 5Z"/>',
+    milk:'<path d="M7 3h6l1 4v10H6V7Zm-1 4h8"/>',
+    cheese:'<path d="M3 8l7-4 7 4v7H3Zm0 3h14m-9 0v-2m5 2v-2"/>',
+    beerYoung:'<path d="M5 6h8v11H5Zm8 2h3v5h-3M5 9h8"/>',
+    beer:'<path d="M5 6h8v11H5Zm8 2h3v5h-3M4 4c2-2 5 0 6-1 2 2 4 0 5 2"/>',
+    eggs:'<path d="M10 2c3 0 5.5 5 5.5 9a5.5 5.5 0 0 1-11 0C4.5 7 7 2 10 2Zm-2.5 10a2.8 2.8 0 0 0 2.5 2.6"/>',
     people:'<circle cx="8" cy="6" r="3"/><path d="M2 17v-2a6 6 0 0 1 12 0v2Zm12-14a3 3 0 0 1 0 6m2 2c2 1 2 3 2 6"/>',
     plan:'<circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/>',
     task:'<rect x="4" y="4" width="12" height="14" rx="2"/><path d="M7 4V2h6v2m-6 7 2 2 4-4"/>',
@@ -24,6 +60,7 @@
   const number = new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:1});
   const decimalStock = new Intl.NumberFormat('cs-CZ',{minimumFractionDigits:1,maximumFractionDigits:1});
   const fmt = value => Number.isFinite(value) ? number.format(value) : '–';
+  const counted = (value,one,few,many) => fmt(value)+' '+(value===1?one:value>=2&&value<=4?few:many);
   const level = value => value<25 ? 'low' : value<50 ? 'mid' : 'good';
   const el = (tag,text='',className='') => {
     const node = document.createElement(tag);
@@ -39,6 +76,20 @@
   const button = (field,label,content,extra='') => '<button data-field="'+field+'" type="button" aria-label="'+label+'" title="'+label+'" '+extra+'>'+content+'</button>';
   const write = (node,text,title=text) => { node.textContent=text; node.title=title; };
   const states = {};
+  const stockStrips = [...document.querySelectorAll('[data-village-stocks]')].map(strip => {
+    const list = strip.querySelector('dl');
+    const rows = Object.entries(stockLabels).map(([key,label]) => {
+      const row = el('div','','village-stock');
+      row.dataset.resource = key;
+      const term = el('dt',label);
+      const value = el('dd','–');
+      row.insertAdjacentHTML('afterbegin',icon(key));
+      row.append(term,value);
+      list.append(row);
+      return {key,label,row,value};
+    });
+    return {branch:strip.dataset.villageStocks,rows};
+  });
   const previous = {};
   let selected = '';
   let sending = false;
@@ -51,10 +102,14 @@
         '<span class="map-chip" role="group" data-field="'+key+'-chip">'+icon(key)+'<b data-field="'+key+'">–</b><small data-field="'+key+'-use">–/den</small></span>').join('')+'</div>',
       '<div class="map-tools" aria-label="Ovládání mapy">',
       button('map-zoom-out','Oddálit mapu','−','disabled'),'<output data-field="map-zoom-level">100 %</output>',
-      button('map-zoom-in','Přiblížit mapu','+'),button('map-reset','Vrátit přehled mapy',icon('reset'),'disabled'),'</div></div>',
-      '<canvas data-field="map" width="1294" height="663" tabindex="0" aria-label="Mapa vesnice. Přibliž kolečkem nebo klávesami plus a minus. Přiblíženou mapu posouvají šipky nebo tažení."></canvas>',
-      '<div class="map-corner map-bottom"><span class="map-chip">'+icon('people')+'<span data-field="growth">– lidí · – domů</span></span>',
-      '<span class="map-chip">'+icon('plan')+'<span data-field="plan">Čeká na stav</span></span></div></div>',
+      button('map-zoom-in','Přiblížit mapu','+'),
+      button('map-reset','Vrátit původní pohled (0)',icon('reset'),'disabled'),'</div></div>',
+      '<canvas data-field="map" width="1614" height="821" tabindex="0" aria-label="Mapa vesnice. Přiblížení kolečkem nebo klávesami plus a minus, posun šipkami nebo tažením."></canvas>',
+      '<div class="map-corner map-bottom"><span class="map-chip">'+icon('people')+'<span data-field="growth">Obyvatelé a domy</span></span>',
+      '<span class="map-chip">'+icon('plan')+'<span data-field="plan">Čeká na stav</span></span></div>',
+      '<div class="map-updates" data-field="map-updates" hidden>',
+      '<div class="map-update" data-field="crisis-status" hidden><strong data-field="crisis-label"></strong><span data-field="crisis-value"></span><progress data-field="crisis-progress" aria-label="Průběh obrany"></progress></div>',
+      '<div class="map-update" data-field="project-status" hidden><strong data-field="project-label"></strong><span data-field="project-value"></span><progress data-field="project-progress" aria-label="Průběh stavby"></progress></div></div></div>',
     ].join('');
   }
 
@@ -146,6 +201,25 @@
     }
   });
 
+  function renderMapUpdates(fields,state) {
+    const entries=[
+      ['crisis',state.crisis?.label,state.crisis?.done,state.crisis?.need],
+      ['project',state.project?.label,state.project?.progress,state.project?.work],
+    ];
+    let visible=false;
+    for (const [key,label,done,need] of entries) {
+      const valid=!!label && Number.isFinite(done) && Number.isFinite(need) && need>0;
+      fields[key+'-status'].hidden=!valid;
+      if (!valid) continue;
+      visible=true;
+      fields[key+'-label'].textContent=key==='project'?'Stavba · '+label:label;
+      fields[key+'-value'].textContent=(key==='crisis'?'Obrana ':'')+fmt(done)+' z '+fmt(need)+(key==='project'?' h':'');
+      fields[key+'-progress'].max=need;
+      fields[key+'-progress'].value=Math.max(0,Math.min(done,need));
+    }
+    fields['map-updates'].hidden=!visible;
+  }
+
   function renderMap({branch,fields:map,setMap},state) {
     write(map.connection,state.calendar.season+' · '+time(state,state.minute)+' · '+state.weather.condition+' '+state.weather.temperature+' °C'
       +(state.running?'':' · pozastaveno'));
@@ -163,15 +237,18 @@
         +(trend===null?'':' · změna '+(trend>0?'+':'')+fmt(trend));
       chip.setAttribute('aria-label',chip.title);
     }
-    const growth=Object.keys(state.people).length+' lidí · '+state.homesBuilt.length+' domů';
-    write(map.growth,growth,growth+' · u lomu '+fmt(state.quarryStone)+' kamene');
+    const growth=counted(Object.keys(state.people).length,'obyvatel','obyvatelé','obyvatel')+' · '+
+      counted(state.homesBuilt.length,'nový dům','nové domy','nových domů');
+    write(map.growth,growth,growth+' · kámen u lomu: '+fmt(state.quarryStone));
     const remaining=Math.max(0,Math.ceil(state.nextAutoMinute-state.minute));
     const model=state.ai?.model??'';
-    const timing=remaining?'plán za '+remaining+' min':'plán se připravuje';
+    const timing=remaining?'další plán za '+remaining+' min':'připravuje plán';
     const mode=state.ai?.status==='Odpověděla AI'&&model.length<=16?'AI '+model:'AI';
     const summary=branch==='control'?'Pravidla':mode+' · '+timing;
     write(map.plan,summary,branch==='control'?summary:summary+' · '+[state.ai?.status,model,state.ai?.detail].filter(Boolean).join(' · '));
-    setMap(state.people,selected,state.minute,state.homesBuilt.length,state.weather,state.calendar);
+    setMap(state.people,selected,state.minute,state.homesBuilt.length,state.weather,state.calendar,
+      {buildings:state.buildings,project:state.project,crisis:state.crisis,houseProject:state.houseProject,garden:state.garden,kiln:state.kiln,forestWood:state.forestWood,hopYard:state.hopYard,brewProject:state.brewProject,houseKinds:state.houseKinds,vineyard:state.vineyard});
+    renderMapUpdates(map,state);
   }
 
   function renderRoster(card,people) {
@@ -226,13 +303,14 @@
   function renderPerson({fields,stats},state) {
     const person=state?.people[selected];
     write(fields['person-name'],person?.name??statePeople()[selected]?.name??'Vyber postavu');
-    write(fields.family,person?person.age+' let · '+person.family:'–');
+    write(fields.family,person?counted(person.age,'rok','roky','let')+' · '+person.family+(person.pregnant?.revealed?' · čeká dítě':'')
+      +(state.crisis&&person.task?.action&&['firefight','flood_defense'].includes(person.task.action)?' · zasahuje':''):'–');
     write(fields.activity,person?person.role+' · '+person.activity:'Postava není v této vesnici dostupná');
     write(fields.trait,person?.trait??'–');
     const task=person?.task;
     const pending=state?.pending.some(job=>job.kind==='inspiration'&&job.person===selected);
     const description=pending?'Zvažuje vnuknutí…':task
-      ? (state.actions[task.action]?.label??task.action)+(state.minute<task.start?' · začne '+time(state,task.start):'')
+      ? (task.activity?.label??state.actions[task.action]?.label??task.action)+(state.minute<task.start?' · začne '+time(state,task.start):'')
       : 'Bez úkolu, řídí se denním rytmem';
     write(fields.task,description);
     const done=task?Math.max(0,Math.min(100,Math.round(100*(state.minute-task.start)/Math.max(1,task.end-task.start)))):0;
@@ -254,7 +332,7 @@
     const memories=Array.isArray(saved)&&saved.length
       ? saved.slice(0,3).map(item=>typeof item==='string'?item:item.text)
       : person?state.journal.filter(event=>event.person===selected).slice(0,3).map(event=>event.title+(event.detail?' — '+event.detail:'')):[];
-    noteList(fields.memory,memories,'Postava zatím nemá záznamy.');
+    noteList(fields.memory,memories,'Zatím žádné vzpomínky.');
   }
 
   function reason(side,kind,value) {
@@ -352,6 +430,13 @@
   }
 
   function render() {
+    for (const {branch,rows} of stockStrips) {
+      for (const {key,label,row,value} of rows) {
+        const amount=fmt(states[branch]?.[key]);
+        write(value,amount,label+' '+amount);
+        row.title=value.title;
+      }
+    }
     const all=statePeople();
     if (!all[selected]) selected=Object.keys(all)[0]??'';
     write(fields['selected-name'],all[selected]?.name??'Vyber postavu');

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Minilidi · Rozvoj</title><link rel="stylesheet" href="village.css?v=13"><link rel="stylesheet" href="schema.css?v=3"><link rel="stylesheet" href="rozvoj.css?v=2"><link rel="stylesheet" href="dashboard-charts.css?v=1"><script src="dashboard-charts.js?v=1" defer></script><script src="rozvoj.js?v=14" defer></script><link rel="stylesheet" href="dashboard.css?v=2"><script src="dashboard.js?v=8" defer></script></head>
+<body class="dash-page"><header class="dash-nav"><a class="dash-brand" href="./">Minilidi <small>SIMULACE VESNICE</small></a><nav  aria-label="Minilidi"><a href="./">Mapa</a><a href="prehled.html">Přehled</a><a href="schema.html">Schéma</a><a href="vira.html">Víra</a><a href="rozvoj.html" aria-current="page">Rozvoj</a></nav></header>
+<main class="dev-page dash-main" data-default-section="weekly-title"><header class="dash-hero"><p class="eyebrow">04 / ŽIVOT A RŮST</p><h1>Rozvoj</h1><p>Cíle, stavby, obyvatelé a audit rozhodnutí obou vesnic na jednom místě.</p></header>
+  <p id="status" class="connection" role="status"></p>
+  <section class="shared dev-panel" aria-labelledby="goals-title">
+    <h2 id="goals-title">Cíle: přežít a rozrůst vesnici</h2>
+    <div class="dev-grid" id="goals"></div>
+  </section>
+  <section class="shared dev-panel" aria-labelledby="weekly-title">
+    <div class="dev-toolbar"><h2 id="weekly-title">Srovnání AI a pravidel</h2><label>Období <select id="week"></select></label></div>
+    <div id="compare-chart" class="dash-chart-grid"></div>
+    <details class="dash-chart-details"><summary>Přesné hodnoty a rozdíly</summary><table class="dev-table" id="compare"><thead><tr><th scope="col">Ukazatel</th><th scope="col">S AI</th><th scope="col">Bez AI</th><th scope="col">Rozdíl</th></tr></thead><tbody></tbody></table></details>
+    <div class="dev-grid"><p id="text-ai" class="dev-note"></p><p id="text-control" class="dev-note"></p></div>
+    <h3>Skóre po týdnech</h3>
+    <div id="trend-chart" class="dash-chart-grid"></div>
+    <details class="dash-chart-details"><summary>Přesné hodnoty skóre</summary><table class="dev-table" id="trend"><thead><tr><th scope="col">Týden</th><th scope="col">S AI</th><th scope="col">Bez AI</th><th scope="col">Rozdíl</th></tr></thead><tbody></tbody></table></details>
+  </section>
+  <section class="shared dev-panel" aria-labelledby="influence-title">
+    <h2 id="influence-title">Vliv AI na plán (posledních 24 herních hodin)</h2>
+    <p class="dev-note" id="influence-note">Načítám…</p>
+    <div id="influence-chart"></div>
+    <details class="dash-chart-details"><summary>Podrobnosti rozhodnutí</summary><table class="dev-table" id="influence"><thead><tr><th scope="col">Jak se úkol určil</th><th scope="col">Osob</th><th scope="col">Podíl</th></tr></thead><tbody></tbody></table></details>
+    <details class="dash-chart-details"><summary>Přesné počty v dávkách</summary><table class="dev-table" id="batches"><thead><tr><th scope="col">Dávka</th><th scope="col">Model rozhodl</th><th scope="col">Shoda s pravidly</th><th scope="col">Přepsáno hrou</th><th scope="col">Bez použitelné odpovědi</th></tr></thead><tbody></tbody></table></details>
+  </section>
+  <section class="shared dev-panel" aria-labelledby="economy-title">
+    <h2 id="economy-title">Ekonomika a stavby</h2>
+    <p class="dev-note">Obilí se melou v mlýně na mouku, z ní peče pec chléb (dvakrát sytější než kaše). Dřevo řeže pila na prkna a dílna z nich dělá nářadí. Statek a studna zlepšují zimu, požáry a zdraví. Kurník, chlív a ohrada přidávají jídlo ze zvířat, stáje zrychlují svoz kamene, hřbitov zmírňuje smutek a kostel posiluje obřady. Práce na stavbě se počítá v člověkohodinách, takže víc lidí staví rychleji.</p>
+    <div class="dev-grid" id="economy"></div>
+  </section>
+  <section class="shared dev-panel" aria-labelledby="life-title">
+    <h2 id="life-title">Obyvatelé a život</h2>
+    <div id="life-chart" class="dash-chart-grid"></div>
+    <div class="dev-grid" id="life"></div>
+  </section>
+  <section class="shared dev-panel" aria-labelledby="crisis-title">
+    <h2 id="crisis-title">Krize</h2>
+    <div class="dev-grid" id="crisis"></div>
+  </section>
+  <section class="shared dev-panel" aria-labelledby="pack-title">
+    <h2 id="pack-title">Balíček činností (mění se za běhu)</h2>
+    <p class="dev-note" id="pack-note">Načítám…</p>
+    <table class="dev-table" id="pack"><thead><tr><th scope="col">Činnost</th><th scope="col">Účinek</th><th scope="col">Kdy</th><th scope="col">Od věku</th><th scope="col">Délka</th></tr></thead><tbody></tbody></table>
+  </section>
+  <section class="shared dev-panel" aria-labelledby="skills-title">
+    <h2 id="skills-title">Dovednosti podle kategorií</h2>
+    <p class="dev-note" id="skills-note">Načítám…</p>
+    <table class="dev-table dev-skills" id="skills"><thead></thead><tbody></tbody></table>
+  </section>
+</main>
+</body></html>

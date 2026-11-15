@@ -53,7 +53,7 @@ function resolveCrisis(PDO $db,array &$world): void {
         $shave('food',(.03+.22*$lost)*$mitigate);
         $shave('hay',(.10+.70*$lost)*$mitigate);
         $shave('planks',(.05+.25*$lost)*$mitigate);
-        $targets=array_values(array_diff(array_keys($world['buildings']),['studna']));
+        $targets=array_values(array_diff(array_keys($world['buildings']),['studna','hrbitov','kostel','sklep','zahrada','chmelnice','dul','vinice','rybnik','fara']));
         if ($lost>.75 && $targets) {
             $key=$targets[crc32((string)$now)%count($targets)];
             unset($world['buildings'][$key]);

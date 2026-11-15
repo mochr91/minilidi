@@ -1,14 +1,15 @@
 <!doctype html>
-<html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Minilidi · Víra</title><link rel="stylesheet" href="village.css?v=13"><link rel="stylesheet" href="schema.css?v=3"><link rel="stylesheet" href="vira.css"><script src="vira.js" defer></script></head>
-<body class="comparison-page schema-page"><header class="mast"><h1>Víra</h1><nav class="game-nav" aria-label="Minilidi"><a href="./">Mapa</a><a href="prehled.html">Přehled</a><a href="schema.html">Schéma</a><a href="vira.html" aria-current="page">Víra</a></nav></header>
-<main class="faith-page">
-  <p id="feedback" class="connection" role="status"></p>
+<html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Minilidi · Víra</title><link rel="stylesheet" href="village.css?v=13"><link rel="stylesheet" href="schema.css?v=3"><link rel="stylesheet" href="vira.css"><script src="vira.js?v=2" defer></script><link rel="stylesheet" href="dashboard.css?v=2"><script src="dashboard.js?v=7" defer></script></head>
+<body class="dash-page"><header class="dash-nav"><a class="dash-brand" href="./">Minilidi <small>SIMULACE VESNICE</small></a><nav  aria-label="Minilidi"><a href="./">Mapa</a><a href="prehled.html">Přehled</a><a href="schema.html">Schéma</a><a href="vira.html" aria-current="page" aria-current="page">Víra</a><a href="rozvoj.html">Rozvoj</a></nav></header>
+<main class="faith-page dash-main"><header class="dash-hero"><p class="eyebrow">03 / VLIV HRÁČE</p><h1>Víra</h1><p>Sleduj vztah obyvatel k hráči, vznik hnutí a reakce na znamení.</p></header>
+  <p id="faith-connection" class="connection" role="status">Načítám údaje o víře…</p><p id="feedback" class="connection" role="status"></p>
+  <section class="dash-card"><div class="dash-head"><div><p class="eyebrow">Obyvatelé a kronika</p><h2>Jak na tebe vesnice reagují</h2></div><div class="dash-controls"><label>Vesnice <select id="faith-branch"><option value="both">Obě</option><option value="ai">S AI</option><option value="control">Bez AI</option></select></label><label>Události <select id="faith-filter"><option value="">Všechny</option><option value="Hráč">Zásahy hráče</option><option value="AI">Od AI</option><option value="Hra">Od pravidel hry</option></select></label></div></div><p class="dash-muted">Víra, strach a důvěra jsou průměry obyvatel na stupnici 0–100.</p></section>
   <div class="faith-grid">
     <section class="shared faith-panel" id="ai"><h2>Vesnice s AI</h2><div class="faith-content"></div></section>
     <section class="shared faith-panel" id="control"><h2>Vesnice bez AI</h2><div class="faith-content"></div></section>
   </div>
   <section class="shared faith-panel">
-    <h2>Zásahy hráče</h2>
+    <p class="eyebrow">Hráč</p><h2>Zásahy hráče</h2><p class="dash-muted">Stejný zásah se zadá do obou vesnic. Každá má vlastní přízeň a čas do dalšího zásahu. Číslo na tlačítku udává cenu v bodech přízně.</p>
     <p id="grace">Načítám přízeň obou vesnic…</p>
     <div id="miracles" class="faith-buttons"></div>
   </section>

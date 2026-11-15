@@ -7,6 +7,8 @@ const make = (tag, text, className) => {
 };
 let sending = false;
 let lastState = null;
+let worlds = null;
+let refreshing = false;
 
 function list(items, empty) {
   if (!items.length) return make('p', empty, 'muted');
@@ -22,7 +24,8 @@ function village(state) {
   for (const [key, label] of [['faith','Víra'],['fear','Strach'],['trust','Důvěra']]) {
     const avg = people.reduce((sum, person) => sum + person[key], 0) / Math.max(1, people.length);
     const cell = make('div', label);
-    cell.append(make('strong', String(Math.round(avg))));
+    const meter = make('meter'); meter.max = 100; meter.value = Math.round(avg); meter.setAttribute('aria-label',label);
+    cell.append(make('strong', String(Math.round(avg))), meter);
     numbers.append(cell);
   }
   const groups = state.religions.map(group => {
@@ -33,7 +36,9 @@ function village(state) {
       '. Členové: ' + group.members.map(id => state.people[id]?.name).filter(Boolean).join(', ')));
     return item;
   });
-  const events = state.faithEvents.slice().reverse().map(event => {
+  const source = $('faith-filter').value;
+  const oldScroll = panel.querySelector('.faith-events')?.scrollTop ?? 0;
+  const events = (state.faithEvents ?? []).slice().reverse().filter(event => !source || event.source === source).map(event => {
     const item = make('li');
     const hour = Math.floor(event.minute % 1440 / 60);
     const minute = String(event.minute % 60).padStart(2, '0');
@@ -41,12 +46,17 @@ function village(state) {
     item.append(make('strong', event.title), make('p', day + '. den, ' + hour + ':' + minute + ' · ' + event.source + ' · ' + event.detail));
     return item;
   });
+  const timeline = make('div','','faith-events');
+  timeline.append(list(events, source ? 'Filtru neodpovídá žádná událost.' : 'Kronika víry zatím nemá žádné události.'));
+  if (events.length) { timeline.tabIndex = 0; timeline.setAttribute('role','region'); timeline.setAttribute('aria-label','Kronika víry'); }
   panel.replaceChildren(numbers, make('h3', 'Hnutí'), list(groups, 'Ve vsi zatím nevzniklo žádné hnutí.'),
-    make('h3', 'Znamení a obřady'), list(events, 'Kronika víry zatím nemá žádné události.'));
+    make('h3', 'Kronika víry'), timeline);
+  timeline.scrollTop = oldScroll;
 }
 
 function render(ai, control) {
   lastState = ai;
+  worlds = [ai,control];
   village(ai);
   village(control);
   const ready = Boolean(ai.directorVersion && control.directorVersion);
@@ -79,14 +89,17 @@ function render(ai, control) {
 }
 
 async function get(branch) {
-  const response = await fetch('api.php?view=faith&branch=' + branch, {cache:'no-store'});
+  const response = await fetch('api.php?view=faith&branch=' + branch, {cache:'no-store',signal:AbortSignal.timeout(6000)});
   if (!response.ok) throw new Error('Simulace momentálně neodpovídá.');
   return response.json();
 }
 
 async function refresh() {
-  try { render(...await Promise.all([get('ai'),get('control')])); }
-  catch (error) { $('feedback').textContent = error.message; }
+  if (refreshing) return;
+  refreshing = true;
+  try { render(...await Promise.all([get('ai'),get('control')])); $('faith-connection').textContent = ''; }
+  catch { $('faith-connection').textContent = worlds ? 'Spojení se přerušilo. Zobrazuji poslední načtený stav.' : 'Simulace momentálně neodpovídá.'; }
+  finally { refreshing = false; }
 }
 
 async function send(kind, value) {
@@ -103,5 +116,10 @@ async function send(kind, value) {
   } catch (error) { $('feedback').textContent = error.message; }
   finally { sending = false; await refresh(); }
 }
+$('faith-branch').addEventListener('change', () => {
+  const filter = $('faith-branch').value;
+  for (const side of ['ai','control']) $(side).hidden = filter !== 'both' && filter !== side;
+});
+$('faith-filter').addEventListener('change', () => worlds?.forEach(village));
 refresh();
 setInterval(refresh, 3000);

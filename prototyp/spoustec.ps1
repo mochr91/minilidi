@@ -14,9 +14,14 @@ $hash = [System.Security.Cryptography.SHA256]::Create()
 $key = [BitConverter]::ToString($hash.ComputeHash([Text.Encoding]::UTF8.GetBytes($project.ToLowerInvariant()))).Replace('-','')
 $hash.Dispose()
 $mutex = New-Object System.Threading.Mutex($false, "Local\Minilidi-$key")
-if (!$mutex.WaitOne(0)) {
+$activationName = "Local\Minilidi-Activate-$key"
+$activation = New-Object System.Threading.EventWaitHandle($false, [System.Threading.EventResetMode]::AutoReset, $activationName)
+try { $ownsMutex = $mutex.WaitOne(0) }
+catch [System.Threading.AbandonedMutexException] { $ownsMutex = $true }
+if (!$ownsMutex) {
+    [void]$activation.Set()
+    $activation.Dispose()
     $mutex.Dispose()
-    [void][Windows.Forms.MessageBox]::Show('Spouštěč Minilidí už má otevřené okno.', 'Minilidi')
     return
 }
 
@@ -53,9 +58,10 @@ function New-LauncherButton([string]$text, [int]$left, [int]$width) {
     return $button
 }
 
-$startButton = New-LauncherButton 'Spustit' 18 120
-$stopButton = New-LauncherButton 'Zastavit' 146 120
-$openButton = New-LauncherButton 'Otevřít hru' 274 198
+$startButton = New-LauncherButton 'Spustit' 18 100
+$stopButton = New-LauncherButton 'Zastavit' 126 100
+$restartButton = New-LauncherButton 'Restartovat' 234 110
+$openButton = New-LauncherButton 'Otevřít hru' 352 120
 
 $run = @{
     Process = $null
@@ -73,6 +79,7 @@ function Update-Buttons {
     $managed = $null -ne $run.Process
     $startButton.Enabled = !$managed
     $stopButton.Enabled = $managed -and !$run.Stopping
+    $restartButton.Enabled = $run.Ready -and !$run.Stopping
     $openButton.Enabled = $run.Ready -and !$run.Stopping
     $useAi.Enabled = !$managed -or ($run.Ready -and !$run.Stopping)
 }
@@ -132,7 +139,7 @@ function Stop-Game([bool]$restart) {
         [IO.File]::WriteAllText($run.StopFile, '')
         $run.Stopping = $true
         $run.Restart = $restart
-        $status.Text = if ($restart) { 'Přepínám režim AI…' } else { 'Zastavuji hru…' }
+        $status.Text = if ($restart) { 'Restartuji hru…' } else { 'Zastavuji hru…' }
         Update-Buttons
     } catch {
         $run.Closing = $false
@@ -143,6 +150,10 @@ function Stop-Game([bool]$restart) {
 $timer = New-Object System.Windows.Forms.Timer
 $timer.Interval = 250
 $timer.Add_Tick({
+    if ($activation.WaitOne(0)) {
+        if ($form.WindowState -eq 'Minimized') { $form.WindowState = 'Normal' }
+        $form.Activate()
+    }
     if (!$run.Process) { return }
     if ($run.Process.HasExited) {
         $exitCode = $run.Process.ExitCode
@@ -178,6 +189,7 @@ $timer.Add_Tick({
 
 $startButton.Add_Click({ Start-Game $true })
 $stopButton.Add_Click({ Stop-Game $false })
+$restartButton.Add_Click({ Stop-Game $true })
 $openButton.Add_Click({ Start-Process $gameUrl })
 $useAi.Add_CheckedChanged({ if ($run.Ready) { Stop-Game $true } })
 $form.Add_FormClosing({
@@ -208,6 +220,7 @@ try {
 } finally {
     $timer.Dispose()
     $form.Dispose()
+    $activation.Dispose()
     $mutex.ReleaseMutex()
     $mutex.Dispose()
 }

@@ -3,11 +3,16 @@
 const get = id => document.getElementById(id);
 const branch=new URLSearchParams(location.search).get('branch')==='control'?'control':'ai';
 document.body.dataset.branch=branch;
+const relationsOnly = new URLSearchParams(location.search).get('mode') === 'relations';
+if (relationsOnly) document.querySelector('.charts').hidden = true;
 let otherState=null;
 const rounded = n => Math.round(n);
 const number = new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:1});
 const stockSeries = [['food','Jídlo','#8a5931'],['wood','Dřevo','#3c6848'],['stone','Kámen','#55577f']];
-const growthSeries=[['population','Obyvatelé','#366247'],['houses','Nové domy','#8a5931']];
+const foodSeries = [['grain','Obilí','#96621d'],['flour','Mouka','#596381'],['hay','Seno','#507142']];
+const craftSeries = [['planks','Prkna','#8a5931'],['tools','Nářadí','#326576']];
+const growthSeries=[['population','Obyvatelé','#366247'],['houses','Nové domy','#8a5931'],['buildings','Provozní budovy','#55577f']];
+const scoreSeries=[['score','Skóre','#845077']];
 const needSeries = [['satiation','Jídlo','#8a5931'],['energy','Energie','#326576'],['fun','Zábava','#845077']];
 const firstName = p => p.name.split(' ')[0];
 let state = null;
@@ -24,24 +29,32 @@ function currentNeeds(people) {
   return {satiation:avg('food'),energy:avg('energy'),fun:avg('fun')};
 }
 
-function chart(canvas,legend,points,series,fixedMaximum,comparisonMaximum=0) {
+function seriesMaximum(points,series) {
+  return Math.max(0,...points.flatMap(point=>series.map(([key])=>point[key]).filter(Number.isFinite)));
+}
+
+function chart(canvas,legend,points,series,fixedMaximum,comparisonPoints=[]) {
   const ctx=canvas.getContext('2d');
   const width=canvas.width, height=canvas.height;
   const left=43, right=width-20, top=12, bottom=height-34;
   const first=points[0].minute, last=points.at(-1).minute;
-  const observed=Math.max(1,comparisonMaximum,...points.flatMap(point=>series.map(([key])=>point[key])));
-  const step=fixedMaximum?25:Math.max(1,Math.ceil(observed/4));
-  const max=step*4;
+  const allPoints=[...points,...comparisonPoints];
+  const observed=seriesMaximum(allPoints,series);
+  const minimum=fixedMaximum?0:Math.min(0,...allPoints.flatMap(point=>series.map(([key])=>point[key]).filter(Number.isFinite)));
+  const step=fixedMaximum?fixedMaximum/4:Math.max(1,Math.ceil((observed-minimum)/4));
+  const min=Math.floor(minimum/step)*step;
+  const intervals=Math.max(4,Math.ceil((observed-min)/step));
+  const max=min+step*intervals;
   const x=minute=>last===first?(left+right)/2:left+(minute-first)/(last-first)*(right-left);
-  const y=value=>bottom-value/max*(bottom-top);
+  const y=value=>bottom-(value-min)/(max-min)*(bottom-top);
   ctx.clearRect(0,0,width,height);
   ctx.font='12px Segoe UI, sans-serif';
   ctx.textAlign='right';
   ctx.fillStyle='#625e4f';
   ctx.strokeStyle='#d6cbb3';
   ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){
-    const value=i*step;
+  for(let i=0;i<=intervals;i++){
+    const value=min+i*step;
     ctx.fillText(number.format(value),left-7,y(value)+4);
     ctx.beginPath();ctx.moveTo(left,y(value));ctx.lineTo(right,y(value));ctx.stroke();
   }
@@ -51,11 +64,23 @@ function chart(canvas,legend,points,series,fixedMaximum,comparisonMaximum=0) {
   for(const [key,label,color] of series){
     ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=2.5;
     ctx.beginPath();
-    points.forEach((point,index)=>{const a=x(point.minute),b=y(point[key]);if(index===0)ctx.moveTo(a,b);else ctx.lineTo(a,b);});
+    let connected=false;
+    let latest=null;
+    for(const point of points) {
+      if (!Number.isFinite(point[key])) { connected=false; continue; }
+      const a=x(point.minute), b=y(point[key]);
+      if (connected) ctx.lineTo(a,b);
+      else ctx.moveTo(a,b);
+      connected=true;
+      latest=point;
+    }
     ctx.stroke();
-    ctx.beginPath();ctx.arc(x(last),y(points.at(-1)[key]),4,0,Math.PI*2);ctx.fill();
+    if (latest) {
+      ctx.beginPath();ctx.arc(x(latest.minute),y(latest[key]),4,0,Math.PI*2);ctx.fill();
+    }
     const row=element('li'), swatch=element('i');swatch.style.backgroundColor=color;swatch.setAttribute('aria-hidden','true');
-    row.append(swatch,element('span',label+' '+number.format(points.at(-1)[key])));legend.append(row);
+    const value=points.at(-1)[key];
+    row.append(swatch,element('span',label+' '+(Number.isFinite(value)?number.format(value):'–')));legend.append(row);
   }
 }
 
@@ -114,22 +139,27 @@ function relations(people) {
   table.append(header,body);
 }
 
-function render() {
+function chartPoints(state) {
   const people=Object.values(state.people);
   const minute=Math.floor(state.minute);
+  const current={...state,minute,...currentNeeds(people),population:people.length,
+    houses:state.homesBuilt?.length,buildings:state.buildings==null?undefined:Object.keys(state.buildings).length};
+  return [...(state.history??[]).filter(sample=>sample.minute<minute),current];
+}
+
+function render() {
+  const people=Object.values(state.people);
   get('overview-status').hidden=state.running;
   get('overview-status').textContent='Simulace je zastavená.';
-  const current={minute,food:state.food,wood:state.wood,stone:state.stone,...currentNeeds(people)};
-  const history=state.history.filter(sample=>sample.minute<minute);
-  const points=[...history,current];
-  const otherPoints=otherState?[...otherState.history,otherState]:[];
-  const stockMaximum=Math.max(0,...otherPoints.flatMap(point=>stockSeries.map(([key])=>point[key])));
-  chart(get('stock-chart'),get('stock-legend'),points,stockSeries,false,stockMaximum);
-  chart(get('need-chart'),get('need-legend'),points,needSeries,true);
-  const growthPoints=[...history.filter(p=>Number.isFinite(p.population)&&Number.isFinite(p.houses)),
-    {minute,population:people.length,houses:state.homesBuilt.length}];
-  chart(get('growth-chart'),get('growth-legend'),growthPoints,growthSeries,false,Math.max(7,Object.keys(otherState?.people??{}).length));
+  const points=chartPoints(state);
+  const otherPoints=otherState?chartPoints(otherState):[];
+  for(const [id,series,maximum] of [
+    ['stock',stockSeries],['food',foodSeries],['craft',craftSeries],
+    ['need',needSeries,100],['growth',growthSeries],['score',scoreSeries],
+  ]) if (!relationsOnly) chart(get(id+'-chart'),get(id+'-legend'),points,series,maximum,otherPoints);
   const select=get('relation-person');
+  const ids = new Set(people.map(p=>p.id));
+  for (const option of [...select.options]) if (option.value && !ids.has(option.value)) option.remove();
   const known=new Set([...select.options].map(option=>option.value));
   for(const p of people)if(!known.has(p.id))select.add(new Option(p.name,p.id));
   relations(people);
@@ -144,7 +174,7 @@ get('relation-person').addEventListener('change',()=>{if(state)relations(Object.
 async function refresh() {
   try {
     const load=side=>fetch('api.php?view=overview&branch='+side,{cache:'no-store',signal:AbortSignal.timeout(4000)});
-    const [res,other]=await Promise.all([load(branch),load(branch==='ai'?'control':'ai').catch(()=>null)]);
+    const [res,other]=await Promise.all([load(branch),relationsOnly ? null : load(branch==='ai'?'control':'ai').catch(()=>null)]);
     if(!res.ok)throw Error('Přehled je nedostupný');
     state=await res.json();
     otherState=other?.ok?await other.json():null;

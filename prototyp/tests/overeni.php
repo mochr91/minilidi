@@ -23,7 +23,7 @@ check($stub>0 && $unused>0 && $stub!==$unused,'Předej port testovacího modelu 
 putenv('MINILIDI_NO_AI=0');
 putenv('MINILIDI_AI=ollama');
 putenv('MINILIDI_BATCH_TIMEOUT_MS=220');
-foreach (['valid','mixed','invalid','timeout','offline','openai'] as $mode) {
+foreach (['valid','mixed','invalid','timeout','offline','openai','truncated','bad-text'] as $mode) {
     [$db,$world]=fixture();
     putenv('MINILIDI_AI_PORT='.($mode==='offline'?$unused:$stub));
     putenv('MINILIDI_AI='.($mode==='openai'?'openai':'ollama'));
@@ -31,10 +31,17 @@ foreach (['valid','mixed','invalid','timeout','offline','openai'] as $mode) {
     $batch=prepareVillagePlan($db,$world,true);
     applyVillagePlan($db,$world,$batch,true);
     $source=$db->query("SELECT DISTINCT source FROM journal WHERE title LIKE '%začíná úkol'")->fetchAll(PDO::FETCH_COLUMN);
-    check(in_array('AI',$source,true)===in_array($mode,['valid','mixed','openai'],true), 'Zdroj AI: '.$mode);
+    check(in_array('AI',$source,true)===in_array($mode,['valid','mixed','openai','truncated','bad-text'],true), 'Zdroj AI: '.$mode);
+    if ($mode==='truncated') {
+        check($batch['metrics']['calls']===$normalCalls+1 && str_contains($batch['detail'],'zkrácené zadání'),'Zkrácená odpověď: jeden opakovaný pokus');
+        check(!empty($batch['response']['plan']),'Zkrácená odpověď: zachráněné úkoly');
+    }
     check(!in_array($mode,['mixed','invalid','timeout','offline'],true)||in_array('Hra',$source,true),'Zdroj Hra: '.$mode);
     check((int)$db->query('SELECT COUNT(*) FROM ai_metrics')->fetchColumn()===1,'Metriky: '.$mode);
-    if ($mode==='valid') check((float)$db->query('SELECT load_ms FROM ai_metrics')->fetchColumn()===2.5,'Ollama load_duration v ms');
+    if ($mode==='valid') {
+        $normalCalls=$batch['metrics']['calls'];
+        check((float)$db->query('SELECT load_ms FROM ai_metrics')->fetchColumn()===2.5*$normalCalls,'Ollama součet load_duration v ms');
+    }
     if ($mode==='timeout') {
         check(str_contains($batch['detail'],'Vypršel'),'Vypršení limitu');
         usleep(650000);

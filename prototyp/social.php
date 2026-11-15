@@ -65,7 +65,8 @@ function socialOptions(array $world): ?array {
     $present=[];
     foreach ($world['people'] as $id=>$p) {
         $place=commonPlace($p);
-        if (!in_array($place,['market','chapel','barn'],true) && !str_starts_with($place,'home:')) continue;
+        if (!in_array($place,['market','chapel','barn','tavern'],true) && !str_starts_with($place,'home:')) continue;
+        if ($place==='tavern' && (!tavernOpen($world,$hour) || $p['age']<18)) continue;
         if ($p['activity']==='Spí') continue;
         $present[$place][]=$id;
     }
@@ -83,7 +84,7 @@ function socialOptions(array $world): ?array {
             $a=$world['people'][$id];
             $b=$world['people'][$other];
             $story=($a['crush']??null)===$other || ($b['crush']??null)===$id;
-            $score=$used*60+($a['fun']+$b['fun'])/4-($story?24:0);
+            $score=$used*60+($a['fun']+$b['fun'])/4-($story?24:0)-($place==='tavern'?16:0);
             $pairs[]=compact('id','other','key','place','score');
         }
     }
@@ -121,6 +122,12 @@ function applyMeeting(PDO $db,array &$world,array $scene,?array $model): void {
         'quarrel'=>[-6,-4,0], 'comfort'=>[4,7,4], 'reconcile'=>[7,5,5], 'share'=>[5,5,6],
         'court'=>[4,6,8], 'gossip'=>[-1,2,7], 'pray'=>[2,5,3], default=>[3,3,7],
     };
+    // Zkušenost ve Víře (obřad) a v Sousedech (rozhovory, smíření, sdílení) zesiluje kladné účinky o několik procent.
+    $soft=in_array($type,['quarrel','gossip'],true) ? 1.0 : max(softSkill($a,'neighbors'),softSkill($b,'neighbors'));
+    if ($type==='pray') $soft=max(array_map(fn($m)=>softSkill($world['people'][$m],'faith'),$scene['group']));
+    $bond=$bond>0 ? $bond*$soft : $bond;
+    $mood=$mood>0 ? $mood*$soft : $mood;
+    $fun=$fun>0 ? $fun*$soft : $fun;
     if ($type==='share') consumeStock($world,'food',1);
     if ($type==='reconcile') { unset($a['grudges'][$other],$b['grudges'][$id]); }
     $members=$type==='pray' ? $scene['group'] : [$id,$other];
@@ -130,18 +137,21 @@ function applyMeeting(PDO $db,array &$world,array $scene,?array $model): void {
         $p['fun']=clamp($p['fun']+$fun);
         if ($type==='share') $p['hunger']=clamp($p['hunger']-14);
         if ($type==='pray') {
-            $p['faith']=clamp($p['faith']+2);
-            $p['fear']=clamp($p['fear']-1);
+            $p['faith']=clamp($p['faith']+2*$soft);
+            $p['fear']=clamp($p['fear']-1*$soft);
             if ($p['trust']>=50) $p['trust']=clamp($p['trust']+1);
             $p['lastPrayer']=(int)$world['minute'];
         }
         unset($p);
     }
+    // Rozhovory a obřady zároveň cvičí příslušnou zkušenost (půl hodiny).
+    foreach ($members as $person) trainSkill($db,$world,$person,$type==='pray'?'faith':'neighbors',30);
     $a['bonds'][$other]=clamp(($a['bonds'][$other]??48)+$bond);
     $b['bonds'][$id]=clamp(($b['bonds'][$id]??48)+$bond);
     $title=SOCIAL_TYPES[$type].' · '.$a['name'].' a '.$b['name'];
     $text=$valid ? trim($model['text']) : match($place) {
-        'market'=>'Setkání na návsi.', 'chapel'=>'Setkání v kapli.', 'barn'=>'Setkání pod střechou chléva.', default=>'Setkání doma.',
+        'market'=>'Setkání na návsi.', 'chapel'=>'Setkání v kapli.', 'barn'=>'Setkání pod střechou chléva.',
+        'tavern'=>'Setkání v hospodě u společného stolu.', default=>'Setkání doma.',
     };
     $source=$valid?'AI':'Hra';
     if ($valid) $world['recentLines']=array_slice([...$world['recentLines'],$text],-18);

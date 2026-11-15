@@ -2,12 +2,20 @@
 
 Návrh pro malou vesnici ve středních Čechách. Teploty a úhrny srážek jsou měsíční normály ČHMÚ za období 1991–2020 pro Prahu a Středočeský kraj. Určují přibližný tvar roku. Počasí konkrétního dne kolem roku 1550 z nich odvodit nelze. Práce, vlivy a číselné prahy níže jsou návrhy pro hru. [Územní teplota a srážky ČHMÚ](https://www.chmi.cz/namerena-data/historicka-data/uzemni-teplota-a-srazky)
 
+## Stav v prototypu
+
+**Hotovo:** třicetidenní měsíce, roční ciferník s jednou ručičkou, textová denní hodina a počasí. Podmínky se mění ve čtyřhodinových herních blocích. Obě vesnice mají stejné základní počasí. Zázrak může počasí v jednotlivé vesnici dočasně utišit.
+
+**Hotovo:** chladné noci zvyšují spotřebu dřeva, vedro zvedá únavu při vybraných venkovních pracích, bláto a sníh prodlužují svoz kamene a mráz či sníh omezují práci na poli. Bláto snižuje výnos pole. Vítr omezuje stavbu a ovlivňuje rybolov.
+
+**Později:** volba startovního měsíce, odklízení sněhu a strouhy jako samostatné úkoly, zvláštní pravidla pro orbu, setí a žně. Tabulky níže slouží jako podklad pro další návrhy.
+
 ## Kalendář a ručička
 
 - **Jeden měsíc = 10 skutečných hodin běžící simulace.** Jedno období trvá 30 hodin, jeden herní rok 120 hodin, tedy pět skutečných dnů nepřetržitého běhu.
 - Ručička oběhne kruh s dvanácti měsíci. Čtyři barevné výseče označí jaro, léto, podzim a zimu. Na mapě se ukáže například „Jaro · duben · 40 % měsíce“, aktuální teplota, počasí a vítr. Volitelně lze zobrazit i denní hodinu.
 - Pro první zkoušku začít v březnu. Jaro začíná 1. 3., léto 1. 6., podzim 1. 9. a zima 1. 12. Jde o pevná hranicová data pro herní kalendář. Herní měsíce jsou stejně dlouhé.
-- Denní rytmus zůstane uvnitř simulace pro práci, jídlo a spánek. Schválené tempo prototypu je jeden den za 20 skutečných minut. Každý měsíc obsahuje 30 herních dnů. Ciferník ukazuje roční i denní ručičku.
+- Denní rytmus řídí práci, jídlo a spánek. Den trvá 20 skutečných minut. Každý měsíc obsahuje 30 herních dnů. Ciferník má roční ručičku a denní čas je vedle ní textem.
 - Při vypnutí hry se kalendář zastaví spolu se simulací. Po návratu naváže z uložené polohy ručičky. Poměr ročního cyklu je samostatné nastavení.
 
 ## Reálná data a herní měsíce
@@ -40,10 +48,10 @@ Hodiny jsou od startu ručičky v březnu. Úhrny v mm slouží jako vodítko pr
 | Sníh | Při srážkách kolem bodu mrazu | Pokrývka se hromadí a při oblevě taje. Pole pod sněhem odpočívá, cesty zpomalí, vyplatí se odklízet. |
 | Vítr | Klid až silný vítr | Suchý vítr pomáhá se senem. Silný vítr zhorší práci na střeše a u řeky. Začít dočasným omezením vhodných prací. |
 
-## Pravidla pro první zkoušku
+## Podmínky simulace a další náměty
 
 1. Průběh počasí určuje měsíc, denní doba a společná posloupnost pro obě vesnice. V prototypu se počasí vyhodnocuje po čtyřech herních hodinách a situace může přetrvat více intervalů. Výchozí podmínky se mohou posunout přibližně o měsíc dopředu nebo dozadu. Teploty přecházejí mezi měsíci plynule. Při srážkách rozhoduje teplota, zda půjde o déšť, mokrý sníh nebo sníh.
 2. Držet společnou venkovní teplotu, srážky, vítr a přirozené sněžení v obou větvích. Každá může jinak reagovat. Jedna si třeba přichystá dřevo nebo odklidí cestu, druhá to odloží. Dopady na jejich zásoby a pracoviště se zaznamenají odděleně.
-3. AI i pravidla dostanou stejné údaje o aktuálním počasí, sněhu a podmáčení. Hra sama rozhodne, zda je práce proveditelná, a uplatní stejné postihy. Například při zmrzlé půdě nebude nabídnuto setí v žádné větvi.
+3. AI i pravidla dostanou stejné údaje o aktuálním počasí, sněhu a podmáčení. Hra sama rozhodne, zda je práce proveditelná, a uplatní stejné postihy. Například při zmrzlé půdě není nabízena obecná práce na poli.
 4. Nejdřív zkusit čtyři konkrétní změny: topení v chladu, únavu ve vedru, pomalejší převoz v blátě nebo sněhu a sezonní dostupnost polí. Ke srovnání se hodí ukazovat spotřebu dřeva, dokončené práce venku, výnos pole a průměrnou energii.
 5. Pro rychlou kontrolu prvních změn lze přidat společný výběr startovního měsíce pro novou zkoušku. Březen je vhodný pro běžný začátek, listopad nebo prosinec umožní rychle ověřit přípravu na mráz.

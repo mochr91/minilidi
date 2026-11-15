@@ -34,7 +34,7 @@ function vramAllowsModel(): bool {
     return $status===0 && isset($output[0]) && preg_match('/^\d+$/D',trim($output[0]))===1 && (int)$output[0]>=$threshold;
 }
 
-function requestModel(PDO $db,array $context,array $schema,string $instruction,string $type,bool $withAi): array {
+function requestModel(PDO $db,array $context,array $schema,string $instruction,string $type,bool $withAi,?int $timeBudgetMs=null): array {
     if (!$withAi || modelPaused($db)) return [null,'Rozhodují pravidla hry',null];
     $openai=aiBackend()==='openai';
     if (!$openai && !vramAllowsModel()) return [null,'Pauza AI kvůli volné VRAM',null];
@@ -44,6 +44,7 @@ function requestModel(PDO $db,array $context,array $schema,string $instruction,s
     $batch=$type==='plan';
     $timeout=(int)(getenv($batch?'MINILIDI_BATCH_TIMEOUT_MS':'MINILIDI_FAST_TIMEOUT_MS') ?: ($batch?AI_BATCH_TIMEOUT:AI_FAST_TIMEOUT));
     $timeout=max(100,min($timeout,$batch?AI_BATCH_TIMEOUT:AI_FAST_TIMEOUT));
+    if ($timeBudgetMs!==null) $timeout=max(100,min($timeout,$timeBudgetMs));
     $body=['model'=>modelName(),'stream'=>false,'messages'=>[
         ['role'=>'system','content'=>$instruction],['role'=>'user','content'=>encode($context)],
     ]];
@@ -84,6 +85,8 @@ function requestModel(PDO $db,array $context,array $schema,string $instruction,s
         ($transfer['result']??null)===CURLE_OPERATION_TIMEDOUT=>'Vypršel čas na odpověď',
         $http===0=>'Místní server AI není dostupný',
         $http!==200=>'Model neodpověděl (HTTP '.$http.')',
+        !is_array($decision) && (($decoded['done_reason']??null)==='length' ||
+            ($decoded['choices'][0]['finish_reason']??null)==='length')=>'Odpověď modelu skončila na limitu délky',
         !is_array($decision)=>'Model neposlal platná data',
         default=>'Odpověděl '.modelName(),
     };
@@ -92,6 +95,7 @@ function requestModel(PDO $db,array $context,array $schema,string $instruction,s
         'total'=>isset($decoded['total_duration'])?round($decoded['total_duration']/1e6,2):null,
         'load'=>isset($decoded['load_duration'])?round($decoded['load_duration']/1e6,2):null,
         'tokens'=>$decoded['eval_count']??$decoded['usage']['completion_tokens']??null,'interrupted'=>$interrupted,
+        'retryable'=>$http===200 && !$interrupted && !is_array($decision),
     ];
     return [$http===200 && !$interrupted && is_array($decision)?$decision:null,$detail,$metrics];
 }
@@ -124,9 +128,10 @@ function inspirationChoices(array $person,string $action,int $minute): array {
 function resolveInspiration(PDO $db,array $world,array $job,bool $withAi=true): array {
     $person=$world['people'][$job['person']];
     $action=$job['value'];
+    $definition=activityDefinition($world,$action);
     $score=willingness($person)+religiousInfluence($person)
-        + match($action) {'manure'=>-24,'market'=>17,'rest'=>$person['fatigue']/2,default=>ACTIONS[$action]['appeal']??0};
-    if (isset(ACTIONS[$action]['resource']) && $person['work']===ACTIONS[$action]['place']) $score+=8;
+        + match($action) {'manure'=>-24,'market'=>17,'rest'=>$person['fatigue']/2,default=>$definition['appeal']??0};
+    if (isset($definition['resource']) && $person['work']===$definition['place']) $score+=8;
     $other=neighborFor($world,$person['id'],$action);
     if ($other && in_array($action,['help','bring_water','deliver_meal'],true)) $score+=(($person['bonds'][$other]??48)-48)*.3;
     $allowed=inspirationChoices($person,$action,(int)$world['minute']);
@@ -140,7 +145,7 @@ function resolveInspiration(PDO $db,array $world,array $job,bool $withAi=true): 
     $model=null; $detail='Rozhodla hra'; $metrics=null;
     if (count($allowed)>1) {
         [$model,$detail,$metrics]=requestModel($db,contextFor($db,$person,$world['people'])+[
-            'ukol'=>ACTIONS[$action]['label'],'kalendar'=>calendarAt($world['minute'],$world['calendarOriginDay']),
+            'ukol'=>$definition['label'],'kalendar'=>calendarAt($world['minute'],$world['calendarOriginDay']),
             'pocasi'=>villageWeather($world),'povolene_volby'=>$allowed,
         ],schemaObject(['choice'=>['type'=>'string','enum'=>$allowed],'reason'=>['type'=>'string']]),
         'Jsi obyvatel české vesnice kolem roku 1550. Reaguj česky v první osobě do 140 znaků, drž se stavu postavy a data.', 'inspiration',$withAi);
@@ -155,6 +160,7 @@ function applyInspiration(PDO $db, array &$world, array $job, array $result): vo
     [$decision,$source,$detail] = $result;
     $p = &$world['people'][$job['person']];
     $action = $job['value'];
+    $label = activityDefinition($world,$action)['label'];
     $choice = $decision['choice'];
     $response = ['prijmout'=>'přijímá vnuknutí', 'odlozit'=>'odkládá vnuknutí', 'odmitnout'=>'odmítá vnuknutí'][$choice];
     $p['faith'] = clamp($p['faith'] + 2);
@@ -167,8 +173,8 @@ function applyInspiration(PDO $db, array &$world, array $job, array $result): vo
         $other = neighborFor($world,$p['id'],$action);
         if ($other !== null) rememberHarm($db,$world,$p['id'],$other,$p['name'].' odmítl/a nabídnout pomoc.');
     }
-    rememberEvent($db,$world,$p['id'],'vnuknutí',ACTIONS[$action]['label'].': '.$response,4);
+    rememberEvent($db,$world,$p['id'],'vnuknutí',$label.': '.$response,4);
     $world['ai'] = ['status'=>$source === 'AI' ? 'Odpověděla AI' : 'Rozhodla hra', 'model'=>modelName(), 'detail'=>$detail];
-    journal($db, $world, $p['id'], $p['name'] . ' ' . $response, ACTIONS[$action]['label'] . '. „' . trim($decision['reason']) . '“', $source);
+    journal($db, $world, $p['id'], $p['name'] . ' ' . $response, $label . '. „' . trim($decision['reason']) . '“', $source);
 }
 

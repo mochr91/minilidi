@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minilidi · Přehled obrázků</title>
+<style>
+  body { margin: 0; padding: 16px 24px 40px; background: #eae2d0; color: #2f3829; font: 14px/1.4 "Segoe UI",sans-serif; }
+  h1 { font: 700 22px Georgia,serif; margin: 0 0 4px; }
+  p { margin: 0 0 14px; max-width: 80ch; }
+  h2 { font: 700 16px Georgia,serif; margin: 22px 0 8px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(190px,1fr)); gap: 10px; }
+  .card { background: #f4ecd9; border: 1px solid #cdbf9d; border-radius: 8px; padding: 8px; display: grid; gap: 6px; align-content: start; }
+  .card.missing { opacity: .62; border-style: dashed; }
+  .stage { min-height: 96px; display: grid; place-items: end center; background: #788e55; border-radius: 6px; padding: 6px; }
+  .stage img { image-rendering: pixelated; }
+  .stage em { color: #f4ecd9; font-style: normal; font-size: 12px; align-self: center; }
+  code { font: 12px Consolas,monospace; }
+  small { color: #6b6559; }
+  a { color: #354a38; }
+  .count { font-weight: 700; }
+</style></head>
+<body>
+<h1>Přehled obrázků mapy</h1>
+<p>Obrázky ze složky <code>sprites/</code>, které hra používá místo kresby z kódu. Přepsaný nebo přidaný soubor se tu i ve hře objeví do několika sekund.
+   Pravidla jsou v <code>grafika/SPRITY.md</code>. Zelené pozadí je jen náhled; kotva je spodní střed obrázku. <span class="count" id="count"></span></p>
+<main id="out"></main>
+<script>
+  const FOOT = { mlyn:[2,1], pec:[1,1], pila:[2,1], dilna:[1,1], studna:[1,1], statek:[2,1], hospoda:[2,1], kurnik:[2,2], chliv:[2,2], ohrada:[4,3], staje:[3,2],
+    hrbitov:[3,3], kostel:[2,2], zahrada:[3,2], sklep:[2,2], udirna:[2,2], milir:[2,2], chmelnice:[3,3], sladovna:[2,2], pivovar:[2,2], kovarna:[2,2], dul:[2,2],
+    vinice:[3,3], lis:[2,2], spychar:[2,2], mlekarna:[2,2], rybnik:[4,3], kozeluzna:[2,2], tkalcovna:[2,2], fara:[2,2] };
+  const GROUPS = [
+    ['buildings', 'Budovy', Object.keys(FOOT), key => 'půdorys ' + FOOT[key].join('×')],
+    ['houses', 'Domy', ['home_tile', 'home_thatch', 'home_new', 'cottage', 'chapel'], () => 'půdorys 1×1'],
+    ['trees', 'Stromy', ['tree_0', 'tree_1', 'tree_2', 'tree'], () => 'kotva: pata kmene'],
+    ['props', 'Rekvizity', ['quarry', 'stall_red', 'stall_green', 'fishing_hut'], () => ''],
+  ];
+  const el = (tag, text, cls) => { const node = document.createElement(tag); if (text) node.textContent = text; if (cls) node.className = cls; return node; };
+  async function render() {
+    const data = await (await fetch('sprites.php', { cache: 'no-store' })).json();
+    const scale = Number(data.manifest?.defaults?.scale ?? 2);
+    const byId = new Map();
+    for (const [file, mtime] of Object.entries(data.files)) {
+      const match = /^([a-z]+)\/([a-z0-9_]+?)(?:@(\d+))?\.png$/.exec(file);
+      if (match) byId.set(match[1] + '/' + match[2], { file, mtime, frames: Number(match[3] ?? 1) });
+    }
+    const out = document.getElementById('out');
+    out.replaceChildren();
+    let have = 0, total = 0;
+    for (const [kind, title, keys, note] of GROUPS) {
+      out.append(el('h2', title));
+      const grid = el('div', '', 'grid');
+      for (const key of keys) {
+        total++;
+        const found = byId.get(kind + '/' + key);
+        const card = el('div', '', 'card' + (found ? '' : ' missing'));
+        const stage = el('div', '', 'stage');
+        if (found) {
+          have++;
+          const img = new Image();
+          img.src = 'sprites/' + found.file + '?v=' + found.mtime;
+          img.onload = () => { img.style.width = (img.naturalWidth * scale) + 'px'; img.style.height = (img.naturalHeight * scale) + 'px'; };
+          stage.append(img);
+        } else stage.append(el('em', 'chybí (kreslí kód)'));
+        card.append(stage, el('code', kind + '/' + key + '.png'), el('small', [note(key), found ? (found.frames > 1 ? found.frames + ' snímků' : '') : ''].filter(Boolean).join(' · ')));
+        grid.append(card);
+      }
+      out.append(grid);
+    }
+    document.getElementById('count').textContent = 'Hotovo ' + have + ' z ' + total + '.';
+  }
+  render();
+  setInterval(render, 8000);
+</script>
+</body></html>

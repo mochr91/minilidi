@@ -4,7 +4,7 @@ declare(strict_types=1);
 function newCounters(): array {
     return ['tasks'=>[],'produced'=>[],'eaten'=>0.0,'hungryMeals'=>0,'hungryMealsToday'=>0,'births'=>0,'deaths'=>[],'weddings'=>0,
         'crises'=>[],'built'=>[],'injuries'=>0,'planValid'=>0,'planFallback'=>0,'moodSum'=>0.0,'funSum'=>0.0,'energySum'=>0.0,
-        'samples'=>0,'minMood'=>100.0,'hayShort'=>0];
+        'samples'=>0,'minMood'=>100.0,'hayShort'=>0,'planWhy'=>[]];
 }
 
 function countTask(array &$world,string $key): void {
@@ -42,7 +42,7 @@ function weeklyRecord(array $world,int $week): array {
         'avgMood'=>round($c['moodSum']/$n,1),'avgFun'=>round($c['funSum']/$n,1),'avgEnergy'=>round($c['energySum']/$n,1),
         'minMood'=>round($c['minMood'],1),'tasks'=>$tasks,'tasksTotal'=>array_sum($tasks),'produced'=>array_map(fn($v)=>round($v,1),$c['produced']),
         'hungryMeals'=>$c['hungryMeals'],'crises'=>$c['crises'],'goalsDone'=>goalsDone($world),'winters'=>$world['winters']??0,
-        'score'=>villageScore($world),'planValid'=>$c['planValid'],'planFallback'=>$c['planFallback'],'hayShort'=>$c['hayShort']];
+        'score'=>villageScore($world),'planValid'=>$c['planValid'],'planFallback'=>$c['planFallback'],'planWhy'=>$c['planWhy'],'hayShort'=>$c['hayShort']];
 }
 
 function summaryText(array $r): string {
@@ -57,6 +57,25 @@ function summaryText(array $r): string {
     $parts[]='zásoby jídla na '.$r['reserveDays'].' dní';
     $parts[]='skóre '.$r['score'];
     return implode('; ',$parts).'.';
+}
+
+// Kdo rozhodl o úkolech v dávkách plánu za posledních 24 herních hodin (tabulka plan_audit, jen AI větev).
+function planStats(PDO $db,array $world): array {
+    $since=(int)$world['minute']-MINUTES_PER_DAY;
+    try {
+        $rows=$db->query('SELECT minute,why,COUNT(*) c FROM plan_audit WHERE minute>='.$since.' GROUP BY minute,why')->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Throwable) {
+        return ['since'=>$since,'total'=>0,'byWhy'=>(object)[],'batches'=>[]];
+    }
+    $by=[]; $batches=[];
+    foreach ($rows as $r) {
+        $by[$r['why']]=($by[$r['why']]??0)+(int)$r['c'];
+        $batches[(int)$r['minute']][$r['why']]=(int)$r['c'];
+    }
+    krsort($batches);
+    $list=[];
+    foreach (array_slice($batches,0,8,true) as $minute=>$why) $list[]=['minute'=>$minute,'why'=>$why];
+    return ['since'=>$since,'total'=>array_sum($by),'byWhy'=>$by?:(object)[],'batches'=>$list];
 }
 
 function weeklyClose(PDO $db,array &$world): void {

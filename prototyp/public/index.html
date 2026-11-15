@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Minilidi · Život v údolí</title>
-<link rel="stylesheet" href="village.css?v=13"><link rel="stylesheet" href="village-panel.css?v=9"><script src="season-clock.js?v=14" defer></script><script src="map.js?v=17" defer></script><script src="village.js?v=21" defer></script></head>
+<link rel="stylesheet" href="village.css?v=13"><link rel="stylesheet" href="village-panel.css?v=17"><script src="season-clock.js?v=14" defer></script><script src="map.js?v=33" defer></script><script src="village-goals.js?v=2" defer></script><script src="village.js?v=37" defer></script></head>
 <body class="comparison-page village-comparison">
 <header class="mast">
   <h1>Minilidi</h1>
@@ -10,12 +10,26 @@
     <div><p class="season-date" data-date>Načítám kalendář…</p><p class="season-hour" data-hour></p>
     </div>
   </section>
-  <nav class="game-nav" aria-label="Minilidi"><a href="./" aria-current="page">Mapa</a><a href="prehled.html">Přehled</a><a href="schema.html">Schéma</a><a href="vira.html">Víra</a></nav>
+  <nav class="game-nav" aria-label="Minilidi"><a href="./" aria-current="page">Mapa</a><a href="prehled.html">Přehled</a><a href="schema.html">Schéma</a><a href="vira.html">Víra</a><a href="rozvoj.html">Rozvoj</a></nav>
 </header>
 <main>
 
   <div class="comparison-grid">
     <section class="village-panel" data-village="ai"></section>
+    <section class="village-stocks" data-village-stocks="ai" aria-label="Zásoby vesnice s AI">
+      <h2>S AI</h2>
+      <dl></dl>
+    </section>
+    <aside class="village-goals" aria-labelledby="village-goals-title">
+      <h2 id="village-goals-title">Cíle vesnic</h2>
+      <div class="village-goals-list" tabindex="0" aria-label="Seznam cílů obou vesnic" data-village-goals>
+        <p class="village-goal-empty">Načítám cíle…</p>
+      </div>
+    </aside>
+    <section class="village-stocks" data-village-stocks="control" aria-label="Zásoby vesnice bez AI">
+      <h2>Bez AI</h2>
+      <dl></dl>
+    </section>
     <section class="village-panel" data-village="control"></section>
   </div>
 </main>

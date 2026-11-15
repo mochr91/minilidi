@@ -86,7 +86,7 @@ function runBranch(PDO $db, array &$state, bool $withAi): void {
     $id = $job['person'];
     $kind = $job['kind'];
     $hasWork = !empty($state['people'][$id]['task']) && empty($state['people'][$id]['task']['automatic']);
-    $canInspire = $kind==='inspiration' && isset($state['people'][$id],ACTIONS[$job['value']]) &&
+    $canInspire = $kind==='inspiration' && isset($state['people'][$id]) &&
         !$hasWork && workAvailable($state,$id,$job['value']);
     $decision = $canInspire ? resolveInspiration($db,$state,$job,$withAi) : null;
     if (stopRequested()) return;
@@ -94,7 +94,7 @@ function runBranch(PDO $db, array &$state, bool $withAi): void {
     if ($decision !== null) {
         applyInspiration($db,$state,$job,$decision);
     } elseif ($kind === 'inspiration') {
-        journal($db,$state,$id,'Vnuknutí už nejde provést',ACTIONS[$job['value']]['label']??'Úkol není dostupný.','Hra');
+        journal($db,$state,$id,'Vnuknutí už nejde provést',activityDefinition($state,$job['value'])['label']??'Úkol není dostupný.','Hra');
     } elseif ($kind === 'miracle') {
         applyMiracle($db,$state,$job['value']);
     } elseif ($kind === 'judgment' && isset($state['people'][$id])) {
@@ -115,6 +115,7 @@ function runBranch(PDO $db, array &$state, bool $withAi): void {
 }
 
 $last = hrtime(true);
+$nextPackCheck = 0;
 $checkpointHour = intdiv((int)$world['minute'],60);
 $quit = false;
 if (function_exists('sapi_windows_set_ctrl_handler')) {
@@ -123,6 +124,10 @@ if (function_exists('sapi_windows_set_ctrl_handler')) {
 
 while (!$quit && !stopRequested()) {
     $now = hrtime(true);
+    if ($now >= $nextPackCheck) {
+        refreshActivityPack($world,$control);
+        $nextPackCheck=$now+activityPackInterval()*1000000000;
+    }
     $elapsed = ($now - $last) / 1e9;
     $last = $now;
     $gameMinutes = $elapsed > 85 ? 0 : $elapsed * MINUTES_PER_DAY / DAY_SECONDS;

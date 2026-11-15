@@ -7,9 +7,10 @@
 <link rel="stylesheet" href="village.css?v=13">
 <link rel="stylesheet" href="overview.css">
 <script src="season-clock.js?v=14" defer></script>
-<script src="overview.js?v=13" defer></script>
+<script src="overview.js?v=15" defer></script>
+<link rel="stylesheet" href="dashboard.css?v=2">
 </head>
-<body class="pane-page">
+<body class="dash-embed">
 <main class="overview">
   <p id="overview-status" class="connection" role="status">Načítám přehled…</p>
   <div class="charts">
@@ -19,14 +20,25 @@
       <ul class="chart-legend" id="stock-legend"></ul>
       <canvas id="stock-chart" width="600" height="245" role="img" aria-label="Vývoj zásob jídla, dřeva a kamene"></canvas>
     </section>
+    <section class="overview-card" aria-labelledby="food-title">
+      <h2 id="food-title">Obilí, mouka a seno</h2>
+      <ul class="chart-legend" id="food-legend"></ul>
+      <canvas id="food-chart" width="600" height="245" role="img" aria-label="Vývoj zásob obilí, mouky a sena"></canvas>
+    </section>
+    <section class="overview-card" aria-labelledby="craft-title">
+      <h2 id="craft-title">Prkna a nářadí</h2>
+      <ul class="chart-legend" id="craft-legend"></ul>
+      <canvas id="craft-chart" width="600" height="245" role="img" aria-label="Vývoj zásob prken a nářadí"></canvas>
+    </section>
     <section class="overview-card" aria-labelledby="needs-title">
       <h2 id="needs-title">Potřeby obyvatel</h2>
       <p class="muted">Průměr postav na stupnici 0–100</p>
       <ul class="chart-legend" id="need-legend"></ul>
       <canvas id="need-chart" width="600" height="245" role="img" aria-label="Vývoj průměrného nasycení, energie a zábavy"></canvas>
     </section>
+    <section class="overview-card" aria-labelledby="growth-title"><h2 id="growth-title">Růst vesnice</h2><ul class="chart-legend" id="growth-legend"></ul><canvas id="growth-chart" width="600" height="245" role="img" aria-label="Vývoj počtu obyvatel, nových domů a provozních budov"></canvas></section>
+    <section class="overview-card" aria-labelledby="score-title"><h2 id="score-title">Skóre vesnice</h2><ul class="chart-legend" id="score-legend"></ul><canvas id="score-chart" width="600" height="245" role="img" aria-label="Vývoj skóre vesnice"></canvas></section>
   </div>
-  <section class="overview-card" aria-labelledby="growth-title"><h2 id="growth-title">Růst vesnice</h2><ul class="chart-legend" id="growth-legend"></ul><canvas id="growth-chart" width="600" height="225" role="img" aria-label="Vývoj počtu obyvatel a nových domů"></canvas></section>
   <section class="overview-card" aria-labelledby="relations-title">
     <div class="section-head"><div><h2 id="relations-title">Vztahy mezi postavami</h2><p class="muted">Silnější vztah má výraznější čáru. Výběr postavy ukáže směr jejího vztahu k ostatním.</p></div>
     <label for="relation-person">Postava <select id="relation-person"><option value="">Všechny</option></select></label></div>

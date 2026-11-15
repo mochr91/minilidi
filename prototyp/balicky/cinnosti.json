@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "activities": {
+    "pack_orchard": {
+      "label": "Očesat sad", "work": "Češe ovoce v sadu",
+      "result": "Ovoce putuje do společné spíže.",
+      "place": "yard", "effect": "food", "minutes": 60, "age": 12,
+      "from": 7, "until": 18, "score": 9, "season": "Podzim"
+    },
+    "pack_mushrooms": {
+      "label": "Nasbírat houby", "work": "Hledá houby v lese",
+      "result": "Ze sběru přibyly do spíže houby.",
+      "place": "forest", "effect": "food", "minutes": 60, "age": 12,
+      "from": 7, "until": 18, "score": 7, "season": "Podzim"
+    },
+    "pack_harvest": {
+      "label": "Pomoct sousedovi se sklizní", "work": "Pomáhá se sklizní",
+      "result": "Společná práce přinesla obilí a soused si pomoc zapamatoval.",
+      "place": "field", "effect": "harvest", "minutes": 75, "age": 14,
+      "from": 7, "until": 17, "score": 10, "season": "Podzim"
+    },
+    "pack_sick_visit": {
+      "label": "Navštívit nemocného", "work": "Je na návštěvě u nemocného",
+      "result": "Návštěva nemocnému zvedla náladu.",
+      "place": "home", "effect": "visit_sick", "minutes": 45, "age": 12,
+      "from": 8, "until": 20, "score": 18, "season": "any"
+    },
+    "pack_reconcile": {
+      "label": "Urovnat hádku sousedů", "work": "Pomáhá sousedům najít smír",
+      "result": "Sousedé si promluvili a nechali spor za sebou.",
+      "place": "market", "effect": "mediate", "minutes": 45, "age": 16,
+      "from": 8, "until": 19, "score": 17, "season": "any"
+    },
+    "pack_tavern_games": {
+      "label": "Zahrát si v hospodě", "work": "Hraje se sousedy u stolu",
+      "result": "Společná hra u stolu sousedy pobavila.",
+      "place": "tavern", "effect": "games", "minutes": 45, "age": 18,
+      "from": 18, "until": 22, "score": 21, "season": "any"
+    },
+    "pack_berries": {
+      "label": "Nasbírat lesní plody", "work": "Sbírá maliny a borůvky",
+      "result": "Košík lesních plodů obohatil společnou spíž.",
+      "place": "forest", "effect": "food", "minutes": 50, "age": 12,
+      "from": 8, "until": 17, "score": 8, "season": "Léto"
+    },
+    "pack_wild_greens": {
+      "label": "Nasbírat mladé kopřivy", "work": "Sbírá mladé kopřivy do polévky",
+      "result": "Do kuchyně přibyly čerstvé kopřivy na polévku.",
+      "place": "yard", "effect": "food", "minutes": 35, "age": 12,
+      "from": 8, "until": 17, "score": 7, "season": "Jaro"
+    }
+  },
+  "extensions": {
+    "pack_leisure": {
+      "label": "Lenošit doma", "work": "Lenoší doma",
+      "result": "Chvíle lenošení vrátila trochu energie a zvedla zábavu.",
+      "place": "home", "effect": "leisure", "minutes": 45, "age": 12,
+      "from": 8, "until": 21, "score": 13, "season": "any"
+    },
+    "pack_walk": {
+      "label": "Projít se po okolí", "work": "Prochází se po kraji lesa",
+      "result": "Procházka na čerstvém vzduchu zvedla náladu i zábavu.",
+      "place": "forest", "effect": "walk", "minutes": 30, "age": 12,
+      "from": 8, "until": 20, "score": 12, "season": "any"
+    },
+    "pack_study": {
+      "label": "Procvičit počty a řemeslo", "work": "Učí se počítat a procvičuje si řemeslo",
+      "result": "Procvičování pomohlo zlepšit pracovní dovednost.",
+      "place": "home", "effect": "study", "minutes": 60, "age": 12,
+      "from": 8, "until": 20, "score": 14, "season": "any"
+    }
+  }
+}

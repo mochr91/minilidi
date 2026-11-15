@@ -1,6 +1,6 @@
 # Jak spolupracujeme na Minilidech
 
-Úkoly zadávej na [místní tabuli](http://127.0.0.1:8091/). Na kartu napiš jednoho řešitele, konkrétní výsledek a jak poznáš, že funguje. Text karty předej do Codexu nebo Claude Code. Rozpracované změny, požadavky na druhého agenta a výsledky testů evidujeme v [KOORDINACE.md](KOORDINACE.md). V místních pracovních kopiích oba používáme živý soubor v E:\AI2\Minilidi.
+Úkoly zadávej na [místní tabuli](http://127.0.0.1:8091/). Pohled „Plán práce“ ukazuje nahoře aktivní úkoly po blocích (co jde dělat najednou), pod nimi věci k promyšlení, které rozhoduješ ty, a až na konci nápady na potom. Každý úkol má řešitele CLAUDE, CODEX nebo JÁ (změníš ho výběrem přímo na kartě), větu „Hotovo, když“ a tlačítka Začít, Hotovo a Kopírovat zadání. Tlačítko „Kopírovat blok“ nebo „CLAUDE“ a „CODEX“ nad tabulí vloží do schránky celé zadání, které předáš agentovi. Agent si ho umí načíst i sám z odkazu na tabuli. Rozpracované změny, požadavky na druhého agenta a výsledky testů evidujeme v [KOORDINACE.md](KOORDINACE.md). V místních pracovních kopiích oba používáme živý soubor v E:\AI2\Minilidi.
 
 ## Když chceš začít hned
 
@@ -14,7 +14,7 @@ Příklad zadání pro Claude Code: „Přečti KOORDINACE.md a zkontroluj kód 
 - **Větev** je řada snímků pro jednu změnu. Hlavní větev se jmenuje main.
 - **Worktree** je samostatná složka s jednou větví. Dva agenti mohou upravovat vlastní pracovní kopie a potom si změny ukázat a sloučit.
 
-Pro práci ve dvou kopiích otevři E:\AI2\Minilidi-worktrees\codex v Codexu a E:\AI2\Minilidi-worktrees\claude v Claude Code. Hlavní složka E:\AI2\Minilidi zůstává místem, odkud běží hra a tabule. Až je úkol ověřený, požádej agenta, aby ukázal rozdíly a navrhl sloučení do main. Živé databáze, logy a obsah místní tabule jsou mimo Git.
+Pro práci ve dvou kopiích otevři E:\AI2\Minilidi-worktrees\codex (větev codex/prace) v Codexu a E:\AI2\Minilidi-worktrees\claude (větev claude/prace) v Claude Code. Aktuální stav větví a to, co v hlavní složce zatím není zapsané do Gitu, je v bodě 3 [KOORDINACE.md](KOORDINACE.md); před novou prací se větve musí srovnat s hlavní složkou. Hlavní složka E:\AI2\Minilidi zůstává místem, odkud běží hra a tabule. Až je úkol ověřený, požádej agenta, aby ukázal rozdíly a navrhl sloučení do main. Živé databáze, logy a obsah místní tabule jsou mimo Git.
 
 ## Ovládání z prohlížeče
 

@@ -1,0 +1,53 @@
+.dash-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+.dash-chart-card {
+  min-width: 0;
+  align-content: start;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f7faf8;
+}
+.dash-chart-card .dash-chart-label {
+  margin: 0 0 8px;
+  font-weight: 700;
+  font-size: .94rem;
+}
+.dash-chart-pair, .dash-chart-batches li {
+  display: grid;
+  grid-template-columns: 3.6rem minmax(0, 1fr) minmax(2.9rem, auto);
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+  font-size: .85rem;
+}
+.dash-chart-pair strong, .dash-chart-batches strong {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.dash-chart-track, .dash-chart-stack {
+  display: flex;
+  min-width: 0;
+  height: .62rem;
+  overflow: hidden;
+  background: #e4ede7;
+  border-radius: 6px;
+}
+.dash-chart-stack {height: 1rem}
+.dash-chart-fill {display: block}
+.dash-chart-fill[data-series="ai"], .dash-chart-fill[data-series="model"], .dash-chart-dot[data-series="model"] {background: var(--accent)}
+.dash-chart-fill[data-series="control"], .dash-chart-fill[data-series="override"], .dash-chart-dot[data-series="override"] {background: var(--control)}
+.dash-chart-fill[data-series="agree"], .dash-chart-dot[data-series="agree"] {background: #4271a5}
+.dash-chart-fill[data-series="fallback"], .dash-chart-dot[data-series="fallback"] {background: #788480}
+.dash-chart-dot {width: .7rem; height: .7rem; border-radius: 2px; flex: none}
+.dash-chart-legend, .dash-chart-batches {list-style: none; padding: 0}
+.dash-chart-legend {display: flex; gap: 6px 16px; flex-wrap: wrap}
+.dash-chart-legend li {display: flex; gap: 6px; align-items: center}
+.dash-chart-batches li {grid-template-columns: 7.3rem minmax(0, 1fr) 2.5rem}
+.dash-chart-details {margin-top: 14px}
+.dash-chart-details summary {font-weight: 650}
+.dash-chart-details .dash-table-scroll {margin-top: 8px}

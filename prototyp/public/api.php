@@ -37,11 +37,14 @@ try {
         $db->beginTransaction();
         $record = $db->query('SELECT * FROM village WHERE id=1')->fetch(PDO::FETCH_ASSOC);
         $world = decodeWorld($record['state']);
+        $catalog = activityCatalog($world);
+        if (empty($world['directorVersion'])) $catalog=array_diff_key($catalog,array_flip(['visit','prayer']));
         foreach ($world['people'] as $id=>&$person) {
-            $person['availableActions'] = array_keys(array_filter(empty($world['directorVersion'])?array_diff_key(ACTIONS,array_flip(['visit','prayer'])):ACTIONS,fn($action,$key)=>workAvailable($world,$id,$key),ARRAY_FILTER_USE_BOTH));
+            $person['availableActions'] = array_keys(array_filter($catalog,fn($action,$key)=>workAvailable($world,$id,$key),ARRAY_FILTER_USE_BOTH));
             $person['food'] = 100 - $person['hunger'];
             $person['energy'] = 100 - $person['fatigue'];
             $person['productivity'] = productivity($person);
+            $person['skills'] = skillsOf($person);
             $person['willingness'] = willingness($person);
         }
         unset($person);
@@ -51,11 +54,13 @@ try {
         $world['running'] = time() - $record['heartbeat'] <= (isset($world['directorVersion'])?85:33);
         $world['journal'] = $db->query('SELECT * FROM journal ORDER BY id DESC LIMIT 60')->fetchAll(PDO::FETCH_ASSOC);
         $world['pending'] = $db->query('SELECT kind,person FROM queue ORDER BY id')->fetchAll(PDO::FETCH_ASSOC);
-        $world['actions'] = empty($world['directorVersion'])?array_diff_key(ACTIONS,array_flip(['visit','prayer'])):ACTIONS;
+        $world['actions'] = catalogByCategory($catalog);
+        $world['categories'] = CATEGORIES;
         $world['dailyNeed'] = ['food'=>dailyFoodNeed($world),'wood'=>$world['weather']['woodNeed'],'stone'=>0];
         $world['goalsState'] = goalState($world);
         $world['score'] = villageScore($world);
         $world['housingCapacity'] = housingCapacity($world);
+        $world['housing'] = housingSummary($world);
         $world['reserveDays'] = round(foodReserve($world)/max(1,dailyFoodNeed($world)),1);
         foreach ($world['people'] as &$person) {
             if (!empty($person['pregnant']) && empty($person['pregnant']['revealed'])) $person['pregnant'] = ['revealed'=>false];
@@ -72,6 +77,7 @@ try {
             $world['goalDefs'] = GOALS;
             $world['resourceLabels'] = RESOURCES;
             $world['projectOptions'] = projectOptions($world);
+            $world['planStats'] = $branch === 'ai' ? planStats($db,$world) : null;
             $world['weekly'] = [];
             try {
                 $weeks = $db->query('SELECT data FROM weekly ORDER BY week DESC LIMIT 26')->fetchAll(PDO::FETCH_COLUMN);
@@ -104,7 +110,8 @@ try {
     $person = $input['person'] ?? '';
     if (!is_string($kind) || !is_string($value) || !is_string($person)) response(422, ['error'=>'Neplatný příkaz.']);
     $valid = match ($kind) {
-        'inspiration'=>isset(ACTIONS[$value]) && $person !== '',
+        'inspiration'=>$person !== '' && (isset(ACTIONS[$value]) ||
+            (str_starts_with($value,'pack_') && isset(readWorld($db)['activityPack'][$value]))),
         'judgment'=>$person !== '' && in_array($value,['reward','reprimand'],true),
         'miracle'=>$person==='' && isset(MIRACLES[$value]),
         'ai_pause'=>$person==='' && in_array($value,['0','1'],true),

@@ -1,6 +1,16 @@
 # Minilidi — herní koncept a proveditelnost
 
-## Základ hry
+## Stav prototypu
+
+**Hotovo:** dvě souběžné vesnice, izometrická mapa s jedním pohledem, vztahy a vzpomínky, vnuknutí, víra, strach, důvěra, hnutí, zázraky, rodiny a svatby, narození a úmrtí, krize a týdenní souhrny. Obyvatelé mají potřeby Jídlo, Energie a Zábava. Využívají oborové dovednosti a hra zaznamenává skutečný podíl modelu na rozhodování.
+
+**Částečně:** z navržené obživy fungují pole, zvířata, lesní sběr, rybolov, kácení a těžba kamene. Budovy přibývají podle pevného pořadí, materiálu a člověkohodin. Kurník, chlív, ohrada, stáje, hřbitov a kostel už mají obecné účinky. Podrobnější činnosti u nich jsou návrh. Stav jednotlivých činností je v [katalogu](UKOLY-1400-1600.md).
+
+**Později:** těžba uhlí a železné rudy, lov, postupné vynálezy, další generace technologií a případné 3D. Současná mapa má otáčení vypnuté.
+
+Aktuální tempo je **20 skutečných minut za den** a **10 hodin za měsíc**. Obě větve postupují ve stejném čase. Plán práce se obnovuje každých šest herních hodin, místní AI pracuje po skupinách nejvýše osmi postav a pravidla rozhodují o přípustnosti výsledku. Běh po vypnutí navazuje z uloženého času. Návod je v [README](README.md).
+
+## Původní návrh hry
 
 Po otevření hráč uvidí malou izometrickou pixelartovou vesničku kolem let 1500–1600. Počítáme zhruba s pěti rodinami a třiceti postavami. Rody mají různé věkové složení a domácnosti mohou být různě velké. Vesnice má pole, zvířata, les a vodu. Obživu zajišťuje farmaření, lov, rybaření, těžba dřeva, uhlí a železné rudy. Začíná bez elektřiny.
 
@@ -25,7 +35,7 @@ flowchart LR
 
 ## Běh bez hráče a zatížení
 
-Prohlížeč je okno do světa. Simulaci posouvá proces na hostiteli. Zavřený prohlížeč tedy nevadí. Domácí počítač s lokální AI musí zůstat zapnutý a vzhůru, má-li na něm vše běžet skutečně nepřetržitě. Po vypnutí se buď pokračuje z posledního uloženého stavu, nebo se později navrhne omezené dopočítání času. Běžné tempo je **1 herní den za 4 skutečné hodiny**. Testovací režim zkrátí den na **48 minut**. Za skutečný den uběhne 6 herních dní a za skutečný týden 42 herních dní při nepřetržitém běhu.
+Prohlížeč je okno do světa. Simulaci posouvá proces na hostiteli. Zavřený prohlížeč tedy nevadí. Domácí počítač s lokální AI musí zůstat zapnutý a vzhůru, má-li na něm vše běžet skutečně nepřetržitě. Po vypnutí se buď pokračuje z posledního uloženého stavu, nebo se později navrhne omezené dopočítání času. Původní návrh počítal s tempem **1 herní den za 4 skutečné hodiny** a testovacím dnem za **48 minut**. Za skutečný den uběhne 6 herních dní a za skutečný týden 42 herních dní při nepřetržitém běhu.
 
 RTX 3060 Ti má 8 GB paměti GPU. Rozumný první kandidát je kvantizovaný model kolem 4 miliard parametrů s krátkým kontextem a jedním zpracovávaným požadavkem. Velikost modelu ke stažení není jeho celková spotřeba VRAM. Do ní se počítá i kontext, režie a další běžící aplikace. Větší model volíme až tehdy, kdy menší nestačí kvalitou.
 
@@ -45,13 +55,13 @@ V průzkumu se neobjevila přesná obdoba kombinace malé historické vesnice, o
 
 Technické podklady: [NVIDIA — specifikace karet](https://www.nvidia.com/en-us/geforce/graphics-cards/compare/), [Ollama — příklad modelu Qwen3 4B](https://ollama.com/library/qwen3), [Ollama — paměť a uvolnění modelu](https://docs.ollama.com/faq).
 
-## První prototyp
+## Původní zadání prvního prototypu
 
-První vesnice běží lokálně na PC a má **pět postav ze tří rodin**. Každá postava má vlastní statistiky a potřeby. Sledujeme jídlo, dřevo a únavu. Vyšší únava snižuje výkon, zhoršuje náladu a snižuje ochotu pomáhat nebo se bavit s ostatními. Alkoholismus je námět pro pozdější rozšíření.
+V prvním zadání jsme počítali s tím, že vesnice poběží lokálně na PC a bude mít **pět postav ze tří rodin**. Každá postava má vlastní statistiky a potřeby. Sledujeme jídlo, dřevo a únavu. Vyšší únava snižuje výkon, zhoršuje náladu a snižuje ochotu pomáhat nebo se bavit s ostatními. Alkoholismus je námět pro pozdější rozšíření.
 
 Hráč vybere postavu a vnuknutí z české nabídky. Místní Ollama je součást prototypu. Dostane stav postavy, vztahy, relevantní vzpomínky a dostupné reakce. Pokud odpoví včas a zvolí přípustnou reakci, hra ji použije. Při výpadku, překročení času nebo nepřípustné odpovědi rozhodnou herní pravidla. Skutečná reakce a její důsledky se uloží do historie.
 
-Běžný herní den trvá **4 skutečné hodiny**. Testovací režim ho zkrátí na **48 minut**, tedy pětkrát. Za hodinu testu uběhne jeden herní den a šest herních hodin. Běžný a testovací režim počítají se stejnými herními pravidly. Při ručním vnuknutí navrhujeme přednostní zpracování AI. Pro úlohy na pozadí lze v testu zkrátit výchozí interval kontroly fronty z 15 na 3 skutečné minuty, aby v obou režimech odpovídal 90 herním minutám. Interval je návrh k ověření.
+Původní běžné tempo bylo navrženo na **4 skutečné hodiny** za herní den, testovací na **48 minut**. Za hodinu testu uběhne jeden herní den a šest herních hodin. Běžný a testovací režim počítají se stejnými herními pravidly. Při ručním vnuknutí navrhujeme přednostní zpracování AI. Pro úlohy na pozadí lze v testu zkrátit výchozí interval kontroly fronty z 15 na 3 skutečné minuty, aby v obou režimech odpovídal 90 herním minutám. Interval je návrh k ověření.
 
 Prototyp může používat tři části na stejném PC:
 

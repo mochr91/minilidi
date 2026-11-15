@@ -3,41 +3,57 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Minilidi — návrhová tabule</title>
-<link rel="stylesheet" href="style.css">
-<script src="board.js" defer></script>
+<title>Minilidi — tabule úkolů a nápadů</title>
+<link rel="stylesheet" href="style.css?v=2">
+<script src="board.js?v=2" defer></script>
 </head>
 <body>
 <header>
 <div class="wrap heading">
-<div><p class="eyebrow"><span aria-hidden="true">◆</span> PROJEKT / FÁZE NÁVRHU</p><h1>Minilidi</h1><p class="subtitle">Tabule nápadů a návrhů pro naši minihru.</p></div>
-<button id="add" class="primary" type="button" disabled>+ Přidat nápad</button>
+<div><p class="eyebrow"><span aria-hidden="true">◆</span> PROJEKT / PRACOVNÍ PLÁN</p><h1>Minilidi</h1><p class="subtitle">Aktivní úkoly pro agenty nahoře, věci k promyšlení pro tebe pod nimi, nápady až na konci.</p></div>
+<div class="heading-actions">
+<button id="add" class="primary" type="button" disabled>+ Přidat kartu</button>
+</div>
 </div>
 </header>
 <main class="wrap">
 <div class="toolbar">
 <div class="views" aria-label="Zobrazení">
-<button type="button" id="by-category" aria-pressed="true">Kategorie</button>
-<button type="button" id="by-status" aria-pressed="false">Podle stavu</button>
+<button type="button" id="by-plan" aria-pressed="true">Plán práce</button>
+<button type="button" id="by-assignee" aria-pressed="false">Podle řešitele</button>
+<button type="button" id="by-category" aria-pressed="false">Podle kategorie</button>
 </div>
-<label class="filter">Hledat <input id="query" type="search" placeholder="Název nebo popis"></label>
+<label class="filter">Hledat <input id="query" type="search" placeholder="Název, zadání nebo blok"></label>
+<label class="filter">Řešitel <select id="assignee-filter"></select></label>
 <label class="filter">Priorita <select id="priority-filter"></select></label>
 </div>
-<p id="message" role="status">Načítám návrhy…</p>
+<div class="copybar" aria-label="Zadání pro agenty">
+<span>Zadání ke zkopírování:</span>
+<button type="button" id="copy-claude">CLAUDE</button>
+<button type="button" id="copy-codex">CODEX</button>
+<a href="api.php?format=md&assignee=claude" target="_blank" rel="noopener">odkaz pro Claude</a>
+<a href="api.php?format=md&assignee=codex" target="_blank" rel="noopener">odkaz pro Codex</a>
+</div>
+<p id="message" role="status">Načítám karty…</p>
 <div id="board"></div>
 <details class="architecture">
-<summary>Pracovní schéma techniky</summary>
+<summary>Jak tabule funguje</summary>
+<p><b>Úkol</b> má řešitele (CLAUDE, CODEX nebo JÁ), blok, pořadí a větu „Hotovo, když“. Bloky jsou úkoly, které dává smysl dělat najednou jedním agentem. Agent si zadání načte z odkazu výše nebo z tlačítka „Kopírovat zadání“ a po dokončení kartu přepne na Hotovo a zapíše výsledek.</p>
+<p><b>K promyšlení</b> jsou rozhodnutí na tobě. Po rozhodnutí použij „Rozhodnuto“, zapiš výsledek a případně z něj vytvoř úkol. <b>Nápady na potom</b> a <b>Dohodnuto</b> jsou podklady, které se neřeší, dokud je neposuneš do úkolů.</p>
 <div class="flow"><span>Prohlížeč</span><b aria-hidden="true">↔</b><span>PHP / Laragon</span><b aria-hidden="true">↔</b><span>Ollama / NVIDIA</span></div>
-<p>PHP obsluhuje pravidla a ukládá herní stav do SQLite. Když potřebuje AI, zavolá Ollamu, která může využít GPU. Jde o návrh architektury hry.</p>
 </details>
 </main>
 <dialog id="editor" aria-labelledby="editor-title">
 <form id="form">
-<h2 id="editor-title">Nový nápad</h2>
+<h2 id="editor-title">Nová karta</h2>
 <label>Název<input name="title" required maxlength="120" autofocus></label>
-<label>Popis<textarea name="body" rows="5" maxlength="6000"></textarea></label>
-<label>Kategorie<select name="category"></select></label>
+<label>Zadání nebo popis<textarea name="body" rows="5" maxlength="6000"></textarea></label>
+<label>Hotovo, když<textarea name="accept" rows="2" maxlength="2000" placeholder="Jak poznáš, že je úkol splněný"></textarea></label>
+<div class="pair"><label>Druh<select name="kind"></select></label><label>Řešitel<select name="assignee"></select></label></div>
+<div class="pair"><label>Blok<input name="block" maxlength="80" list="blocks" placeholder="například A · Název bloku"><datalist id="blocks"></datalist></label><label>Pořadí v bloku<input name="order" type="number" min="0" max="999" value="0"></label></div>
 <div class="pair"><label>Stav<select name="status"></select></label><label>Priorita<select name="priority"></select></label></div>
+<label>Kategorie<select name="category"></select></label>
+<label>Výsledek nebo rozhodnutí<textarea name="result" rows="3" maxlength="3000" placeholder="Co se udělalo, nebo jak ses rozhodl"></textarea></label>
 <p id="error" role="alert" hidden></p>
 <div class="actions"><button type="button" id="cancel">Zrušit</button><button type="submit" class="primary" id="save">Uložit</button></div>
 </form>

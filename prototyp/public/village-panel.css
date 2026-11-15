@@ -16,11 +16,57 @@ body.village-comparison main {
   margin: 12px auto;
 }
 .village-comparison .comparison-grid {
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 16px;
+  grid-template-columns: minmax(0,1fr) 68px clamp(156px,12vw,206px) 68px minmax(0,1fr);
+  grid-template-areas: "ai stock-ai goals stock-control control";
+  gap: 6px;
   align-items: stretch;
   min-height: 0;
 }
+.village-comparison .comparison-grid > [data-village=ai] { grid-area: ai; }
+.village-comparison .comparison-grid > [data-village=control] { grid-area: control; }
+[data-village-stocks=ai] { grid-area: stock-ai; }
+[data-village-stocks=control] { grid-area: stock-control; }
+.village-stocks { align-self: start; display: grid; grid-template-rows: auto minmax(0,1fr); min-width: 0; min-height: 0; max-height: 100%; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--paper); }
+.village-stocks h2 { margin: 0; padding: 7px 2px; background: #354a38; color: #fff6df; text-align: center; font: 700 12px/20px "Segoe UI",sans-serif; }
+[data-village-stocks=control] h2 { background: #51514a; }
+.village-stocks dl { position: relative; display: grid; align-content: start; min-height: 0; margin: 0; padding: 3px; overflow-y: auto; scrollbar-width: thin; }
+.village-stock { display: flex; align-items: center; justify-content: space-between; gap: 2px; min-width: 0; min-height: 31px; padding: 3px 1px; border-bottom: 1px solid var(--line); color: #536748; }
+.village-stock:last-child { border-bottom: 0; }
+.village-stock[data-resource=quarryStone] { color: #6b6559; }
+.village-stock svg { flex: none; }
+.village-stock dt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.village-stock dd { margin: 0; color: #2f3829; text-align: right; font-weight: 650; font-size: 11px; overflow-wrap: anywhere; }
+.village-goals {
+  grid-area: goals;
+  display: grid;
+  grid-template-rows: auto minmax(0,1fr);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--paper);
+}
+.village-goals h2 {
+  margin: 0;
+  padding: 7px 10px;
+  background: #354a38;
+  color: #fff6df;
+  font: 700 15px/20px "Source Sans 3","Segoe UI",sans-serif;
+}
+.village-goals-list { overflow: auto; scrollbar-gutter: stable; padding: 0 9px; }
+.village-goals-list:focus-visible { outline: 2px solid #334e2f; outline-offset: -2px; }
+.village-goal { padding: 8px 1px; border-bottom: 1px solid var(--line); }
+.village-goal:last-child { border-bottom: 0; }
+.village-goal h3 { margin: 0 0 3px; font-size: 13px; line-height: 1.2; }
+.village-goal p { margin: 3px 0; font-size: 12px; }
+.village-goal-desc,.village-goal-empty { color: var(--muted); }
+.village-goal-requirement { font-weight: 600; }
+.village-goal-progress { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 5px; font-size: 11px; }
+.village-goal-progress span { display: grid; gap: 2px; min-width: 0; }
+.village-goal-progress progress { width: 100%; height: 7px; accent-color: #52774e; }
+.village-goal-progress span+span progress { accent-color: #746a56; }
+.village-goal-plan { color: #705028; font-weight: 600; }
 .village-comparison > .mast > .season-clock {
   display: flex;
   gap: 6px;
@@ -123,6 +169,11 @@ body.village-comparison main {
 }
 .village-map .map-top { top: 5px; }
 .village-map .map-bottom { bottom: 5px; }
+.map-updates:not([hidden]) { position: absolute; z-index: 1; inset-inline: 6px; bottom: 32px; display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 4px 8px; width: fit-content; max-width: calc(100% - 12px); background: #f7f1e2f2; border: 1px solid var(--line); border-radius: 5px; pointer-events: none; }
+.map-update:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 7px; font-size: 12px; }
+.map-update[data-field=crisis-status] { color: #8a3929; }
+.map-update progress { width: 64px; height: 9px; accent-color: #55734b; }
+.map-update[data-field=crisis-status] progress { accent-color: #a94734; }
 .village-map .supplies { display: flex; flex-wrap: nowrap; gap: 4px; }
 .village-map :is(.map-chip,.map-tools) {
   display: inline-flex;
@@ -154,6 +205,7 @@ body.village-comparison main {
 .village-map svg { flex: none; width: 13px; height: 13px; }
 @container (max-width: 560px) { .village-map .map-chip small { display: none; } }
 @container (max-width: 345px) {
+  .village-map .map-top { flex-wrap: wrap; }
   .village-map .map-bottom svg { display: none; }
   .village-map .map-chip { padding-inline: 3px; gap: 2px; }
 }
@@ -326,11 +378,13 @@ body.village-comparison main {
     --map-height: calc(min(42dvh,100dvh - 600px) - (var(--roster-height) - 66px));
     grid-template-rows: 34px var(--map-height) var(--roster-height) 216px minmax(123px,1fr);
   }
-  .village-comparison .village-map canvas { width: min(100%,calc(var(--map-height) * 1294 / 663)); }
+  .village-comparison .village-map canvas { width: min(100%,calc(var(--map-height) * 1614 / 821)); }
   .village-comparison .game-status { position: static; min-width: 0; }
 }
 @media (max-width: 1279px), (max-height: 719px) {
   .village-journal { height: 160px; }
+  .village-goals-list { max-height: 68vh; }
+  .village-stocks { max-height: 68vh; }
 }
 @container (max-width: 535px) {
   .person-card { grid-template-columns: repeat(2,minmax(0,1fr)); }
@@ -338,7 +392,13 @@ body.village-comparison main {
 }
 @media (max-width: 899px) {
   body.village-comparison main { padding-inline: 12px; }
-  .village-comparison .comparison-grid { grid-template-columns: minmax(0,1fr); }
+  .village-comparison .comparison-grid {
+    grid-template-columns: minmax(0,1fr);
+    grid-template-areas: "goals" "stock-ai" "ai" "stock-control" "control";
+  }
+  .village-stocks dl { grid-template-columns: repeat(auto-fit,minmax(57px,1fr)); gap: 2px 7px; padding-inline: 7px; }
+  .village-stock { justify-content: center; gap: 4px; border-bottom: 0; }
+  .village-goals-list { max-height: 270px; }
   .village-comparison > .mast { flex-wrap: wrap; }
   .village-toolbar { grid-template-columns: minmax(0,1fr); grid-template-rows: 30px 30px 20px; height: 92px; gap: 3px; }
   .village-journal { height: 180px; }
