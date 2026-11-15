@@ -37,6 +37,12 @@ try {
         $db->beginTransaction();
         $record = $db->query('SELECT * FROM village WHERE id=1')->fetch(PDO::FETCH_ASSOC);
         $world = decodeWorld($record['state']);
+        if (($_GET['view']??'')==='building') {
+            // Okénko budovy po kliknutí na mapě: co to je, co dělá a jak na tom je.
+            $info = buildingInfo($world,(string)($_GET['key']??''));
+            if ($info===null) response(404,['error'=>'Taková budova ve vsi není.']);
+            response(200,$info);
+        }
         $catalog = activityCatalog($world);
         if (empty($world['directorVersion'])) $catalog=array_diff_key($catalog,array_flip(['visit','prayer']));
         foreach ($world['people'] as $id=>&$person) {
@@ -61,6 +67,7 @@ try {
         $world['score'] = villageScore($world);
         $world['housingCapacity'] = housingCapacity($world);
         $world['housing'] = housingSummary($world);
+        $world['roofMap'] = roofMap($world);
         $world['reserveDays'] = round(foodReserve($world)/max(1,dailyFoodNeed($world)),1);
         foreach ($world['people'] as &$person) {
             if (!empty($person['pregnant']) && empty($person['pregnant']['revealed'])) $person['pregnant'] = ['revealed'=>false];

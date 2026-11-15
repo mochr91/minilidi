@@ -130,7 +130,7 @@ function wineDaily(PDO $db,array &$world): void {
         }
         if (!($yard['done']??true) && $m>=6 && ($yard['season']??-1)===$calendar['year']) {
             $mature=$now-(int)$world['buildings']['vinice']>=VINE_MATURE_DAYS*1440;
-            $yard['crop']=($mature && empty($yard['frost'])) ? round(VINE_YIELD*(.4+.6*($yard['care']??0)),1) : 0.0;
+            $yard['crop']=($mature && empty($yard['frost'])) ? round(VINE_YIELD*(.4+.6*($yard['care']??0))*pollination($world),1) : 0.0;
             $yard['done']=true;
             if ($yard['crop']>=1) journal($db,$world,'','Réva dozrála','Hrozny je třeba česat do konce října, pak shnijí.','Hra');
         }

@@ -48,7 +48,7 @@ function resolveCrisis(PDO $db,array &$world): void {
         $text[]=(RESOURCES[$key]??'Kámen u lomu').' −'.fmtAmount($amount);
     };
     if ($crisis['type']==='fire') {
-        $mitigate=hasBuilding($world,'studna')?.7:1;
+        $mitigate=(hasBuilding($world,'studna')?.7:1)*fireDamageFactor($world);
         $shave('wood',(.05+.30*$lost)*$mitigate);
         $shave('food',(.03+.22*$lost)*$mitigate);
         $shave('hay',(.10+.70*$lost)*$mitigate);
@@ -115,7 +115,7 @@ function crisisHour(PDO $db,array &$world): void {
     if (!empty($world['crisis']) || $now<($world['crisisCooldown']??0) || !$world['people']) return;
     $weather=villageWeather($world);
     if ($hour===15) {
-        $risk=.0014*(($weather['wind']>=26)?2:1)*($weather['heat']?2:1)*($weather['precip']==='none'?1:.3);
+        $risk=.0014*(($weather['wind']>=26)?2:1)*($weather['heat']?2:1)*($weather['precip']==='none'?1:.3)*fireRiskFactor($world);
         if (weatherNoise($day,'fire')<$risk) startCrisis($db,$world,'fire',crc32('fire'.$day)%3);
     } elseif ($hour===5) {
         $wet=in_array($weather['precip'],['rain','sleet'],true) || $weather['ground']==='mud';

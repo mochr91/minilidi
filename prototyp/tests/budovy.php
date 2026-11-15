@@ -8,7 +8,7 @@ require __DIR__.'/fixture.php';
 // 1. Pracnost a pořadí.
 $hours=['studna'=>60,'zahrada'=>30,'sklep'=>80,'udirna'=>30,'milir'=>24,'chmelnice'=>40,'sladovna'=>80,'pivovar'=>120,'kovarna'=>100,'dul'=>200,'vinice'=>150,'lis'=>60,'kurnik'=>20,'chliv'=>30,'ohrada'=>40,'staje'=>60,'hrbitov'=>100,'kostel'=>500];
 foreach ($hours as $key=>$work) check((BUILDINGS[$key]['work']??0)===$work,"Pracnost $key = $work h");
-check(array_slice(BUILD_ORDER,6)===['zahrada','hospoda','kurnik','chliv','ohrada','sklep','udirna','milir','chmelnice','sladovna','pivovar','kovarna','dul','staje','hrbitov','kostel','vinice','lis','spychar','mlekarna','rybnik','kozeluzna','tkalcovna','fara'],'Nové budovy navazují na statek');
+check(array_slice(BUILD_ORDER,6)===['zahrada','hospoda','kurnik','chliv','ohrada','sklep','udirna','milir','chmelnice','sladovna','pivovar','kovarna','dul','staje','hrbitov','kostel','vinice','lis','vcelin','spychar','mlekarna','rybnik','kozeluzna','tkalcovna','fara','cihelna','lazen'],'Nové budovy navazují na statek');
 foreach (BUILD_ORDER as $key) check(isset(BUILDINGS[$key]) && in_array($key,array_keys(BUILDINGS),true),"Definice $key");
 
 // 2. Pevné pořadí: nezaplatitelná stavba počká, další se před ní nezačne.

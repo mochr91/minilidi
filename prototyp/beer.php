@@ -212,7 +212,7 @@ function beerDaily(PDO $db,array &$world): void {
         }
         if (!($yard['done']??true) && $m>=6 && ($yard['season']??-1)===$calendar['year']) {
             $share=hopYardMature($world) ? 1.0 : HOP_FIRST_YEAR;
-            $yard['crop']=round(HOP_YIELD*$share*(.4+.6*($yard['care']??0)),1);
+            $yard['crop']=round(HOP_YIELD*$share*(.4+.6*($yard['care']??0))*pollination($world),1);
             $yard['done']=true;
             if ($yard['crop']>=1) journal($db,$world,'','Chmel na chmelnici dozrál','Šišky je třeba trhat do konce října, pak shnijí.','Hra');
         }

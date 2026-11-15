@@ -14,6 +14,7 @@ const RESOURCES = [
     'ore'=>'Železná ruda','iron'=>'Železo','ironTools'=>'Železné nářadí','salt'=>'Sůl','cloth'=>'Látka','hides'=>'Kožky',
     'grapes'=>'Hrozny','wine'=>'Víno','barrels'=>'Sudy',
     'leather'=>'Useň','boots'=>'Boty','flax'=>'Len','milk'=>'Mléko','cheese'=>'Sýr',
+    'honey'=>'Med','wax'=>'Vosk','candles'=>'Svíčky','clay'=>'Hlína','bricks'=>'Cihly a tašky',
 ];
 
 const RESOURCE_WORDS = [
@@ -25,6 +26,7 @@ const RESOURCE_WORDS = [
     'ore'=>'železné rudy','iron'=>'železa','ironTools'=>'železného nářadí','salt'=>'soli','cloth'=>'látky','hides'=>'kožek',
     'grapes'=>'hroznů','wine'=>'vína','barrels'=>'sudů',
     'leather'=>'useně','boots'=>'bot','flax'=>'lnu','milk'=>'mléka','cheese'=>'sýra',
+    'honey'=>'medu','wax'=>'vosku','candles'=>'svíček','clay'=>'hlíny','bricks'=>'cihel',
 ];
 
 // Slepice (první článek chovu): kurník dostane hejno, které žere obilí, snáší vejce a vejce se musí sbírat.
@@ -111,11 +113,17 @@ const BUILDINGS = [
         'text'=>'Z lnu z pole se tu příde a tká látka na teplé oblečení; nemusí se kupovat od obchodníka.'],
     'fara'=>['label'=>'Fara a škola','cost'=>['wood'=>20,'planks'=>12,'stone'=>20],'work'=>200,'needs'=>['kostel'],
         'text'=>'U kostela bydlí kněz a učí děti číst, počítat a modlit se: děti rostou do řemesel rychleji.'],
+    'vcelin'=>['label'=>'Včelín','cost'=>['wood'=>8,'planks'=>3],'work'=>40,'needs'=>['zahrada'],
+        'text'=>'Úly u zahrady: včely opylují záhony, chmelnici i vinici a dávají med a vosk na svíčky.'],
+    'cihelna'=>['label'=>'Cihelna','cost'=>['wood'=>12,'planks'=>4,'stone'=>4],'work'=>90,'needs'=>['dilna','studna'],
+        'text'=>'Z hlíny se tu pálí cihly a tašky. Z nich se přestavují doškové střechy, které při požáru hoří nejhůř.'],
+    'lazen'=>['label'=>'Lázeň','cost'=>['wood'=>14,'planks'=>4,'stone'=>10],'work'=>70,'needs'=>['studna','dilna'],
+        'text'=>'Sobotní koupel zahřeje a zvedne náladu a čistota chrání v zimě před nemocí. Topí se dřevem.'],
 ];
-const BUILD_ORDER = ['mlyn','pila','pec','studna','dilna','statek','zahrada','hospoda','kurnik','chliv','ohrada','sklep','udirna','milir','chmelnice','sladovna','pivovar','kovarna','dul','staje','hrbitov','kostel','vinice','lis','spychar','mlekarna','rybnik','kozeluzna','tkalcovna','fara'];
+const BUILD_ORDER = ['mlyn','pila','pec','studna','dilna','statek','zahrada','hospoda','kurnik','chliv','ohrada','sklep','udirna','milir','chmelnice','sladovna','pivovar','kovarna','dul','staje','hrbitov','kostel','vinice','lis','vcelin','spychar','mlekarna','rybnik','kozeluzna','tkalcovna','fara','cihelna','lazen'];
 // Od zahrady dál se stavba plánuje, až je celý materiál na skladě; do té doby ho plánovač chystá (materialNeeds).
 // Každou budovu staví vesničané z vlastních zásob, žádná nevznikne zdarma.
-const BUILD_PREPAY = ['zahrada','hospoda','kurnik','chliv','ohrada','sklep','udirna','milir','chmelnice','sladovna','pivovar','kovarna','dul','staje','hrbitov','kostel','vinice','lis','spychar','mlekarna','rybnik','kozeluzna','tkalcovna','fara'];
+const BUILD_PREPAY = ['zahrada','hospoda','kurnik','chliv','ohrada','sklep','udirna','milir','chmelnice','sladovna','pivovar','kovarna','dul','staje','hrbitov','kostel','vinice','lis','vcelin','spychar','mlekarna','rybnik','kozeluzna','tkalcovna','fara','cihelna','lazen'];
 
 function tavernOpen(array $world,int $hour): bool {
     return $hour>=18 && $hour<22 && hasBuilding($world,'hospoda') && empty($world['crisis']);
@@ -127,6 +135,8 @@ function economyDefaults(): array {
         'forestWood'=>0.0,'charcoal'=>0.0,'game'=>0.0,'meatSmoked'=>0.0,'gameStock'=>70.0,'carts'=>0,'cartProject'=>null,
         'kiln'=>['state'=>'idle','end'=>0,'lastWatch'=>0,'loss'=>0.0],
         'barley'=>0.0,'malt'=>0.0,'hops'=>0.0,'beerYoung'=>0.0,'beer'=>0.0,'brewProject'=>null,'ore'=>0.0,'iron'=>0.0,'ironTools'=>0.0,'salt'=>0.0,'cloth'=>0.0,'hides'=>0.0,'grapes'=>0.0,'wine'=>0.0,'barrels'=>0.0,'barrelWork'=>0.0,'leather'=>0.0,'boots'=>0.0,'flax'=>0.0,'milk'=>0.0,'cheese'=>0.0,'pond'=>['fish'=>0.0,'stocked'=>false],'school'=>['lastDay'=>-1,'lessons'=>0],
+        'hives'=>0,'apiary'=>['season'=>-1,'care'=>0.0,'crop'=>0.0,'done'=>false,'prepared'=>0.0,'swarm'=>false,'founded'=>false],'honey'=>0.0,'wax'=>0.0,'candles'=>0.0,
+        'clay'=>0.0,'bricks'=>0.0,'roofs'=>[],'roofProject'=>null,'hygiene'=>0.0,
         'wineBatch'=>['state'=>'idle','end'=>0,'yield'=>0.0],'vineyard'=>['season'=>-1,'care'=>0.0,'crop'=>0.0,'done'=>false,'frost'=>false],
         'trade'=>['credit'=>0.0,'visits'=>0,'lastMonth'=>-1,'kettle'=>false],'tribute'=>['paid'=>[],'log'=>[]],'beerLog'=>['brews'=>0,'drunk'=>0.0,'dry'=>0],'hopYard'=>['season'=>-1,'care'=>0.0,'crop'=>0.0,'done'=>false],
         'garden'=>['season'=>-1,'sown'=>0.0,'care'=>0.0,'crop'=>0.0,'done'=>false],
@@ -490,6 +500,8 @@ function economyDaily(PDO $db,array &$world): void {
     beerDaily($db,$world);
     forgeDaily($db,$world);
     craftsDaily($db,$world);
+    beesDaily($db,$world);
+    bathDaily($db,$world);
     wineDaily($db,$world);
     tributeDaily($db,$world);
     tradeDaily($db,$world);

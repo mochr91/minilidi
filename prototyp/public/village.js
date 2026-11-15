@@ -147,6 +147,7 @@
     }));
     const card={branch,fields,stats,setMap:createVillageMap(root),roster:new Map(),journalKey:'',journalScope:'',knownEntries:new Set()};
     fields.map.addEventListener('villager',event=>choose(event.detail));
+    fields.map.addEventListener('building',event=>showBuilding(card,event.detail));
     fields['person-only'].addEventListener('click',event=>{
       const filter=event.currentTarget;
       filter.setAttribute('aria-pressed',String(filter.getAttribute('aria-pressed')!=='true'));
@@ -177,6 +178,65 @@
   function time(state,minute) {
     return MinilidiTime.label(minute,state.calendar?.originDay??0);
   }
+
+  // Okénko budovy po kliknutí na mapě: co to je, co dělá, jak na tom je teď a co stála.
+  function closeBuilding(frame) {
+    frame.querySelector('.building-popup')?.remove();
+  }
+
+  async function showBuilding(card,detail) {
+    const frame=card.fields['map-frame'];
+    if (!detail?.key) { closeBuilding(frame); return; }
+    const token=(card.buildingToken=(card.buildingToken||0)+1);
+    let info;
+    try {
+      const response=await fetch('api.php?branch='+card.branch+'&view=building&key='+encodeURIComponent(detail.key),{cache:'no-store',signal:AbortSignal.timeout(3500)});
+      if (!response.ok) return;
+      info=await response.json();
+    } catch { return; }
+    if (token!==card.buildingToken) return;
+    closeBuilding(frame);
+    const popup=el('aside','','building-popup');
+    popup.setAttribute('role','dialog');
+    popup.setAttribute('aria-label',info.label);
+    const head=el('header');
+    head.append(el('h4',info.label));
+    const close=el('button','×','building-close');
+    close.type='button';
+    close.setAttribute('aria-label','Zavřít okénko');
+    close.addEventListener('click',event=>{ event.stopPropagation(); closeBuilding(frame); });
+    head.append(close);
+    popup.append(head);
+    popup.dataset.state=info.built?'built':'planned';
+    popup.append(el('p',info.what,'building-what'));
+    const list=(title,items,className='')=>{
+      if (!items?.length) return;
+      const section=el('section','',className);
+      section.append(el('h5',title));
+      const ul=el('ul');
+      for (const item of items) ul.append(el('li',item));
+      section.append(ul);
+      popup.append(section);
+    };
+    list('Co dělá',info.does);
+    list(info.built?'Teď':'Stav',[...(info.status??[]).filter(()=>!info.built),...(info.facts??[])]);
+    if (info.built) list('Stavba',info.status);
+    if (info.work) {
+      const cost=(info.cost??[]).map(item=>item.label+' '+item.amount).join(', ');
+      const needs=(info.needs??[]).join(', ');
+      popup.append(el('p','Pracnost '+info.work+' člověkohodin'+(cost?' · materiál: '+cost:'')+(needs?' · navazuje na: '+needs:''),'building-cost'));
+    }
+    frame.append(popup);
+    const box=frame.getBoundingClientRect();
+    const left=Math.max(6,Math.min(box.width-popup.offsetWidth-6,detail.clientX-box.left+14));
+    const top=Math.max(6,Math.min(box.height-popup.offsetHeight-6,detail.clientY-box.top+14));
+    popup.style.left=left+'px';
+    popup.style.top=top+'px';
+  }
+
+  window.addEventListener('keydown',event=>{
+    if (event.key==='Escape') for (const frame of document.querySelectorAll('.village-map')) closeBuilding(frame);
+  });
 
   function choose(id,sync=true) {
     if (!statePeople()[id]) return;
@@ -247,7 +307,7 @@
     const summary=branch==='control'?'Pravidla':mode+' · '+timing;
     write(map.plan,summary,branch==='control'?summary:summary+' · '+[state.ai?.status,model,state.ai?.detail].filter(Boolean).join(' · '));
     setMap(state.people,selected,state.minute,state.homesBuilt.length,state.weather,state.calendar,
-      {buildings:state.buildings,project:state.project,crisis:state.crisis,houseProject:state.houseProject,garden:state.garden,kiln:state.kiln,forestWood:state.forestWood,hopYard:state.hopYard,brewProject:state.brewProject,houseKinds:state.houseKinds,vineyard:state.vineyard});
+      {buildings:state.buildings,project:state.project,crisis:state.crisis,houseProject:state.houseProject,garden:state.garden,kiln:state.kiln,forestWood:state.forestWood,hopYard:state.hopYard,brewProject:state.brewProject,houseKinds:state.houseKinds,vineyard:state.vineyard,roofMap:state.roofMap});
     renderMapUpdates(map,state);
   }
 

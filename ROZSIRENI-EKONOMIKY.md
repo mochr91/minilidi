@@ -1,6 +1,6 @@
 # Rozšíření ekonomiky Minilidí: návrh
 
-Stav: **všech pět fází A až E je hotových a nasazených od 14. 11. 2026** (skutečná čísla jsou v KOORDINACE.md bod 5). Napsáno 14. 11. 2026 po rozboru živé hry a simulací (viz [KOORDINACE.md](KOORDINACE.md)). Čísla jsou výchozí odhady, které se mají vyladit testem a simulací. Návaznost: [KONCEPT.md](KONCEPT.md), [POCASI-A-OBDOBI.md](POCASI-A-OBDOBI.md), [UKOLY-1400-1600.md](UKOLY-1400-1600.md) (tam už jsou lov, sušení a uzení, pivo, příděly před zimou, dřevěné uhlí a nádoby jako „později“).
+Stav: **fáze A až F jsou hotové (A až E nasazené od 14. 11. 2026, F od 15. 11.); fáze G (bod 12) je hotová v souborech od 15. 11. (v běhu po restartu).** Původně: **všech pět fází A až E je hotových a nasazených od 14. 11. 2026** (skutečná čísla jsou v KOORDINACE.md bod 5). Napsáno 14. 11. 2026 po rozboru živé hry a simulací (viz [KOORDINACE.md](KOORDINACE.md)). Čísla jsou výchozí odhady, které se mají vyladit testem a simulací. Návaznost: [KONCEPT.md](KONCEPT.md), [POCASI-A-OBDOBI.md](POCASI-A-OBDOBI.md), [UKOLY-1400-1600.md](UKOLY-1400-1600.md) (tam už jsou lov, sušení a uzení, pivo, příděly před zimou, dřevěné uhlí a nádoby jako „později“).
 
 ## 1. Proč to přidat
 
@@ -147,6 +147,7 @@ Kalendář prací je v samostatném grafu (v konverzaci). Zásada: pole a zahrad
 | E | Vinice, lis, víno | luxus a slavnosti | **hotovo 14. 11.**, podrobnosti v KOORDINACE.md bod 5 (první úroda po dvou letech, 20 vína za sezónu, pije se v neděli v hospodě a v kostele) |
 
 | F | Špýchar, mlékárna, rybník, koželužna a ševcovna, tkalcovna, fara a škola | řemesla navazující na kožky, mléko a len; víc jídla a zboží | **hotovo 15. 11.**, podrobnosti v KOORDINACE.md bod 5 (nové budovy na konci pořadí, každá ze zásob; grafika jako vyměnitelné obrázky) |
+| G | Včelín, cihelna, lázeň | med, vosk a svíčky, opylení; střechy z došek na tašky proti požáru; hygiena a teplo v zimě | **hotovo 15. 11.** (schváleno a naprogramováno), podrobnosti v bodě 12 a v KOORDINACE.md bod 5 |
 
 Doporučené pořadí A, B, C, D, E. A musí být první, protože zavádí kažení a pestrost, na kterých stojí zbytek. C lze před B, pokud chcete pivo dřív; vozy a uhlí pak jen počkají.
 
@@ -162,4 +163,86 @@ Doporučené pořadí A, B, C, D, E. A musí být první, protože zavádí kaž
 1. Úrok a obchod jsou zavedené (pokyn uživatele 14. 11.: „pracuj na fázi D a E“).
 3. Mají pivo a víno **opíjet** (únava, hádky), nebo jen zvedat náladu?
 5. Mají se před přidáním nové práce **zkrátit plánovací dávky** (víc úkolů)?
-6. Fáze A až F jsou hotové; další směr (včetně dalších řemesel: včelín, lázeň, kolárna, cihelna) není určen.
+6. Fáze A až F jsou hotové; další směr navrhuje **fáze G (bod 12, schváleno a hotovo 15. 11. 2026)**: včelín, cihelna, lázeň. Kolárna se do G nezařazuje a ovčín je kandidát na H (zdůvodnění v bodě 12).
+
+## 12. Fáze G: včelín, cihelna, lázeň (návrh 15. 11. 2026)
+
+Stav: **schváleno uživatelem 15. 11. 2026 („Schválit vše“, včetně doporučení u otevřených otázek) a naprogramováno** (skutečná čísla a odchylky od návrhu jsou v KOORDINACE.md bod 5, nasazení do souborů 15. 11., v běhu po restartu). Čísla jsou výchozí odhady k vyladění sledováním živé hry. Návrh vychází ze zásady z bodu 1: surovina nebo budova, která nemá zdroj, sezónu, zpracování, uložení, spotřebu a následek nedostatku, do hry nepatří. Proto z původního seznamu (včelín, lázeň, kolárna, cihelna) zůstávají tři.
+
+### 12.1 Proč právě tyto tři
+Rozbor současných článků, které už ve hře jsou, ale nemají dost užitku:
+- **Požár** (`crisis.php`) dnes zmírňuje jen studna (×0,7). Tři ze šesti pevných domů mají doškovou střechu (`homeRoofs` v `map.js`: Hruškovi, Novákovi, Veselí), tři taškovou, ale nic ve hře střechu nemění. Cihelna z toho udělá řetězec s viditelným výsledkem (došky se přestavují na tašky).
+- **Zimní nemoc** (`winter.php`, vzorec `zimnice`) dnes ovlivňují pestrost stravy, látka a boty. Hygiena a léčba nemají žádný vliv. Lázeň a med přidávají další dva nezávislé zdroje ochrany.
+- **Zahrada, chmelnice a vinice** mají úrodu bez opylení. Včely dají zahradě výnos navíc a zároveň med a vosk.
+- **Fara a škola** (fáze F) učí v zimě bez světla. Svíčky z vosku jsou první spotřeba, která školu v zimě opravdu omezuje.
+- **Dřevo a uhlí** se hromadí (dřevo 103, uhlí je zboží k prodeji). Cihelna a lázeň je spotřebují.
+
+### 12.2 Včelín (med, vosk, svíčky)
+- **Budova:** včelín, 40 h; dřevo 8, prkna 3; závisí na zahradě (zdroj nektaru).
+- **Stav:** `hives` (počet úlů, na začátku 3, strop min(8, počet lidí děleno 3, zaokrouhleno nahoru)), `apiary` = `{season, care, done, wintered}` (péče 0 až 1 jako u chmelnice), zásoby `honey`, `wax`, `candles`.
+- **Činnosti** (nová skupina „Včely“):
+  - `tend_bees` (duben až září, 30 min, šest úkolů za sezónu dá plnou péči; místo `apiary`),
+  - `harvest_honey` (srpen, 60 min na dávku; med = úly × 4 × (0,4 + 0,6 péče), vosk = 30 % medu),
+  - `prepare_hives` (zazimování 1. 10. až 15. 11., jeden úkol na dva úly; bez něj přežije zimu 65 % úlů, se zazimováním 92 %, ve zlé zimě o 10 bodů míň),
+  - `make_candles` (celoročně, 45 min, 1 vosk dá 6 svíček),
+  - roj: v květnu a červnu se s péčí aspoň 0,5 přidá jeden úl ročně až do stropu.
+- **Spotřeba a následky:**
+  - **Opylení:** výnos zahrady, chmelnice a vinice × (1 + 0,015 × úly, nejvýš +10 %). Hook je v `winter.php` u výpočtu `garden['crop']` a v odpovídajících výpočtech chmele a vinice.
+  - **Léčba:** `nurse` s 0,5 medu zkrátí nemoc o dalších 20 % k 30 % z bylin (`winter.php` kolem řádku 158). Bez medu platí jen byliny, jako dnes.
+  - **Světlo:** lekce `teach` v listopadu až únoru spotřebuje 1/6 svíčky. Bez svíček se v těchto měsících neučí (děti nedostanou +1,4 bodu zkušenosti, nechybí ale nic jiného). Starší vesnice bez včelína se nezhorší: omezení platí, až stojí včelín.
+  - **Obchod:** med 3,0 a vosk 4,0 za kus (`tradeSellRules`), přebytek se prodá.
+- **Realita:** brtnictví a včelaření ve slaměných úlech bylo v 15. až 16. století běžné, vosk se platil i vrchnosti a kostelu. **Medovina se do G nedává** (překrývala by pivo a víno a nepřinášela nový následek), je kandidát na pozdější fázi.
+
+### 12.3 Cihelna (hlína, cihly a tašky, přestavba střech)
+- **Budova:** cihelna, 90 h; dřevo 12, prkna 4, kámen 4; závisí na dílně a studni (voda do hlíny).
+- **Stav:** zásoby `clay` (hlína, strop 80, nekazí se), `bricks` (cihly a tašky, nekazí se), `roofs` = `{id domu: 'tile'}` (přestavěné střechy; pevné domy a `dum1` až `dum4`).
+- **Činnosti** (skupina „Stavba“):
+  - `dig_clay` (březen až září, 90 min, +6 hlíny, riziko zranění jako u kamene ×0,5),
+  - `fire_bricks` (květen až září, bez deště, 240 min: 30 hlíny a 8 dřeva **nebo** 3 uhlí dá 20 kusů; uhlí se použije přednostně, když je nad cílovou zásobou, čímž dostane přebytek uhlí další užitek),
+  - `reroof` (přestavba střechy jednoho domu, 30 kusů a 14 člověkohodin; dům dostane `roofs[id]='tile'`; plánovač ji nabídne, když stojí cihelna, jsou kusy a existuje dům s došky).
+- **Spotřeba a následky:**
+  - **Požár:** podíl přestavěných původně doškových střech `s` (0 až 1) sníží denní riziko požáru ×(1 − 0,5 s) a škody při vyhodnocení ×(1 − 0,35 s), násobí se s účinkem studny.
+  - **Mapa:** `homeRoofs` v `map.js` čte `roofs` ze světa (přestavěný dům se překreslí z došky na tašky); `home_thatch` a `home_tile` obrázky už existují.
+  - **Obchod:** přebytek cihel nad 40 kusů se prodá za 0,6.
+  - **Později (H):** cihly jako materiál pro zděné stavby. V G se nemění ceny stávajících budov.
+- **Realita:** pálené tašky a cihly byly na vsi vzácnější než na městě, proto jsou střechy jen vylepšení a ne podmínka. Doškové střechy se kvůli požárům skutečně nahrazovaly.
+
+### 12.4 Lázeň (hygiena, dřevo, nálada)
+- **Budova:** lázeň, 70 h; dřevo 14, kámen 10, prkna 4; závisí na studni a dílně.
+- **Stav:** u osoby `bathDay` (absolutní den poslední koupele), ve světě `hygiene` 0 až 1 (podíl lidí, kteří se koupali za posledních 14 dní).
+- **Činnost** `bathe` (skupina „Domov“, místo `bathhouse`): **sobota 12 až 19 h** (plánovač rozhoduje každých 6 hodin, proto okno začíná v poledne), 75 min, všichni od 2 let; spotřeba 0,35 dřeva na osobu (zhruba 7 dřeva za koupel dvaceti lidí); nálada +5 (v zimě +8), únava −10.
+- **Následky:**
+  - **Zimnice:** šance nemoci ve vzorci `zimnice` (`winter.php:220`) × (1 − 0,4 × hygiene). Efekt jen zlepšuje, takže stav před postavením lázně zůstává beze změny.
+  - **Společenský efekt:** nezařazeno (odloženo).
+  - **Dřevo:** spotřeba je skutečný odběr, proto lázeň zavře vrata, když dřevo klesne pod zimní rezervu topiva (zimní příprava má přednost).
+- **Realita:** veřejné lázně se v českých zemích udržely do 16. století a sobotní koupel patřila k tradici. Mýdlo (potaš, lůj) se nezavádí, byl by to další řetězec bez nového následku.
+
+### 12.5 Co se nezařazuje a proč
+| Kandidát | Důvod |
+|---|---|
+| **Kolárna** | Vozy už stavěla dílna ve fázi B. Kolárna by nepřidala žádnou surovinu ani nový následek, jen přejmenovala stávající věc. |
+| **Ovčín** (vlna) | Dobrý kandidát na H: vlna by doplnila len v tkalcovně a spotřebovala seno. Zatím ale nevíme, jestli látka z lnu v zimě stačí (fáze F není ve hře ověřená). |
+| **Medovina, mýdlo, zděné stavby** | Vyžadují G jako základ. Zařadit až po jeho ověření. |
+
+### 12.6 Pořadí staveb, nasazení a riziko
+- Do `BUILD_ORDER` a `BUILD_PREPAY` se přidají na konec: `vcelin`, `cihelna`, `lazen` (za `fara`). Každá se staví z vlastních zásob jako dosud.
+- **Důležité:** pevné pořadí znamená, že se G v živé hře projeví až po dostavění všech šesti budov fáze F (dnes nestojí žádná). Nasazení G tedy do té doby nic nemění a je bezpečné, ale přínos uvidíme pozdě. Otevřená otázka 7 (níže) se ptá, jestli má být včelín (40 h) předřazen.
+- Nasazení stejným postupem jako F: vývojová kopie, záloha originálů, ověření hashů, zvýšení verzí skriptů, restart jen s výslovným pokynem.
+
+### 12.7 Dopad na kód a rozhraní (nic z toho se zatím nemění)
+- **Nové soubory:** `bees.php` (včely, svíčky), `bricks.php` (cihelna, střechy), `bath.php` (lázeň, hygiena); denní hook se připojí vedle `craftsDaily`.
+- **Úpravy:** `economy.php` (`BUILDINGS`, pořadí, výchozí hodnoty), `jobs.php` a `auto.php` (činnosti, plánovač), `goals.php` (cíle `bees_house`, `roofs_tiled`, `bath_house`, `public_buildings` do 33), `winter.php` (opylení, nemoc, med), `crisis.php` (požár), `crafts.php` (svíčky u `teach`), `trade.php` (prodej), `world.php` (`decodeWorld` výchozí hodnoty), `skills.php` (kategorie), `api.php` (`resourceLabels`).
+- **Rozhraní (zapsat do KOORDINACE bod 4 před použitím):** zásoby `honey`, `wax`, `candles`, `clay`, `bricks`; `hives`, `apiary`, `roofs`, `hygiene`; budovy `vcelin`, `cihelna`, `lazen`; osoba `bathDay`; místa `apiary`, `claypit`, `bathhouse`; činnosti `tend_bees`, `harvest_honey`, `prepare_hives`, `make_candles`, `dig_clay`, `fire_bricks`, `reroof`, `bathe`. GUI musí chybějící klíče snést.
+- **Mapa a grafika:** tři nové sprity budov (`vcelin`, `cihelna`, `lazen`), přestavba střech podle `roofs`; `map.js` patří Codexovi, změna se zapíše do bodu 5 a před úpravou se soubor načte znovu.
+- **Testy:** `vcely.php`, `cihly.php`, `lazen.php` (příklad, sezóna, nedostatek, starý stav bez nových klíčů), úprava `remesla.php` a `budovy.php` (pořadí staveb), 720denní soak bez varování PHP a simulace z živého snímku (`upgrade-f.php`).
+- **Kritéria úspěchu simulace:** žádný hlad ani nová chyba v logu; včely přezimují aspoň ze 70 %; všechny doškové střechy se do dvou let od stavby cihelny přestaví; lázeň neodebírá dřevo pod zimní rezervu; škola učí v zimě aspoň 60 % dní při zavedeném včelíně.
+- **Odhad práce:** zhruba polovina fáze F (tři budovy, tři řetězce, jedna úprava mapy).
+
+### 12.8 Otevřené otázky k G
+1. Schvalujete tři budovy (včelín, cihelna, lázeň) a vyřazení kolárny?
+2. Má být **ovčín** součástí G, nebo až H po ověření F?
+3. Má se přestavba střech týkat jen pevných domů, nebo i postavených (`dum1` až `dum4`)? (Návrh: všech.)
+4. Má se **úrok** (sv. Michal, sv. Martin) umět platit i voskem a medem? (Návrh: zatím ne, jen obilí, vejce, slepice jako dnes.)
+5. Má lázeň při nedostatku dřeva zavřít (návrh), nebo se koupat i na úkor topiva?
+6. Má se při větším množství práce zkrátit plánovací dávka (otázka 5 z bodu 11)? G přidává osm činností.
+7. Má se levný **včelín předřadit** před špýchar až fara, aby opylení a med fungovaly dřív? (Návrh: ano, za `lis`, než se dostaví zbytek F; rozdíl je v jednom řádku pole pořadí.)

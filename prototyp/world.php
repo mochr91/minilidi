@@ -14,6 +14,10 @@ require_once __DIR__ . '/forge.php';
 require_once __DIR__ . '/trade.php';
 require_once __DIR__ . '/vineyard.php';
 require_once __DIR__ . '/crafts.php';
+require_once __DIR__ . '/bees.php';
+require_once __DIR__ . '/bricks.php';
+require_once __DIR__ . '/bath.php';
+require_once __DIR__ . '/buildinfo.php';
 require_once __DIR__ . '/life.php';
 require_once __DIR__ . '/crisis.php';
 require_once __DIR__ . '/goals.php';
@@ -88,6 +92,14 @@ const ACTIONS = [
     'make_cheese' => ['label'=>'Sýřit mléko','place'=>'dairy','work'=>'Dělá sýr','minutes'=>120,'fatigue'=>1.4,'appeal'=>2,'group'=>'Řemesla'],
     'harvest_pond' => ['label'=>'Vylovit rybník','place'=>'pond','work'=>'Loví kapry','minutes'=>180,'fatigue'=>2.2,'appeal'=>3,'group'=>'Řemesla'],
     'teach' => ['label'=>'Učit děti u fary','place'=>'parsonage','work'=>'Učí děti','minutes'=>90,'fatigue'=>1.0,'appeal'=>2,'group'=>'Řemesla'],
+    'tend_bees' => ['label'=>'Prohlédnout úly','place'=>'apiary','work'=>'Stará se o včely','minutes'=>45,'fatigue'=>.9,'appeal'=>3,'group'=>'Včely'],
+    'harvest_honey' => ['label'=>'Vytočit med','place'=>'apiary','work'=>'Vytáčí med','minutes'=>60,'fatigue'=>1.1,'appeal'=>5,'group'=>'Včely'],
+    'prepare_hives' => ['label'=>'Zazimovat úly','place'=>'apiary','work'=>'Zazimovává úly','minutes'=>60,'fatigue'=>1.2,'appeal'=>0,'group'=>'Včely'],
+    'make_candles' => ['label'=>'Lít svíčky z vosku','place'=>'apiary','work'=>'Odlévá svíčky','minutes'=>45,'fatigue'=>.6,'appeal'=>2,'group'=>'Včely'],
+    'dig_clay' => ['label'=>'Kopat hlínu na cihly','place'=>'claypit','work'=>'Kope hlínu','minutes'=>90,'fatigue'=>2.6,'appeal'=>-10,'group'=>'Stavba z cihel'],
+    'fire_bricks' => ['label'=>'Vypálit cihly a tašky','place'=>'claypit','work'=>'Pálí cihly','minutes'=>240,'fatigue'=>1.8,'appeal'=>-3,'group'=>'Stavba z cihel'],
+    'reroof' => ['label'=>'Přestavět došky na tašky','place'=>'building','work'=>'Přestavuje střechu','minutes'=>120,'fatigue'=>2.4,'appeal'=>-5,'group'=>'Stavba z cihel'],
+    'bathe' => ['label'=>'Sobotní koupel v lázni','place'=>'bathhouse','work'=>'Koupe se v lázni','minutes'=>75,'fatigue'=>-1.2,'appeal'=>8,'group'=>'Domov'],
     'press_wine' => ['label'=>'Lisovat víno','place'=>'press','work'=>'Lisuje víno','minutes'=>120,'fatigue'=>2.0,'appeal'=>3,'group'=>'Víno'],
     'make_barrel' => ['label'=>'Vyrobit sud na víno','place'=>'workshop','work'=>'Dělá sud','minutes'=>240,'fatigue'=>1.8,'appeal'=>-2,'group'=>'Víno'],
     'nurse' => ['label'=>'Ošetřit nemocného bylinami','place'=>'home','work'=>'Ošetřuje nemocného','minutes'=>45,'fatigue'=>.8,'appeal'=>6,'group'=>'Sousedé'],
@@ -217,6 +229,7 @@ function sampleVillage(PDO $db, array $world): void {
         'legumes'=>round($world['legumes'],1),'herbs'=>round($world['herbs']+$world['herbsDry'],1),'prep'=>round(100*$world['winterPrep']),
         'variety'=>round(100*$world['variety']),'eggs'=>round($world['eggs'],1),'hens'=>round((float)($world['hens']??0),1),
         'ore'=>round($world['ore'],1),'iron'=>round($world['iron'],1),'ironTools'=>round($world['ironTools'],1),'salt'=>round($world['salt'],1),'cloth'=>round($world['cloth'],1),'wine'=>round(wineStock($world),1),'cheese'=>round($world['cheese']??0,1),'boots'=>round($world['boots']??0,1),'leather'=>round($world['leather']??0,1),'flax'=>round($world['flax']??0,1),'milk'=>round($world['milk']??0,1),'carp'=>round(pondFish($world),1),
+        'honey'=>round($world['honey']??0,1),'wax'=>round($world['wax']??0,1),'candles'=>round($world['candles']??0,1),'hives'=>(int)($world['hives']??0),'clay'=>round($world['clay']??0,1),'bricks'=>round($world['bricks']??0,1),'hygiene'=>round(100*($world['hygiene']??0)),
         'barley'=>round($world['barley'],1),'malt'=>round($world['malt'],1),'hops'=>round($world['hops'],1),'beer'=>round($world['beer']+$world['beerYoung'],1),
         'buildings'=>count($world['buildings']),'score'=>villageScore($world)];
     $insert = $db->prepare('INSERT OR IGNORE INTO village_samples (minute,values_json) VALUES (?,?)');

@@ -192,6 +192,17 @@ function renderEconomy() {
       if (has('fara')) parts.push('lekcí ve škole ' + (state.school?.lessons ?? 0));
       box.append(make('p', 'Řemesla a zásobárny: ' + parts.join(' · '), 'dev-note'));
     }
+    if (['vcelin', 'cihelna', 'lazen'].some(key => state.buildings?.[key] !== undefined)) {
+      const has = key => state.buildings?.[key] !== undefined;
+      const parts = [];
+      if (has('vcelin')) parts.push('úlů ' + (state.hives ?? 0) + ' · med ' + fmt(state.honey ?? 0) + ' · vosk ' + fmt(state.wax ?? 0) + ' · svíček ' + fmt(state.candles ?? 0));
+      if (has('cihelna')) {
+        const roofs = Object.values(state.roofMap ?? {});
+        parts.push('hlína ' + fmt(state.clay ?? 0) + ' · cihly a tašky ' + fmt(state.bricks ?? 0) + ' · střechy z tašek ' + roofs.filter(r => r === 'tile').length + ' z ' + roofs.length);
+      }
+      if (has('lazen')) parts.push('hygiena ' + Math.round((state.hygiene ?? 0) * 100) + ' %');
+      box.append(make('p', 'Včely, cihly a lázeň: ' + parts.join(' · '), 'dev-note'));
+    }
     const list = make('ul', '', 'dev-buildings');
     for (const [key, def] of Object.entries(state.buildingDefs)) {
       const built = state.buildings?.[key] !== undefined;

@@ -55,7 +55,7 @@ function villageCandidates(array $world, array $queued=[]): array {
                 'construct'=>38,'saw'=>isset($needs['planks'])?28:($world['planks']<8?10:2),
                 'mill'=>$world['grain']>=4?26:8,'bake'=>$world['flour']>=3?36:10,
                 'craft'=>$world['tools']<$toolNeed?22:4,'mow'=>($world['hay']<25?24:8)+winterScore($world,'mow'),
-                'firefight','flood_defense'=>120,default=>winterScore($world,$key)+forestScore($world,$key)+beerScore($world,$key)+forgeScore($world,$key)+wineScore($world,$key)+craftScore($world,$key),
+                'firefight','flood_defense'=>120,default=>winterScore($world,$key)+forestScore($world,$key)+beerScore($world,$key)+forgeScore($world,$key)+wineScore($world,$key)+craftScore($world,$key)+beesScore($world,$key)+bricksScore($world,$key)+bathScore($world,$key),
             };
             if ($key===($p['lastPlanAction']??null)) $score-=9;
             $score+=(skillFactor($p,actionCategory($world,$key))-.82)*15;
@@ -94,6 +94,9 @@ const TASK_STEMS = [
     'tend_vines'=>'vinic|réva|révu|révy', 'harvest_grapes'=>'hrozn|vinic|česat', 'press_wine'=>'\blis[ue]?\b|lisov|víno|vína', 'make_barrel'=>'\bsud[yu]?\b|bečk',
     'tan_hides'=>'kůž[eiíou]|useň|koželuh|koželužn', 'make_boots'=>'\bbot[ayěu]|ševc|šít boty|obuv', 'spin_weave'=>'tkal|\btká|\btkát|\bpříst|\blen\b|lnu|látk',
     'make_cheese'=>'sýr|mlék|mlékárn', 'harvest_pond'=>'rybník|rybníka|kapr|výlov|lovit ryb', 'teach'=>'uč[ií]|škol|fara|faru|fary|dět[ií] čt',
+    'tend_bees'=>'včel|úl[ey]?\b|úlů|včelín', 'harvest_honey'=>'\bmed\b|medu|medem|včel|vytoč|úl[ey]?\b', 'prepare_hives'=>'zazimov|úl[ey]?\b|úlů|včel', 'make_candles'=>'svíč|vosk',
+    'dig_clay'=>'hlín|cihel|cihelna|cihelny|hliniště', 'fire_bricks'=>'cihl|tašk|pálit|pálí|výpal|cihelna|cihelny', 'reroof'=>'střech|došk|tašk',
+    'bathe'=>'lázn|lázeň|koupel|koupat|koupá',
     'pickle'=>'zelí|nakl|sklep', 'gather_herbs'=>'bylin|léč|bylink', 'dry_herbs'=>'bylin|suš|usuš', 'nurse'=>'ošetř|nemoc|odvar|bylin|nemocn',
 ];
 const BAD_WORDS = '/\b(?:rádám|rádá|doněla|odpocítn\p{L}*|peknout|mlýnit|nečum)\b/iu';

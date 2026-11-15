@@ -50,6 +50,7 @@ function createVillageMap(root) {
     chmelnice:[3,22,3,3], sladovna:[0,23,2,2], pivovar:[17,22,2,2],
     kovarna:[20,22,2,2], dul:[22,12,2,2], vinice:[21,17,3,3], lis:[23,21,2,2],
     spychar:[19,10,2,2], mlekarna:[7,26,2,2], rybnik:[27,18,4,3], kozeluzna:[16,26,2,2], tkalcovna:[12,25,2,2], fara:[24,5,2,2],
+    vcelin:[0,6,2,2], cihelna:[18,6,2,2], lazen:[27,8,2,2],
   };
   const centerOf = key => { const [x,y,w,d]=FOOT[key]; return [x+w/2,y+d/2]; };
   const buildingSpots = Object.fromEntries(Object.keys(FOOT).map(key=>[key,centerOf(key)]));
@@ -65,7 +66,8 @@ function createVillageMap(root) {
     oven:[8.5,7.5], sawmill:[3,14.5], workshop:[6.5,12.5], tavern:[13,7.5],
     hops:[4.5,21.2], maltings:[1,25.3], brewery:[18,24.6],
     forge:[21,24.6], mine:[23,14.4], vineyard:[22.5,20.3], press:[24,23.6],
-    granary:[21,12.4], dairy:[8,28.3], pond:[29,21.5], tannery:[17,28.3], weaver:[13,27.3], parsonage:[25,7.3] };
+    granary:[21,12.4], dairy:[8,28.3], pond:[29,21.5], tannery:[17,28.3], weaver:[13,27.3], parsonage:[25,7.3],
+    apiary:[1,8.5], claypit:[19,8.7], bathhouse:[28,10.7] };
   const ROADS = [[2,8,25,8],[10,3,10,28],[21,5,21,8],[25,8,25,11],[10,28,24,28]];
   const BRIDGE_ROWS = [8,28];
   const FIELDS = [[11,13,15,15],[4,15,8,16],[18,14,20,16]];
@@ -1142,9 +1144,25 @@ function createVillageMap(root) {
       rect(ctx,'#7a5a3d',a-2,b-14,4,4);
     }
   }
+  // Včelín: řada slaměných košů (úlů) na dřevěných stolcích.
+  function apiaryFallback(ctx,x,y) {
+    const spots=[[-20,-4],[-6,-9],[8,-4],[-13,4],[1,3],[15,3]];
+    for (const [dx,dy] of spots) {
+      const a=x+dx, b=y+dy;
+      rect(ctx,'#6d5236',a-5,b-3,10,4);
+      ctx.fillStyle='#d9b45c';
+      ctx.beginPath(); ctx.ellipse(a,b-8,6,9,0,Math.PI,0); ctx.lineTo(a+6,b-3); ctx.lineTo(a-6,b-3); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle='#a98332'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(a-5,b-8); ctx.lineTo(a+5,b-8); ctx.moveTo(a-3,b-13); ctx.lineTo(a+3,b-13); ctx.stroke();
+      rect(ctx,'#3d2e1c',a-1,b-5,2,2);
+    }
+  }
   const NEW_BUILDINGS = {
     spychar:shedFallback('tile','barn',1.15), mlekarna:shedFallback('thatch','barn',1.05), kozeluzna:shedFallback('slate','workshop',1.1),
     tkalcovna:shedFallback('thatch','workshop',1.1), fara:shedFallback('tile','home',1.25), rybnik:pondFallback,
+    vcelin:apiaryFallback,
+    cihelna:(ctx,x,y,time)=>{ shedFallback('tile','workshop',1.1)(ctx,x,y); chimneySmoke(ctx,x+14,y-62,time); },
+    lazen:(ctx,x,y,time)=>{ shedFallback('thatch','home',1.0)(ctx,x,y); chimneySmoke(ctx,x+12,y-58,time); },
   };
   function buildingSprite(ctx,x,y,key,time) {
     if (FOOT[key] && trySprite(ctx,'buildings',key,x,y,time,frontCorner(key))) return;
@@ -1181,7 +1199,7 @@ function createVillageMap(root) {
     }
   }
 
-  const scaffoldScale = { kostel:2.2, ohrada:2, staje:1.8, hrbitov:1.6, hospoda:1.5, mlyn:1.5, statek:1.5, pila:1.5, chliv:1.2, kurnik:1.2, zahrada:1.5, sklep:1.2, udirna:1.2, milir:1.4, chmelnice:1.5, sladovna:1.3, pivovar:1.6, kovarna:1.4, dul:1.3, vinice:1.5, lis:1.2, spychar:1.4, mlekarna:1.2, rybnik:1.3, kozeluzna:1.3, tkalcovna:1.3, fara:1.6 };
+  const scaffoldScale = { kostel:2.2, ohrada:2, staje:1.8, hrbitov:1.6, hospoda:1.5, mlyn:1.5, statek:1.5, pila:1.5, chliv:1.2, kurnik:1.2, zahrada:1.5, sklep:1.2, udirna:1.2, milir:1.4, chmelnice:1.5, sladovna:1.3, pivovar:1.6, kovarna:1.4, dul:1.3, vinice:1.5, lis:1.2, spychar:1.4, mlekarna:1.2, rybnik:1.3, kozeluzna:1.3, tkalcovna:1.3, fara:1.6, vcelin:1, cihelna:1.3, lazen:1.2 };
   function scaffold(ctx,x,y,progress,key) {
     const s=scaffoldScale[key]??.8;
     const w=Math.round(20*s), h=Math.round(36*s);
@@ -1257,6 +1275,7 @@ function createVillageMap(root) {
   let homeCount = 0;
   let extra = {};
   let extraKey = '';
+  let roofMapKey = '';
   let snowTheme = false;
   let nightTheme = false;
   let wetTheme = false;
@@ -1321,6 +1340,13 @@ function createVillageMap(root) {
       (development.hopYard?.crop??0)>=1?3:(development.hopYard?.care??0)>.5?2:(development.hopYard?.care??0)>0?1:0,!!development.brewProject?.paid,JSON.stringify(development.houseKinds??{}),(development.vineyard?.crop??0)>=1?2:(development.vineyard?.care??0)>.3?1:0]);
     if (nextKey!==extraKey) { extraKey=nextKey; needsPaint=true; }
     extra=development;
+    // Střechy domů: přestavba došků na tašky (cihelna) se projeví bez obnovení stránky.
+    for (const family of STATIC_HOMES) {
+      const roof=development.roofMap?.[family];
+      if (roof && homeRoofs[family]!==roof) { homeRoofs[family]=roof; needsPaint=true; }
+    }
+    const roofKey=JSON.stringify(development.roofMap??{});
+    if (roofKey!==roofMapKey) { roofMapKey=roofKey; needsPaint=true; }
     const snow=weather.ground==='snow';
     const night=calendar.hour<calendar.sunrise || calendar.hour>=calendar.sunset;
     const wet=weather.precip==='rain'||weather.precip==='sleet';
@@ -1436,7 +1462,7 @@ function createVillageMap(root) {
       drawYards(paint);
       const newHomes=plots.slice(0,homeCount).map(([px,py],i)=>{
         const [x,y]=foot(px,py);
-        const cottage=extra.houseKinds?.[i]==='domek';
+        const cottage=extra.houseKinds?.[i]==='domek' && extra.roofMap?.['dum'+(i+1)]!=='tile';
         return {x,y,draw:(ctx,a,b)=>{ if (!trySprite(ctx,'houses',cottage?'cottage':'home_new',a,b,animationTime,HALF_H)) scaled(ctx,a,b,cottage?HOUSE_SCALE*.78:HOUSE_SCALE,(c,p,q)=>house(c,p,q,cottage?'thatch':'tile','home')); }};
       });
       const layers = [...scenery,...newHomes,...buildingLayers(animationTime),...sprites].sort((a,b)=>a.y-b.y);
@@ -1526,6 +1552,38 @@ function createVillageMap(root) {
     });
   }
 
+  // Klikací budovy a domy: obdélník kolem půdorysu zvětšený nahoru o výšku stavby.
+  const FLAT_BUILDINGS = new Set(['rybnik','vinice','chmelnice','zahrada','hrbitov','ohrada','vcelin']);
+  function footprintArea(rect,height) {
+    const [x0,y0,w,d]=rect;
+    const corners=[project(x0,y0),project(x0+w,y0),project(x0+w,y0+d),project(x0,y0+d)];
+    const xs=corners.map(c=>c[0]), ys=corners.map(c=>c[1]);
+    return {left:Math.min(...xs)-4,right:Math.max(...xs)+4,top:Math.min(...ys)-height,bottom:Math.max(...ys)+4,front:Math.max(...ys)};
+  }
+  function houseArea(tileX,tileY) {
+    const [px,py]=foot(tileX,tileY);
+    return {left:px-28,right:px+28,top:py-54,bottom:py+8,front:py};
+  }
+  function buildingTargets() {
+    const targets=[];
+    const standing=extra.buildings??{};
+    for (const key of Object.keys(standing)) {
+      if (FOOT[key]) targets.push({key,...footprintArea(FOOT[key],FLAT_BUILDINGS.has(key)?14:46)});
+    }
+    const site=extra.project;
+    if (site && FOOT[site.key] && standing[site.key]===undefined) targets.push({key:site.key,...footprintArea(FOOT[site.key],34)});
+    for (const family of STATIC_HOMES) targets.push({key:'home:'+family,...houseArea(...HOME_TILES[family])});
+    plots.slice(0,homeCount).forEach((plot,i)=>targets.push({key:'home:dum'+(i+1),...houseArea(plot[0],plot[1])}));
+    return targets;
+  }
+  function findBuilding(event) {
+    const [screenX,screenY] = canvasPoint(event);
+    const x = (screenX-view.x)/view.zoom;
+    const y = (screenY-view.y)/view.zoom;
+    const hit=buildingTargets().filter(t=>x>=t.left && x<=t.right && y>=t.top && y<=t.bottom).sort((a,b)=>b.front-a.front)[0];
+    return hit?.key??null;
+  }
+
   zoomOut.addEventListener('click',()=>zoomTo(view.zoom/1.25));
   zoomIn.addEventListener('click',()=>zoomTo(view.zoom*1.25));
   resetView.addEventListener('click',resetMap);
@@ -1568,7 +1626,7 @@ function createVillageMap(root) {
       if (Math.hypot(dx,dy)>5) dragged=true;
       if (dragged) moveView(drag.x+dx,drag.y+dy);
     }
-    canvas.style.cursor=dragged && drag?'grabbing':findSprite(event)?'pointer':view.zoom>1?'grab':'default';
+    canvas.style.cursor=dragged && drag?'grabbing':(findSprite(event)||findBuilding(event))?'pointer':view.zoom>1?'grab':'default';
   });
   for (const name of ['pointerup','pointercancel','lostpointercapture']) {
     canvas.addEventListener(name,event=>{
@@ -1578,7 +1636,10 @@ function createVillageMap(root) {
   canvas.addEventListener('click',event=>{
     if (dragged) { dragged=false; return; }
     const sprite=findSprite(event);
-    if(sprite)canvas.dispatchEvent(new CustomEvent('villager',{detail:sprite.id}));
+    if(sprite){canvas.dispatchEvent(new CustomEvent('villager',{detail:sprite.id}));return;}
+    const building=findBuilding(event);
+    if(building)canvas.dispatchEvent(new CustomEvent('building',{detail:{key:building,clientX:event.clientX,clientY:event.clientY}}));
+    else canvas.dispatchEvent(new CustomEvent('building',{detail:{key:null}}));
   });
   return setMap;
 }

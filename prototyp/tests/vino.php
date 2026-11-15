@@ -32,7 +32,7 @@ for ($y=4;$y<200 && ($mild===null || $frosty===null);$y++) { $f=weatherNoise($y*
 
 // 1. Budovy: vinice po kostele, lis po vinici, ze zásob.
 check(BUILDINGS['vinice']['work']===150 && BUILDINGS['lis']['work']===60 && BUILDINGS['vinice']['needs']===['kostel'] && BUILDINGS['lis']['needs']===['vinice'],'Vinice 150 h po kostele, lis 60 h po vinici');
-check(array_slice(BUILD_ORDER,-9,3)===['kostel','vinice','lis'] && in_array('vinice',BUILD_PREPAY,true) && in_array('lis',BUILD_PREPAY,true),'Pořadí a stavba ze zásob');
+check(array_slice(BUILD_ORDER,array_search('kostel',BUILD_ORDER,true),3)===['kostel','vinice','lis'] && in_array('vinice',BUILD_PREPAY,true) && in_array('lis',BUILD_PREPAY,true),'Pořadí a stavba ze zásob');
 
 // 2. Vinice: péče, první úroda až po dvou letech, česání, hnití.
 [$db,$world]=$ready(2,$mild);

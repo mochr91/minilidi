@@ -110,7 +110,7 @@ function craftWorkAvailable(array $world,string $id,string $key): ?bool {
             && taskCount($world,'make_cheese')<1,
         'harvest_pond'=>hasBuilding($world,'rybnik') && ($m===7 || $m===8) && !$weather['frozen'] && pondFish($world)>=POND_KEEP+POND_CATCH
             && taskCount($world,'harvest_pond')<1,
-        'teach'=>hasBuilding($world,'fara') && $person['age']>=18 && !isSunday($world) && count(schoolChildren($world))>0
+        'teach'=>hasBuilding($world,'fara') && $person['age']>=18 && !isSunday($world) && count(schoolChildren($world))>0 && lessonLight($world)
             && (int)($world['school']['lastDay']??-1)!==intdiv((int)$world['minute'],1440) && taskCount($world,'teach')<1,
     };
 }
@@ -170,6 +170,9 @@ function completeCraftWork(PDO $db,array &$world,string $id,string $key): ?strin
         case 'teach':
             $kids=schoolChildren($world);
             if (!$kids || !hasBuilding($world,'fara')) return 'Žáci nepřišli.';
+            // V tmavých měsících se s včelínem učí při svíčce (jedna vydrží šest lekcí).
+            if (!lessonLight($world)) return 'Ve škole je tma a svíčky došly.';
+            if (hasBuilding($world,'vcelin') && calendarMonth($world)>=8) $world['candles']=max(0.0,($world['candles']??0)-CANDLE_LESSON);
             $teacher=$world['people'][$id];
             $points=SCHOOL_POINTS*(.8+.4*min(1.0,skillLevel($teacher,'home')/100+skillLevel($teacher,'faith')/200));
             foreach ($kids as $cid) {

@@ -167,6 +167,15 @@ body.village-comparison main {
   gap: 4px;
   pointer-events: none;
 }
+.village-map .building-popup { position: absolute; z-index: 3; width: min(310px,calc(100% - 12px)); max-height: calc(100% - 12px); overflow-y: auto; padding: 8px 10px 9px; background: #fbf6e8f7; border: 1px solid var(--line); border-radius: 6px; box-shadow: 0 3px 10px #0004; color: var(--ink,#2b2418); font-size: 12px; line-height: 1.35; }
+.building-popup header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.building-popup h4 { margin: 0; font-size: 14px; }
+.building-popup h5 { margin: 6px 0 2px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.building-popup p { margin: 3px 0 0; }
+.building-popup ul { margin: 0; padding-left: 16px; }
+.building-popup .building-close { flex: none; width: 22px; height: 22px; padding: 0; line-height: 1; font-size: 16px; border: 1px solid var(--line); border-radius: 4px; background: transparent; cursor: pointer; }
+.building-popup .building-cost { margin-top: 6px; padding-top: 5px; border-top: 1px solid var(--line); color: var(--muted); }
+.building-popup[data-state=planned] h4::after { content: ' · nestojí'; font-weight: 400; color: var(--muted); font-size: 11px; }
 .village-map .map-top { top: 5px; }
 .village-map .map-bottom { bottom: 5px; }
 .map-updates:not([hidden]) { position: absolute; z-index: 1; inset-inline: 6px; bottom: 32px; display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 4px 8px; width: fit-content; max-width: calc(100% - 12px); background: #f7f1e2f2; border: 1px solid var(--line); border-radius: 5px; pointer-events: none; }

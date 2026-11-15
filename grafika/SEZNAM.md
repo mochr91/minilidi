@@ -39,6 +39,9 @@ společné kreslicí funkce jsou v `pixlib.py`). Kontrola: `python -I grafika/ov
 | [x] | `buildings/dul.png` | 2×2 | 46×52 | vchod do štoly s podpěrami, kolejemi a vozíkem |
 | [x] | `buildings/vinice.png` | 3×3 | 66×60 | řady vinné révy na kůlech s hrozny |
 | [x] | `buildings/lis.png` | 2×2 | 46×52 | lisovna se šroubovým lisem a sudy |
+| [ ] | `buildings/vcelin.png` | 2×2 | 46×40 | včelín (fáze G): řada slaměných košů na dřevěných stolcích, nízký plůtek, včely; zatím náhradní kresba z kódu |
+| [ ] | `buildings/cihelna.png` | 2×2 | 46×52 | cihelna (fáze G): pec na pálení cihel s komínem a kouřem, hromada hlíny a sušící se cihly na prknech |
+| [ ] | `buildings/lazen.png` | 2×2 | 46×52 | lázeň (fáze G): nízká roubená lázeň s komínem a párou, necky před vchodem |
 
 Dříve nakreslil `gen_sprites.py`: `spychar`, `mlekarna`, `rybnik`, `kozeluzna`, `tkalcovna`, `fara` (lze přepsat lepšími).
 
@@ -70,11 +73,12 @@ Dříve nakreslil `gen_sprites.py`: `spychar`, `mlekarna`, `rybnik`, `kozeluzna`
 | [x] | `props/stall_green.png` | 30×36 | trhový stánek se zeleno-bílou plachtou |
 | [x] | `props/fishing_hut.png` | 40×44 | rybářská chýše se sítěmi, molem a člunem |
 
-## 5. Zimní varianty budov (volitelné, zatím nenakresleno)
+## 5. Zimní varianty budov (hotovo)
 
-Pro každou budovu lze přidat `buildings/<klíč>_snow.png` (stejný rozměr a kotva, sníh na střeše a okolí). Nejdřív kostel, kaple,
-domy, mlýn, hospoda, statek, pivovar. Bez nich se použije obyčejný obrázek. (Sněhové stromy už hotové jsou.)
-U animovaných budov by sněhová varianta musela být také pás `<klíč>_snow@4.png`.
+[x] `_snow` varianty mají všechny budovy a domy kromě rostlinných (chmelnice, vinice, zahrada) a rybářská chýše; sněhové stromy
+už byly hotové. Vznikají automaticky skriptem `python -I grafika/gen_zima.py` z letních obrázků (sníh na střechách, zasněžený
+trávník a dvorek, zamrzlá voda); po změně letního obrázku skript spusť znovu. U animovaných budov je to pás
+`<klíč>_snow@4.png`. Zimní verzi lze případně dokreslit ručně a skript pak pro daný klíč nespouštět (přepsal by ji).
 
 ## 6. Animace
 

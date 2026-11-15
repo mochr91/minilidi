@@ -111,7 +111,7 @@ function flushDeaths(PDO $db,array &$world): void {
 
 function maybeInjure(PDO $db,array &$world,string $id,string $key): void {
     $factor=['felling'=>1,'quarrying'=>1.4,'saw'=>1.2,'construct'=>1,'build_house'=>1,'haul_stone'=>.6,'haul_wood'=>.5,'load_kiln'=>.8,'mine_ore'=>1.5,'smelt_iron'=>.5,'mow'=>.5,
-        'firefight'=>12,'flood_defense'=>8][$key]??0;
+        'firefight'=>12,'flood_defense'=>8,'dig_clay'=>.5,'reroof'=>.8][$key]??0;
     if ($factor<=0) return;
     $p=&$world['people'][$id];
     $now=(int)$world['minute'];
