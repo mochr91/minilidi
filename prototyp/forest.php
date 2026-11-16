@@ -72,7 +72,7 @@ function forestWorkAvailable(array $world,string $id,string $key): ?bool {
             && ($world['charcoal']??0)<charcoalTarget($world),
         'watch_kiln'=>$kiln['state']==='burning' && taskCount($world,'watch_kiln')<1,
         'hunt_small'=>huntMonth($m) && ($world['gameStock']??0)>=10 && villageWeather($world)['wind']<35,
-        'smoke_meat'=>hasBuilding($world,'udirna') && ($world['game']??0)>=3 && $world['wood']>=2 && taskCount($world,'smoke_meat')<1,
+        'smoke_meat'=>hasBuilding($world,'udirna') && (($world['game']??0)+($world['pork']??0))>=3 && $world['wood']>=2 && taskCount($world,'smoke_meat')<1,
     };
 }
 
@@ -87,7 +87,7 @@ function forestScore(array $world,string $key): int {
         'load_kiln'=>20,
         'watch_kiln'=>($world['minute']-($kiln['lastWatch']??0))>=360 ? 40 : 12,
         'hunt_small'=>foodReserve($world)<8*dailyFoodNeed($world) ? 24 : ((($world['variety']??1)<.8 && huntMonth(calendarMonth($world))) ? 14 : 5),
-        'smoke_meat'=>26,
+        'smoke_meat'=>($world['pork']??0)>=3 ? 40 : 26,
         default=>0,
     };
 }
@@ -149,13 +149,17 @@ function completeForestWork(PDO $db,array &$world,string $id,string $key): ?stri
             $world['hides']=($world['hides']??0)+round($gain*.5,1);   // kožky zajíců a králíků čekají na obchodníka
             return 'Z léček je '.fmtAmount($gain).' zvěřiny (zajíci, králíci, bažanti).';
         case 'smoke_meat':
-            $n=min(SMOKE_BATCH*$skill,$world['game'],$world['wood']*3);
+            $pork=(float)($world['pork']??0);
+            $n=min(SMOKE_BATCH*$skill,$world['game']+$pork,$world['wood']*3);
             if ($n<1 || !hasBuilding($world,'udirna')) return 'Nebylo co udit.';
-            $world['game']-=$n;
+            // Čerstvé vepřové se uzuje přednostně, pak zvěřina.
+            $fromPork=min($n,$pork);
+            $world['pork']=$pork-$fromPork;
+            $world['game']-=$n-$fromPork;
             $world['meatSmoked']+=$n*SMOKE_YIELD;
             consumeStock($world,'wood',$n/3);
             countProduced($world,'meatSmoked',$n*SMOKE_YIELD);
-            return 'Z '.fmtAmount($n).' zvěřiny je '.fmtAmount($n*SMOKE_YIELD).' uzeného masa.';
+            return 'Z '.fmtAmount($n).($fromPork<=.001 ? ' zvěřiny' : ($fromPork>=$n-.001 ? ' vepřového masa' : ' masa a zvěřiny')).' je '.fmtAmount($n*SMOKE_YIELD).' uzeného masa.';
     }
     return null;
 }

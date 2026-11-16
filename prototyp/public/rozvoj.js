@@ -212,6 +212,13 @@ function renderEconomy() {
       if (has('lazen')) parts.push('hygiena ' + Math.round((state.hygiene ?? 0) * 100) + ' %');
       box.append(make('p', 'Včely, cihly a lázeň: ' + parts.join(' · '), 'dev-note'));
     }
+    if (['chliv', 'ovcin'].some(key => state.buildings?.[key] !== undefined)) {
+      const has = key => state.buildings?.[key] !== undefined;
+      const parts = [];
+      if (has('chliv')) parts.push('prasat ' + fmt(state.pigs ?? 0) + ' z ' + (state.pigCap ?? '?') + ' · váha ' + Math.round((state.pigWeight ?? 0) * 100) + ' % · čerstvé maso ' + fmt(state.pork ?? 0) + ' · uzené ' + fmt(state.meatSmoked ?? 0) + ' · sádlo ' + fmt(state.lard ?? 0));
+      if (has('ovcin')) parts.push('ovcí ' + fmt(state.sheep ?? 0) + ' z ' + (state.sheepCap ?? '?') + ' · péče ' + Math.round((state.sheepCare ?? 0) * 100) + ' % · vlna ' + fmt(state.wool ?? 0) + (state.woolCrop >= 1 ? ' (k ostříhání ' + fmt(state.woolCrop) + ')' : '') + ' · látka ' + fmt(state.cloth ?? 0));
+      box.append(make('p', 'Chov: ' + parts.join(' · '), 'dev-note'));
+    }
     const list = make('ul', '', 'dev-buildings');
     for (const [key, def] of Object.entries(state.buildingDefs)) {
       const built = state.buildings?.[key] !== undefined;

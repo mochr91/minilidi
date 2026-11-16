@@ -35,7 +35,7 @@ function workAvailable(array $world, string $id, string $key): bool {
     if (!weatherAllows($world,$key)) return false;
     $person = $world['people'][$id];
     if (in_array($key,HEAVY_WORK,true) && isHeavyBlocked($world,$person)) return false;
-    if ($person['age'] < 14 && in_array($key,['construct','saw','firefight','flood_defense','quarrying','felling','haul_wood','load_kiln','build_cart','brew_beer','make_malt','mine_ore','smelt_iron','forge_tools','press_wine','make_barrel','tan_hides','make_boots','dig_clay','fire_bricks','reroof'],true)) return false;
+    if ($person['age'] < 14 && in_array($key,['construct','saw','firefight','flood_defense','quarrying','felling','haul_wood','load_kiln','build_cart','brew_beer','make_malt','mine_ore','smelt_iron','forge_tools','press_wine','make_barrel','tan_hides','make_boots','dig_clay','fire_bricks','reroof','slaughter_pig','shear_sheep'],true)) return false;
     $active = array_column(array_filter(array_column($world['people'],'task')),'action');
     $forest = forestWorkAvailable($world,$id,$key);
     if ($forest !== null) return $forest;
@@ -45,6 +45,8 @@ function workAvailable(array $world, string $id, string $key): bool {
     if ($craft !== null) return $craft;
     $bees = beesWorkAvailable($world,$id,$key);
     if ($bees !== null) return $bees;
+    $husbandry = husbandryWorkAvailable($world,$id,$key);
+    if ($husbandry !== null) return $husbandry;
     $bricks = bricksWorkAvailable($world,$id,$key);
     if ($bricks !== null) return $bricks;
     $bath = bathWorkAvailable($world,$id,$key);
@@ -145,6 +147,8 @@ function completeWorkCore(PDO $db, array &$world, string $id): string {
     if ($craft !== null) return $craft;
     $bees = completeBeesWork($db,$world,$id,$key);
     if ($bees !== null) return $bees;
+    $husbandry = completeHusbandryWork($db,$world,$id,$key);
+    if ($husbandry !== null) return $husbandry;
     $bricks = completeBricksWork($db,$world,$id,$key);
     if ($bricks !== null) return $bricks;
     $bath = completeBathWork($db,$world,$id,$key);

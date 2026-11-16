@@ -50,7 +50,7 @@ function createVillageMap(root) {
     chmelnice:[3,22,3,3], sladovna:[0,23,2,2], pivovar:[17,22,2,2],
     kovarna:[20,22,2,2], dul:[22,12,2,2], vinice:[21,17,3,3], lis:[23,21,2,2],
     spychar:[19,10,2,2], mlekarna:[7,26,2,2], rybnik:[27,18,4,3], kozeluzna:[16,26,2,2], tkalcovna:[12,25,2,2], fara:[24,5,2,2],
-    vcelin:[0,6,2,2], cihelna:[18,6,2,2], lazen:[27,8,2,2],
+    vcelin:[0,6,2,2], cihelna:[18,6,2,2], lazen:[27,8,2,2], ovcin:[13,20,2,2],
   };
   const centerOf = key => { const [x,y,w,d]=FOOT[key]; return [x+w/2,y+d/2]; };
   const buildingSpots = Object.fromEntries(Object.keys(FOOT).map(key=>[key,centerOf(key)]));
@@ -67,7 +67,7 @@ function createVillageMap(root) {
     hops:[4.5,21.2], maltings:[1,25.3], brewery:[18,24.6],
     forge:[21,24.6], mine:[23,14.4], vineyard:[22.5,20.3], press:[24,23.6],
     granary:[21,12.4], dairy:[8,28.3], pond:[29,21.5], tannery:[17,28.3], weaver:[13,27.3], parsonage:[25,7.3],
-    apiary:[1,8.5], claypit:[19,8.7], bathhouse:[28,10.7] };
+    apiary:[1,8.5], claypit:[19,8.7], bathhouse:[28,10.7], pigsty:[12,19.7] };
   const ROADS = [[2,8,25,8],[10,3,10,28],[21,5,21,8],[25,8,25,11],[10,28,24,28]];
   const BRIDGE_ROWS = [8,28];
   const FIELDS = [[11,13,15,15],[4,15,8,16],[18,14,20,16]];
@@ -1157,10 +1157,23 @@ function createVillageMap(root) {
       rect(ctx,'#3d2e1c',a-1,b-5,2,2);
     }
   }
+  // Ovčín: ohrazená pastvina s několika ovcemi a krytým přístřeškem.
+  function sheepFoldFallback(ctx,x,y) {
+    const [x0,y0,w,d]=FOOT.ovcin;
+    shape(ctx,'#7f9552',[project(x0-.1,y0-.1),project(x0+w+.1,y0-.1),project(x0+w+.1,y0+d+.1),project(x0-.1,y0+d+.1)]);
+    const rail=[[x0-.1,y0-.1,x0+w+.1,y0-.1],[x0+w+.1,y0-.1,x0+w+.1,y0+d+.1],[x0+w+.1,y0+d+.1,x0-.1,y0+d+.1],[x0-.1,y0+d+.1,x0-.1,y0-.1]];
+    for (const [a,b,c,e] of rail) line(ctx,'#6a5233',2,project(a,b),project(c,e));
+    for (const [u,v] of [[x0+.5,y0+.6],[x0+1.2,y0+1.3],[x0+.7,y0+1.5],[x0+1.5,y0+.5]]) {
+      const [a,b]=project(u,v);
+      ctx.fillStyle='#ecebe4'; ctx.beginPath(); ctx.ellipse(a,b-6,7,5,0,0,Math.PI*2); ctx.fill();
+      rect(ctx,'#3d3a36',a+4,b-9,4,4);
+      rect(ctx,'#3d3a36',a-4,b-2,2,3); rect(ctx,'#3d3a36',a+3,b-2,2,3);
+    }
+  }
   const NEW_BUILDINGS = {
     spychar:shedFallback('tile','barn',1.15), mlekarna:shedFallback('thatch','barn',1.05), kozeluzna:shedFallback('slate','workshop',1.1),
     tkalcovna:shedFallback('thatch','workshop',1.1), fara:shedFallback('tile','home',1.25), rybnik:pondFallback,
-    vcelin:apiaryFallback,
+    vcelin:apiaryFallback, ovcin:sheepFoldFallback,
     cihelna:(ctx,x,y,time)=>{ shedFallback('tile','workshop',1.1)(ctx,x,y); chimneySmoke(ctx,x+14,y-62,time); },
     lazen:(ctx,x,y,time)=>{ shedFallback('thatch','home',1.0)(ctx,x,y); chimneySmoke(ctx,x+12,y-58,time); },
   };
@@ -1199,7 +1212,7 @@ function createVillageMap(root) {
     }
   }
 
-  const scaffoldScale = { kostel:2.2, ohrada:2, staje:1.8, hrbitov:1.6, hospoda:1.5, mlyn:1.5, statek:1.5, pila:1.5, chliv:1.2, kurnik:1.2, zahrada:1.5, sklep:1.2, udirna:1.2, milir:1.4, chmelnice:1.5, sladovna:1.3, pivovar:1.6, kovarna:1.4, dul:1.3, vinice:1.5, lis:1.2, spychar:1.4, mlekarna:1.2, rybnik:1.3, kozeluzna:1.3, tkalcovna:1.3, fara:1.6, vcelin:1, cihelna:1.3, lazen:1.2 };
+  const scaffoldScale = { kostel:2.2, ohrada:2, staje:1.8, hrbitov:1.6, hospoda:1.5, mlyn:1.5, statek:1.5, pila:1.5, chliv:1.2, kurnik:1.2, zahrada:1.5, sklep:1.2, udirna:1.2, milir:1.4, chmelnice:1.5, sladovna:1.3, pivovar:1.6, kovarna:1.4, dul:1.3, vinice:1.5, lis:1.2, spychar:1.4, mlekarna:1.2, rybnik:1.3, kozeluzna:1.3, tkalcovna:1.3, fara:1.6, vcelin:1, cihelna:1.3, lazen:1.2, ovcin:1.2 };
   function scaffold(ctx,x,y,progress,key) {
     const s=scaffoldScale[key]??.8;
     const w=Math.round(20*s), h=Math.round(36*s);
@@ -1553,7 +1566,7 @@ function createVillageMap(root) {
   }
 
   // Klikací budovy a domy: obdélník kolem půdorysu zvětšený nahoru o výšku stavby.
-  const FLAT_BUILDINGS = new Set(['rybnik','vinice','chmelnice','zahrada','hrbitov','ohrada','vcelin']);
+  const FLAT_BUILDINGS = new Set(['rybnik','vinice','chmelnice','zahrada','hrbitov','ohrada','vcelin','ovcin']);
   function footprintArea(rect,height) {
     const [x0,y0,w,d]=rect;
     const corners=[project(x0,y0),project(x0+w,y0),project(x0+w,y0+d),project(x0,y0+d)];

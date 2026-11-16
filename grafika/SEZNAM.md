@@ -42,6 +42,7 @@ společné kreslicí funkce jsou v `pixlib.py`). Kontrola: `python -I grafika/ov
 | [ ] | `buildings/vcelin.png` | 2×2 | 46×40 | včelín (fáze G): řada slaměných košů na dřevěných stolcích, nízký plůtek, včely; zatím náhradní kresba z kódu |
 | [ ] | `buildings/cihelna.png` | 2×2 | 46×52 | cihelna (fáze G): pec na pálení cihel s komínem a kouřem, hromada hlíny a sušící se cihly na prknech |
 | [ ] | `buildings/lazen.png` | 2×2 | 46×52 | lázeň (fáze G): nízká roubená lázeň s komínem a párou, necky před vchodem |
+| [ ] | `buildings/ovcin.png` | 2×2 | 46×40 | ovčín (fáze I): ohrazená pastvina s nízkým přístřeškem a několika ovcemi; zatím náhradní kresba z kódu |
 
 Dříve nakreslil `gen_sprites.py`: `spychar`, `mlekarna`, `rybnik`, `kozeluzna`, `tkalcovna`, `fara` (lze přepsat lepšími).
 

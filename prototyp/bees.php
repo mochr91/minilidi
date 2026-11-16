@@ -66,7 +66,7 @@ function beesWorkAvailable(array $world,string $id,string $key): ?bool {
         'tend_bees'=>$m>=1 && $m<=6 && ($world['hives']??0)>0 && ($yard['care']??0)<.999 && beeOpenDay($world) && taskCount($world,'tend_bees')<1,
         'harvest_honey'=>($m===5 || $m===6) && ($yard['crop']??0)>=1 && beeOpenDay($world) && taskCount($world,'harvest_honey')<2,
         'prepare_hives'=>($m===7 || $m===8) && ($world['hives']??0)>0 && ($yard['prepared']??0)<.999 && taskCount($world,'prepare_hives')<1,
-        'make_candles'=>($world['wax']??0)>=1 && ($world['candles']??0)<CANDLE_TARGET && taskCount($world,'make_candles')<1,
+        'make_candles'=>(($world['wax']??0)>=1 || ($world['lard']??0)>=1) && ($world['candles']??0)<CANDLE_TARGET && taskCount($world,'make_candles')<1,
     };
 }
 
@@ -103,12 +103,19 @@ function completeBeesWork(PDO $db,array &$world,string $id,string $key): ?string
             $world['apiary']['prepared']=min(1.0,($world['apiary']['prepared']??0)+2*$skill/$hives);
             return 'Úly jsou zazimované z '.round($world['apiary']['prepared']*100).' %.';
         case 'make_candles':
-            if (($world['wax']??0)<1) return 'Na svíčky chybí vosk.';
-            $world['wax']-=1;
-            $n=round(CANDLES_PER_WAX*min(1.15,$skill),1);
+            if (($world['wax']??0)>=1) {
+                $world['wax']-=1;
+                $n=round(CANDLES_PER_WAX*min(1.15,$skill),1);
+                $src='vosku';
+            } elseif (($world['lard']??0)>=1) {
+                // Lojové svíčky ze sádla ze zabijačky (méně vydatné než voskové).
+                $world['lard']-=1;
+                $n=round(CANDLES_PER_LARD*min(1.15,$skill),1);
+                $src='sádla';
+            } else return 'Na svíčky chybí vosk nebo sádlo.';
             $world['candles']=($world['candles']??0)+$n;
             countProduced($world,'candles',$n);
-            return 'Z vosku je '.fmtAmount($n).' svíček.';
+            return 'Z '.$src.' je '.fmtAmount($n).' svíček.';
     }
     return null;
 }

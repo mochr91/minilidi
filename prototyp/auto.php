@@ -55,7 +55,7 @@ function villageCandidates(array $world, array $queued=[]): array {
                 'construct'=>38,'saw'=>isset($needs['planks'])?28:($world['planks']<8?10:2),
                 'mill'=>$world['grain']>=4?26:8,'bake'=>$world['flour']>=3?36:10,
                 'craft'=>$world['tools']<$toolNeed?22:4,'mow'=>($world['hay']<25?24:8)+winterScore($world,'mow'),
-                'firefight','flood_defense'=>120,default=>winterScore($world,$key)+forestScore($world,$key)+beerScore($world,$key)+forgeScore($world,$key)+wineScore($world,$key)+craftScore($world,$key)+beesScore($world,$key)+bricksScore($world,$key)+bathScore($world,$key),
+                'firefight','flood_defense'=>120,default=>winterScore($world,$key)+forestScore($world,$key)+beerScore($world,$key)+forgeScore($world,$key)+wineScore($world,$key)+craftScore($world,$key)+beesScore($world,$key)+husbandryScore($world,$key)+bricksScore($world,$key)+bathScore($world,$key),
             };
             if ($key===($p['lastPlanAction']??null)) $score-=9;
             $score+=(skillFactor($p,actionCategory($world,$key))-.82)*15;
@@ -97,6 +97,7 @@ const TASK_STEMS = [
     'tend_bees'=>'včel|úl[ey]?\b|úlů|včelín', 'harvest_honey'=>'\bmed\b|medu|medem|včel|vytoč|úl[ey]?\b', 'prepare_hives'=>'zazimov|úl[ey]?\b|úlů|včel', 'make_candles'=>'svíč|vosk',
     'dig_clay'=>'hlín|cihel|cihelna|cihelny|hliniště', 'fire_bricks'=>'cihl|tašk|pálit|pálí|výpal|cihelna|cihelny', 'reroof'=>'střech|došk|tašk',
     'bathe'=>'lázn|lázeň|koupel|koupat|koupá',
+    'slaughter_pig'=>'zabija|vepř|prase|prasat|chlív|chlév|porážk', 'shear_sheep'=>'ovc|ovčín|stříh|střiž|vln', 'tend_sheep'=>'ovc|ovčín|jehn|pastv',
     'pickle'=>'zelí|nakl|sklep', 'gather_herbs'=>'bylin|léč|bylink', 'dry_herbs'=>'bylin|suš|usuš', 'nurse'=>'ošetř|nemoc|odvar|bylin|nemocn',
 ];
 const BAD_WORDS = '/\b(?:rádám|rádá|doněla|odpocítn\p{L}*|peknout|mlýnit|nečum)\b/iu';

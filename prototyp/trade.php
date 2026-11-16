@@ -25,6 +25,7 @@ function tradeSellRules(array $world): array {
         'hides'=>[0.0,1.5],'meatSmoked'=>[20.0,1.0],
         'cheese'=>[12.0,2.0],'leather'=>[LEATHER_TARGET,2.5],'boots'=>[bootsTarget($world)+2,5.0],
         'honey'=>[HONEY_SELL_KEEP,3.0],'wax'=>[WAX_SELL_KEEP,4.0],'bricks'=>[BRICKS_SELL_KEEP,.6],
+        'lard'=>[LARD_SELL_KEEP,1.5],'wool'=>[WOOL_SELL_KEEP,2.5],
     ];
 }
 

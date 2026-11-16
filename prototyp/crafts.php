@@ -104,7 +104,7 @@ function craftWorkAvailable(array $world,string $id,string $key): ?bool {
             && ($world['leather']??0)<LEATHER_TARGET && taskCount($world,'tan_hides')<1,
         'make_boots'=>hasBuilding($world,'kozeluzna') && ($world['leather']??0)>=BOOTS_LEATHER && ($world['boots']??0)<bootsTarget($world)
             && taskCount($world,'make_boots')<1,
-        'spin_weave'=>hasBuilding($world,'tkalcovna') && ($world['flax']??0)>=WEAVE_FLAX && ($world['cloth']??0)<clothTarget($world)
+        'spin_weave'=>hasBuilding($world,'tkalcovna') && (($world['wool']??0)>=WOOL_WEAVE || ($world['flax']??0)>=WEAVE_FLAX) && ($world['cloth']??0)<clothTarget($world)
             && taskCount($world,'spin_weave')<1,
         'make_cheese'=>hasBuilding($world,'mlekarna') && ($world['milk']??0)>=CHEESE_MILK && cheeseStock($world)<CHEESE_TARGET
             && taskCount($world,'make_cheese')<1,
@@ -146,12 +146,20 @@ function completeCraftWork(PDO $db,array &$world,string $id,string $key): ?strin
             countProduced($world,'boots',1);
             return 'Švec ušil pár bot.';
         case 'spin_weave':
-            if (($world['flax']??0)<WEAVE_FLAX || !hasBuilding($world,'tkalcovna')) return 'Na tkaní chybí len.';
-            $world['flax']-=WEAVE_FLAX;
-            $n=round(WEAVE_CLOTH*min(1.15,$skill),1);
+            if (!hasBuilding($world,'tkalcovna') || (($world['wool']??0)<WOOL_WEAVE && ($world['flax']??0)<WEAVE_FLAX)) return 'Na tkaní chybí len nebo vlna.';
+            // Vlna je výhodnější než len (z pěti vlny pět látky, z šesti lnu tři), proto se tká přednostně.
+            if (($world['wool']??0)>=WOOL_WEAVE) {
+                $world['wool']-=WOOL_WEAVE;
+                $n=round(WOOL_WEAVE*WOOL_CLOTH*min(1.15,$skill),1);
+                $src='vlny';
+            } else {
+                $world['flax']-=WEAVE_FLAX;
+                $n=round(WEAVE_CLOTH*min(1.15,$skill),1);
+                $src='lnu';
+            }
             $world['cloth']=($world['cloth']??0)+$n;
             countProduced($world,'cloth',$n);
-            return 'Z lnu je '.fmtAmount($n).' látky.';
+            return 'Z '.$src.' je '.fmtAmount($n).' látky.';
         case 'make_cheese':
             if (($world['milk']??0)<CHEESE_MILK || !hasBuilding($world,'mlekarna')) return 'Na sýr chybí mléko.';
             $world['milk']-=CHEESE_MILK;

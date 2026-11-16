@@ -17,7 +17,7 @@ const ACTION_CATEGORY = [
     'tend_hops'=>'field','harvest_hops'=>'field','make_malt'=>'craft','brew_beer'=>'craft',
     'mine_ore'=>'build','smelt_iron'=>'craft','forge_tools'=>'craft','tend_vines'=>'field','harvest_grapes'=>'field','press_wine'=>'craft','make_barrel'=>'craft',
     'tan_hides'=>'craft','make_boots'=>'craft','spin_weave'=>'craft','make_cheese'=>'craft','harvest_pond'=>'forest','teach'=>'home',
-    'tend_bees'=>'field','harvest_honey'=>'field','prepare_hives'=>'field','make_candles'=>'craft','dig_clay'=>'build','fire_bricks'=>'craft','reroof'=>'build','bathe'=>'home',
+    'tend_bees'=>'field','harvest_honey'=>'field','prepare_hives'=>'field','make_candles'=>'craft','dig_clay'=>'build','fire_bricks'=>'craft','reroof'=>'build','bathe'=>'home','slaughter_pig'=>'home','shear_sheep'=>'field','tend_sheep'=>'field',
     'felling'=>'forest','firewood'=>'forest','gathering'=>'forest','fishing'=>'forest',
     'mill'=>'craft','bake'=>'craft','saw'=>'craft','craft'=>'craft',
     'quarrying'=>'build','haul_stone'=>'build','build_house'=>'build','construct'=>'build','fix_fence'=>'build',

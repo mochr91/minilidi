@@ -17,6 +17,7 @@ require_once __DIR__ . '/crafts.php';
 require_once __DIR__ . '/bees.php';
 require_once __DIR__ . '/bricks.php';
 require_once __DIR__ . '/bath.php';
+require_once __DIR__ . '/husbandry.php';
 require_once __DIR__ . '/buildinfo.php';
 require_once __DIR__ . '/settlers.php';
 require_once __DIR__ . '/life.php';
@@ -100,6 +101,9 @@ const ACTIONS = [
     'dig_clay' => ['label'=>'Kopat hlínu na cihly','place'=>'claypit','work'=>'Kope hlínu','minutes'=>90,'fatigue'=>2.6,'appeal'=>-10,'group'=>'Stavba z cihel'],
     'fire_bricks' => ['label'=>'Vypálit cihly a tašky','place'=>'claypit','work'=>'Pálí cihly','minutes'=>240,'fatigue'=>1.8,'appeal'=>-3,'group'=>'Stavba z cihel'],
     'reroof' => ['label'=>'Přestavět došky na tašky','place'=>'building','work'=>'Přestavuje střechu','minutes'=>120,'fatigue'=>2.4,'appeal'=>-5,'group'=>'Stavba z cihel'],
+    'slaughter_pig' => ['label'=>'Zabijačka prasete','place'=>'pigsty','work'=>'Dělá zabijačku','minutes'=>120,'fatigue'=>2.2,'appeal'=>-2,'group'=>'Zvířata'],
+    'shear_sheep' => ['label'=>'Ostříhat ovce','place'=>'pasture','work'=>'Střiží ovce','minutes'=>90,'fatigue'=>1.6,'appeal'=>2,'group'=>'Zvířata'],
+    'tend_sheep' => ['label'=>'Prohlédnout ovce','place'=>'pasture','work'=>'Stará se o ovce','minutes'=>30,'fatigue'=>.8,'appeal'=>3,'group'=>'Zvířata'],
     'bathe' => ['label'=>'Sobotní koupel v lázni','place'=>'bathhouse','work'=>'Koupe se v lázni','minutes'=>75,'fatigue'=>-1.2,'appeal'=>8,'group'=>'Domov'],
     'press_wine' => ['label'=>'Lisovat víno','place'=>'press','work'=>'Lisuje víno','minutes'=>120,'fatigue'=>2.0,'appeal'=>3,'group'=>'Víno'],
     'make_barrel' => ['label'=>'Vyrobit sud na víno','place'=>'workshop','work'=>'Dělá sud','minutes'=>240,'fatigue'=>1.8,'appeal'=>-2,'group'=>'Víno'],

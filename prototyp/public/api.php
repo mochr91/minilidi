@@ -68,6 +68,8 @@ try {
         $world['housingCapacity'] = housingCapacity($world);
         $world['housing'] = housingSummary($world);
         $world['roofMap'] = roofMap($world);
+        $world['pigCap'] = pigCap($world);
+        $world['sheepCap'] = sheepCap($world);
         $world['rankLabel'] = RANKS[villageRank($world)];
         $world['popCap'] = popCap($world);
         $world['settlerInterval'] = settlerInterval($world);

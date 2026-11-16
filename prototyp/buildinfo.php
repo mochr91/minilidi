@@ -14,10 +14,10 @@ const BUILDING_DOES = [
     'zahrada'=>['Na jaře se sází záhony, v létě okopávají, na podzim se sklízí zelenina a luštěniny.','Úroda dává pestrou stravu, kterou vesnice v zimě potřebuje.'],
     'hospoda'=>['Večer od 18 do 22 hodin se tu scházejí sousedé, roste zábava a nálada.','S pivovarem se pije pivo, v neděli i víno.'],
     'kurnik'=>['Slepice (6 až 12) snášejí vejce, která se sbírají při péči o zvířata a rychle se kazí.','Bez opraveného plotu chodí liška.'],
-    'chliv'=>['Prase dává maso a kožky pro koželužnu.','Z chlíva je také hnůj na pole.'],
+    'chliv'=>['Prasata (2 až 10) žerou přebytek obilí a tloustnou. Na začátku zimy se při chladu dělá zabijačka: maso, sádlo a kožky pro koželužnu; dvě prasata se vždy nechají na chov.','Čerstvé maso se rychle kazí, proto se hned udí v udírně. Sádlo jde na lojové svíčky a přebytek se prodává.'],
     'ohrada'=>['Krávy: mléko (s mlékárnou se z něj dělá sýr), kožky a hnůj.','Seno z letní seče krmí dobytek v zimě.'],
     'sklep'=>['V chladu se zelenina, vejce a pivo kazí pomaleji.','Nakládá se v něm zelí a zraje víno.'],
-    'udirna'=>['Uzí zvěřinu a ryby, takže vydrží celou zimu.','Uzené maso tvoří část zimních jídel.'],
+    'udirna'=>['Uzí vepřové ze zabijačky a zvěřinu, takže vydrží celou zimu.','Uzené maso tvoří část zimních jídel a zlepšuje pestrost stravy.'],
     'milir'=>['Pálí dřevěné uhlí: 40 dřeva dá 10 uhlí za šest dní, pálení vyžaduje dohled.','Uhlí topí třikrát výhřevněji než dřevo a potřebuje ho kovárna.'],
     'chmelnice'=>['Chmel se na jaře váže na tyče a na podzim česá (kolem 20 za sezónu).','Je základ pro pivo.'],
     'sladovna'=>['Z ječmene dělá slad (od října do dubna).','Slad je druhá surovina pro pivo.'],
@@ -37,6 +37,7 @@ const BUILDING_DOES = [
     'tkalcovna'=>['Z lnu z pole se příde a tká látka na teplé oblečení.','Obchodník látku s tkalcovnou nevozí, protože si ji vesnice dělá sama.'],
     'fara'=>['Kněz učí děti od 6 do 13 let číst, počítat a modlit se (lekce denně mimo neděli).','V zimě se bez svíček ve včelíně neučí. Děti rychleji rostou do řemesel.'],
     'cihelna'=>['Kope hlínu (březen až září) a pálí cihly a tašky (květen až září, dřevem nebo přebytkem uhlí).','Tašky se používají na přestavbu doškových střech, které při požáru hoří nejhůř.'],
+    'ovcin'=>['Ovce (4 až 12) se na jaře ošetřují a v květnu až červnu stříhají; vlna se spřádá do látky (z pěti vlny pět látky).','V zimě žerou seno. Teplá látka zlepšuje ochranu před zimní nemocí a přebytek vlny se prodává.'],
     'lazen'=>['Sobotní koupel (od 12 do 19 hodin) zahřeje, zvedne náladu a spotřebuje dřevo.','Čistota snižuje šanci zimní nemoci. Při nedostatku dřeva lázeň zavře.'],
 ];
 
@@ -45,9 +46,9 @@ const BUILDING_STOCKS = [
     'mlyn'=>['grain','flour'],'pec'=>['flour','food'],'pila'=>['wood','planks'],'dilna'=>['tools','planks'],'statek'=>['grain','hay'],
     'zahrada'=>['veg','legumes'],'sklep'=>['veg','kraut','beer'],'udirna'=>['game','meatSmoked'],'milir'=>['forestWood','charcoal'],
     'chmelnice'=>['hops'],'sladovna'=>['barley','malt'],'pivovar'=>['malt','hops','beer'],'hospoda'=>['beer','wine'],
-    'kovarna'=>['ore','iron','ironTools'],'dul'=>['ore'],'kurnik'=>['eggs'],'ohrada'=>['milk','hay'],'chliv'=>['hides'],
+    'kovarna'=>['ore','iron','ironTools'],'dul'=>['ore'],'kurnik'=>['eggs'],'ohrada'=>['milk','hay'],'chliv'=>['hides','pork','lard'],
     'vinice'=>['grapes','wine'],'lis'=>['grapes','barrels','wine'],'spychar'=>['grain','flour'],'mlekarna'=>['milk','cheese'],
-    'kozeluzna'=>['hides','leather','boots'],'tkalcovna'=>['flax','cloth'],'vcelin'=>['honey','wax','candles'],'cihelna'=>['clay','bricks'],
+    'kozeluzna'=>['hides','leather','boots'],'tkalcovna'=>['flax','cloth'],'vcelin'=>['honey','wax','candles'],'cihelna'=>['clay','bricks'],'ovcin'=>['wool','cloth'],
 ];
 
 function buildingStockLine(array $world,array $keys): ?string {
@@ -106,6 +107,12 @@ function buildingSpecialFacts(array $world,string $key): array {
             break;
         case 'lazen':
             $facts[]='Hygiena vesnice '.round(100*($world['hygiene']??0)).' % · koupelí od začátku '.(int)($world['counters']['baths']??0);
+            break;
+        case 'chliv':
+            $facts[]='Prasat '.fmtAmount(pigsOf($world)).' z '.pigCap($world).' · průměrná váha '.round(100*(float)($world['pigWeight']??0)).' % · zabijačka v listopadu a prosinci při chladu';
+            break;
+        case 'ovcin':
+            $facts[]='Ovcí '.fmtAmount(sheepOf($world)).' z '.sheepCap($world).' · péče '.round(100*(float)($world['sheepCare']??0)).' %'.(($world['woolCrop']??0)>=1?' · k ostříhání '.fmtAmount((float)$world['woolCrop']):'');
             break;
         case 'spychar':
             $facts[]='Kažení obilí denně 0,07 % místo 0,15 %';

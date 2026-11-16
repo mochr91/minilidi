@@ -44,6 +44,7 @@ Výška: ke štítu stačí 25 až 40 bodů obrázku u domu, 50 až 70 u kostela
   | spychar | 2×2 | mlekarna | 2×2 | rybnik | 4×3 |
   | kozeluzna | 2×2 | tkalcovna | 2×2 | fara | 2×2 |
   | vcelin | 2×2 | cihelna | 2×2 | lazen | 2×2 |
+  | ovcin | 2×2 |
 
 - **houses/** – `home_tile` (dům s taškovou střechou), `home_thatch` (se slámou), `home_new` (nově postavený dům), `cottage` (domek pro dva), `chapel` (kaple); půdorys 1×1.
 - **trees/** – `tree_0`, `tree_1`, `tree_2` (varianty podle polohy) nebo jednotně `tree`; pata kmene je kotva.

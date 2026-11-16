@@ -35,7 +35,7 @@ foreach ($hours as $key=>$w) {
     foreach (BUILDINGS[$key]['cost'] as $res=>$amount) check(isset(RESOURCES[$res]) || in_array($res,['wood','stone','planks'],true),"Cena $key: $res");
     foreach (BUILDINGS[$key]['needs'] as $need) check(isset(BUILDINGS[$need]),"$key navazuje na $need");
 }
-check(array_slice(BUILD_ORDER,-9)===['vcelin','spychar','mlekarna','rybnik','kozeluzna','tkalcovna','fara','cihelna','lazen'],'Nové budovy jsou na konci pořadí (včelín před špýcharem, cihelna a lázeň za farou)');
+check(array_slice(BUILD_ORDER,-10)===['vcelin','spychar','mlekarna','rybnik','kozeluzna','tkalcovna','fara','cihelna','lazen','ovcin'],'Nové budovy jsou na konci pořadí (včelín před špýcharem, cihelna a lázeň za farou, ovčín poslední)');
 check(BUILDINGS['fara']['needs']===['kostel'] && BUILDINGS['kozeluzna']['needs']===['chliv','dilna'],'Fara po kostele, koželužna po chlívu a dílně');
 
 // 2. Koželužna: kožky -> useň -> boty, boty chrání v zimě.

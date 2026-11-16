@@ -41,7 +41,7 @@ foreach ($defs as $key=>[$w,$needs]) {
     foreach (BUILDINGS[$key]['cost'] as $res=>$amount) check(isset(RESOURCES[$res]) || in_array($res,['wood','stone','planks'],true),"Cena $key: $res");
 }
 check(array_search('vcelin',BUILD_ORDER,true)===array_search('lis',BUILD_ORDER,true)+1,'Včelín je hned za lisem');
-check(array_slice(BUILD_ORDER,-2)===['cihelna','lazen'],'Cihelna a lázeň jsou na konci');
+check(array_slice(BUILD_ORDER,-3)===['cihelna','lazen','ovcin'],'Cihelna a lázeň jsou na konci před ovčínem');
 foreach (array_merge(BEE_TASKS,BRICK_TASKS,[BATH_TASK]) as $key) check(isset(TASK_STEMS[$key]) && isset(ACTIONS[$key]) && isset(ACTION_CATEGORY[$key]),"$key má kmeny, akci a obor");
 foreach (['honey','wax','candles','clay','bricks'] as $res) check(isset(RESOURCES[$res]) && isset(RESOURCE_WORDS[$res]),"Surovina $res má popisky");
 

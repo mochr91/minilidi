@@ -317,14 +317,14 @@ Dát vesnici **příčinu růst**: lidé přicházejí, protože se jim tu dař�
 
 ## 14. Fáze I: chov, maso a vlna (návrh 16. 11. 2026)
 
-Stav: **jen návrh, nic se nemění ani nenaprogramovalo**. Čeká na schválení a odpovědi v bodě 14.7. Čísla jsou výchozí odhady, které se mají doladit simulací z živého snímku jako ve fázích G a H. Fáze I je nezávislá na J (bod 15), obě lze dělat v libovolném pořadí.
+Stav: **schváleno uživatelem 16. 11. 2026 (
 
 ### 14.1 Proč právě chov (měření 16. 11., den hry 210)
 - **Chlív a ohrada dnes nic nechovají.** Chlív dává jen kožky (`HIDES_FROM_PIG` .04 denně) a ohrada kožky a tah volů (`HIDES_FROM_COW`, `CART_OX`); obě jen přidávají malý bonus k činnosti `livestock`. Prase nemá krmení, váhu ani maso, žádné zvíře nemá následek při nedostatku krmiva (kromě slepic a `hayShort`).
 - **Zimě chybí maso.** `meatSmoked` je 0 a vzniká jen z lovu (`gameStock`). Udírna tak nemá z domácího chovu co udit.
 - **Přebytky, které nic nespotřebuje:** jídlo 3 487 (rezerva 124 dní), obilí 518, seno 367, dřevo 793 (AI) a 555 (bez AI). Zvířata by obilí a seno skutečně spotřebovala.
 - **Tkalcovna má jen len** (`flax`, 6 jednotek lnu dá 3 látky); ovčí vlna ve hře není, přestože v původním řetězci F byla uvedena jako kandidát.
-- **Pozor, kámen:** `stone` je 0,3 a `quarryStone` 0 v obou větvích (tři vozy jsou postavené, ale není co vozit). Dosavadní stavby byly hotové dřív, ale domy (6 kamene), ovčín i budoucí radnice (bod 15) ho potřebují. Viz otázka 4 v bodě 14.7.
+- **Kámen (původní obava, vyvrácená):** `stone` je 0,3 a `quarryStone` 0 v obou větvích (tři vozy jsou postavené, ale není co vozit). Plánovač ale kámen těží a váží až když ho stavba potřebuje (materialNeeds), a simulace fáze H postavila všech deset domů, takže se zásobování kamenem nemění (viz otázka 4 v bodě 14.7).
 
 ### 14.2 Prasata a zabijačka
 - **Stav:** `pigs` (počet, před osazením `null` jako `hens`; po dostavění chlívu 2 kusy, strop min(10, 2 + počet lidí děleno 8)), `pigWeight` (0 až 1, průměrná vykrmenost), `pigHungry` (dnů bez krmiva), zásoby `pork` (čerstvé maso, kazí se za 6 dní) a `lard` (sádlo, nekazí se).
@@ -368,8 +368,28 @@ Stejný postup jako G a H: vývojová kopie, záloha originálů, ověření has
 1. Schvalujete prase (zabijačka) a ovce (vlna), nebo jen jedno z nich? (Návrh: obojí; zabijačka dává nejvíc užitku.)
 2. Má prase při hladu hynout, nebo jen hubnout a zdržet zabijačku? (Návrh: po deseti dnech zahyne, ale kronika to řekne; je to jediný trest za špatné hospodaření.)
 3. Má se zabijačka dělat jen při mrazu (návrh), nebo vždy v pevný termín?
-4. **Kámen:** `stone` je 0,3 a u lomu nic. Má se před fází I (nebo v ní) vyřešit zásobování kamenem (dnes se lom těží jen, když jsou potřeba, a vozy jezdí podle prahu 12 kusů)? (Návrh: ano, jako malou první úpravu `jobs.php`/`forest.php`: lom se těží průběžně, když je kamene pod zimní a stavební rezervou. Souvisí s odloženým `dev11`.)
+4. **Kámen:** `stone` je 0,3 a u lomu nic. Má se před fází I (nebo v ní) vyřešit zásobování kamenem? (Původní návrh: ano. **Rozhodnuto při implementaci: ne**, protože plánovač kámen těží, až ho stavba potřebuje, a simulace fáze H všechny domy postavila. Odložený `dev11` zůstává odložený.)
 5. Má `slaughter_pig` počítat i s krávou nebo koněm? (Návrh: ne.)
+
+### 14.8 Skutečná implementace a ověření (16. 11. 2026)
+Nový soubor `husbandry.php` (`husbandryDaily` z `economyDaily` za `beesDaily`, činnosti `slaughter_pig`, `shear_sheep`, `tend_sheep`), nový test `tests/chov.php` (27. sada) a simulace `sim-i.php` z živého snímku (den 218, 23 lidí, bez AI). Úpravy `economy.php` (budova `ovcin`, suroviny `pork`, `lard`, `wool`, `drawFood`, `foodReserve`, `winterHayNeed`, `henGrainReserve`), `forest.php` (`smoke_meat`), `crafts.php` (`spin_weave`), `winter.php` (`clothWarmth`), `bees.php` (svíčky ze sádla), `jobs.php`, `world.php`, `auto.php`, `skills.php`, `life.php`, `trade.php`, `goals.php`, `buildinfo.php`, `public/api.php`, `map.js`, `rozvoj.js`.
+
+**Odchylky od návrhu (většinu odhalila simulace):**
+1. **Start 4 prasat** (váha 0,55) místo 2, aby první zabijačka přišla už v první zimě; selata jsou **čtyři na dvojici** (ne dvě) a v roce osazení se nerodí; jehňata jedno na dvě ovce, v roce osazení také ne.
+2. **Krmivo prasat:** obilí nad rezervou slepic a 10 kusy; `henGrainReserve` zahrnuje i prasata na 60 dní (`PIG_GRAIN_DAYS`), jinak mlýn semlel všechno obilí a prasata by v simulaci vyhladověla. Zeleninu prasata nežerou (v návrhu byla).
+3. **Maso:** 24 jednotek na prase o váze 1 (v návrhu 14), sádlo 3, jedna kožka. Čerstvé vepřové se kazí 22 % denně, jí se přednostně (až čtvrtina jídla s udírnou) a uzuje se rozšířeným `smoke_meat` (nová činnost `smoke_pork` se nezavedla).
+4. **Ovce se přivádějí až v dubnu až září.** Simulace ukázala, že ovce přivedené na podzim nechaly první zimu bez sena (36 dní `hayShort` u ostatního dobytka). Seno na ovce se plánuje hned po dostavění ovčína (`sheepHayNeed` v `winterHayNeed`, takže se na ně nasekne i cíl sečení) a v zimě se ovce krmí až ze zbytku po ostatním dobytku, takže jim neubírají.
+5. **Vlna:** 2 jednotky na ovci a rok (v návrhu 0,8, aby látka měla smysl), tkaní z pěti vlny pět látky. Vlněné oblečení (ovčín a látka nad 0,5 na osobu) sníží šanci zimnice z násobku 0,7 na 0,66 (`clothWarmth`).
+6. **Zabijačka jako událost:** bez `applyMeeting`; první zabijačka v roce dá hlavnímu řezníkovi a až čtyřem sousedům (podle vztahu) nálada +4 a vztahy +3, kronika ji zapíše.
+7. **Kámen se nemění** (viz otázka 4 v bodě 14.7).
+8. Přibyly cíle `pigs_herd` (4, 8), `sheep_house` a `wool_cloth` (10, 25), `public_buildings` do 34, ovčín na mapě má kreslenou náhradu v kódu (sprite zatím chybí, grafika/SEZNAM.md).
+
+**Výsledky (testy 27 sad, simulace 720 dní z živého snímku, pravidla bez AI):**
+- Zabijačka proběhla v první i druhé zimě (1. zima 2 prasata, 2. zima 4), stádo vždy zůstalo na chovné dvojici a v březnu se zase doplnilo na strop (6 až 10 podle počtu lidí). Hlad prasat ani ovcí nebyl, žádné prase nezahynulo.
+- Uzené maso dosáhlo 28 až 61 jednotek a lidé je snědí za několik týdnů (tvoří jen desetinu jídla). Je to zlepšení pestrosti stravy, ne zimní zásoba. Sádlo (5 až 12) se prodává nad 6 kusů.
+- Ovce se přivedly v dubnu (4 kusy, po roce 6), vlna se stříhala v květnu a hned spřádala do látky (zásoba vlny v simulaci 2,5 až 9,5); látka dosáhla cíle 0,8 na osobu (56 pro 68 lidí), ale podíl vlny na ní je malý, protože ovcí jsou jen 4 až 6.
+- Seno: minimum 3 (bez ovčína 9), `hayShort` 0 dní ve dvou zimách. Žádný hlad lidí a žádné varování PHP.
+- **Nevyřešené:** přebytek obilí (13 000) a dřeva (26 000) v simulaci dál roste, zvířata spotřebují jen zlomek (prasata 0,9 až 1,5 obilí za den). Další spotřebu přináší až fáze J (posvícení, radnice). Neověřeno: plánování AI, vzhled ovčína na mapě (jen zběžná kontrola kreslení v prohlížeči, bez chyb v konzoli).
 
 ## 15. Fáze J: obec, zdraví a slavnosti (návrh 16. 11. 2026)
 
@@ -427,6 +447,6 @@ Stav: **jen návrh, nic se nemění ani nenaprogramovalo**. Čeká na schválen�
 
 ## 16. Pořadí I a J a co změřit před zahájením (16. 11. 2026)
 - **Doporučené pořadí: I, pak J.** I je pro hráče viditelné hned (chlív a ohrada stojí) a spotřebuje přebytky obilí a sena. J se vyplatí až při populaci kolem 30 lidí, kterou fáze H teprve má přivést.
-- **Změřit před I:** (1) první příchod osadníků ve hře (`settlers.arrived` je ke dni 210 stále 0; po restartu uplynulo jen několik herních dní) a `settlerBlocked`; (2) zásobování kamenem (`stone` 0,3, `quarryStone` 0, tři vozy stojí) kvůli domům, ovčínu a radnici; (3) skutečný denní přírůstek obilí a sena, aby se ověřila spotřeba zvířat.
+- **Změřit před I:** (1) první příchod osadníků ve hře (`settlers.arrived` je ke dni 210 stále 0; po restartu uplynulo jen několik herních dní) a `settlerBlocked`; (2) zásobování kamenem: při fázi I ověřeno, že plánovač kámen těží a váží až když ho stavba potřebuje, takže se nemění; (3) skutečný denní přírůstek obilí a sena, aby se ověřila spotřeba zvířat (ve fázi I změřeno: zvířata spotřebují jen zlomek přebytku obilí, viz 14.8).
 - **Změřit před J:** čas plánování AI při 40 a víc lidech (dosud neověřeno, bod 13.3 H5) a počet sporů `quarrel` za měsíc.
 - **Úkoly na tabuli:** karta „Další chovné řetězce podle vzoru slepic“ je tímto návrhem pokryta (prase a ovce; krávy mají ohradu a mlékárnu); po schválení se rozdělí na úkoly I a J.

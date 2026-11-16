@@ -221,7 +221,7 @@ function winterDaily(PDO $db,array &$world): void {
                 if ($p['age']<2) continue;
                 $p['mood']=clamp($p['mood']-3*$lack*(clothed($world)?.6:1.0)*(shod($world)?.9:1.0));
                 $sick=!empty($p['illUntil']) && $p['illUntil']>$now;
-                if (!$sick && weatherNoise($day,'zimnice:'.$id)<.012*$lack*($cold?1.5:1.0)*(clothed($world)?.7:1.0)*(shod($world)?.9:1.0)*(1-HYGIENE_SICK_CUT*($world['hygiene']??0))) {
+                if (!$sick && weatherNoise($day,'zimnice:'.$id)<.012*$lack*($cold?1.5:1.0)*clothWarmth($world)*(shod($world)?.9:1.0)*(1-HYGIENE_SICK_CUT*($world['hygiene']??0))) {
                     $p['illUntil']=$now+3*1440;
                     $world['counters']['winterSick']=($world['counters']['winterSick']??0)+1;
                     journal($db,$world,$id,$p['name'].' onemocněl'.(($p['sex']??'m')==='f'?'a':'').' z jednotvárné stravy','Zima a chybějící zelenina oslabily organismus. Pomůže odvar z bylin a odpočinek.','Hra');
