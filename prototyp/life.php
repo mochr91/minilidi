@@ -9,7 +9,8 @@ const GIRL_NAMES = ['Eliška','Anežka','Marie','Dorota','Alžběta','Johanka','
 const BOY_NAMES = ['Václav','Vít','Štěpán','Jakub','Martin','Šimon','Matěj','Havel','Ondřej','Petr'];
 const CHILD_COLORS = ['#a0644a','#5f7f9a','#7a8f4e','#8b6a9c','#b08a3e','#4f8a7a'];
 const PREGNANCY_DAYS = 270;
-const BIRTH_INTERVAL_DAYS = 540;
+const BIRTH_INTERVAL_DAYS = 400;
+const CONCEIVE_CHANCE = .005;
 const HEAVY_WORK = ['mine_ore','felling','quarrying','haul_stone','haul_wood','load_kiln','build_house','construct','saw','mow','firefight','flood_defense'];
 
 function lifeDefaults(array $p,int $absDay): array {
@@ -217,7 +218,10 @@ function checkConception(PDO $db,array &$world,int $day): void {
         $spouse=$world['people'][$p['spouse']]??null;
         if (!$spouse || $now-$p['lastBirth']<BIRTH_INTERVAL_DAYS*1440 || $p['mood']<40 || (!empty($p['illUntil']) && $p['illUntil']>$now)) continue;
         $ageFactor=$p['age']<30?1.0:($p['age']<36?.8:($p['age']<=38?.45:.12));
-        $chance=.0035*$ageFactor*($world['harvestUntil']>$now?.6:1);
+        // Rodina bez dětí se snaží víc, velká rodina míň.
+        $children=count(array_filter($world['people'],fn($o)=>$o['age']<12 && (($o['mother']??null)===$id)));
+        $childFactor=$children===0?1.3:($children<=2?1.0:($children===3?.7:.4));
+        $chance=CONCEIVE_CHANCE*$ageFactor*$childFactor*($world['harvestUntil']>$now?.6:1);
         if (weatherNoise($day,'conceive:'.$id)>=$chance) continue;
         $length=PREGNANCY_DAYS-5+crc32($id.$day)%11;
         $p['pregnant']=['since'=>$now,'due'=>$now+$length*1440,'father'=>$p['spouse'],'revealed'=>false];
@@ -225,18 +229,36 @@ function checkConception(PDO $db,array &$world,int $day): void {
     unset($p);
 }
 
+const LONELY_DAYS = 60;             // tolik dní bez partnera (od 20 let nebo od příchodu) se vesnice snaží dohodit sňatek
+const MATCH_BOND_CRUSH = 55;        // hranice vztahu pro zamilování u osamělých (jinak 62)
+const MATCH_BOND_BETROTH = 62;      // hranice pro zasnoubení u osamělých (jinak 70)
+
+// Svobodný dospělý, který je 60 dní sám: vesnice mu pomáhá s dohazováním (nižší hranice vztahu, větší šance).
+function isLonely(array $p,int $day): bool {
+    if ($p['age']<20 || !empty($p['spouse']) || !empty($p['betrothed'])) return false;
+    $since=max((int)($p['arrivedDay']??-999999),(int)$p['birthDay']+20*360);
+    return $day-$since>=LONELY_DAYS;
+}
+
 function checkRomance(PDO $db,array &$world,int $day): void {
     $people=$world['people'];
+    $feast=in_array(calendarAt((int)$world['minute'],(int)$world['calendarOriginDay'])['monthIndex'],[6,7],true);   // po sklizni (září, říjen) se víc scházejí
     foreach ($people as $id=>$p) {
         if ($p['age']<16 || !empty($p['spouse']) || !empty($p['betrothed'])) continue;
+        $lonelyP=isLonely($p,$day);
         foreach ($people as $oid=>$o) {
             if ($o['age']<16 || !empty($o['spouse']) || !empty($o['betrothed']) || $o['sex']===$p['sex'] || $o['family']===$p['family'] ||
-                abs($o['age']-$p['age'])>14 || ($p['bonds'][$oid]??48)<62 || ($o['bonds'][$id]??48)<62) continue;
+                abs($o['age']-$p['age'])>14) continue;
+            $match=$lonelyP || isLonely($o,$day);
+            $crushBond=$match?MATCH_BOND_CRUSH:62;
+            $betrothBond=$match?MATCH_BOND_BETROTH:70;
+            if (($p['bonds'][$oid]??48)<$crushBond || ($o['bonds'][$id]??48)<$crushBond) continue;
             $bothAdult=$p['age']>=18 && $o['age']>=18;
+            $boost=$feast?2:1;
             if (($p['crush']??null)===$oid || ($o['crush']??null)===$id) {
-                if ($bothAdult && ($p['bonds'][$oid]??48)>=70 && ($o['bonds'][$id]??48)>=70 &&
-                    weatherNoise($day,'wedding:'.$id.':'.$oid)<.04) { betroth($db,$world,$id,$oid); return; }
-            } elseif (empty($p['crush']) && weatherNoise($day,'crush:'.$id.':'.$oid)<.01) {
+                if ($bothAdult && ($p['bonds'][$oid]??48)>=$betrothBond && ($o['bonds'][$id]??48)>=$betrothBond &&
+                    weatherNoise($day,'wedding:'.$id.':'.$oid)<($match?.06:.04)*$boost) { betroth($db,$world,$id,$oid); return; }
+            } elseif (empty($p['crush']) && weatherNoise($day,'crush:'.$id.':'.$oid)<($match?.03:.01)*$boost) {
                 $world['people'][$id]['crush']=$oid;
                 journal($db,$world,$id,$p['name'].($p['sex']==='f'?' se zamilovala':' se zamiloval'),
                     'Mezi '.$p['name'].' a '.$o['name'].' vzniká sympatie.','Příběh');
@@ -300,5 +322,6 @@ function lifeDaily(PDO $db,array &$world): void {
         checkRomance($db,$world,$day);
         checkConception($db,$world,$day);
         householdDaily($db,$world);
+        settlersDaily($db,$world);
     }
 }

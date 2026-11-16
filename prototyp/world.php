@@ -18,6 +18,7 @@ require_once __DIR__ . '/bees.php';
 require_once __DIR__ . '/bricks.php';
 require_once __DIR__ . '/bath.php';
 require_once __DIR__ . '/buildinfo.php';
+require_once __DIR__ . '/settlers.php';
 require_once __DIR__ . '/life.php';
 require_once __DIR__ . '/crisis.php';
 require_once __DIR__ . '/goals.php';

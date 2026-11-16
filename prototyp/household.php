@@ -7,7 +7,7 @@ declare(strict_types=1);
 // případně se postaví domek či dům. Pár se bere až po zasnoubení, v kapli nebo v kostele, a jen když má kde bydlet.
 
 const HOUSE_SITES = ['Kovářovi'=>[2,6],'Doležalovi'=>[4,6],'Hruškovi'=>[6,6],'Novákovi'=>[15,6],'Královi'=>[2,11],'Veselí'=>[4,11]];
-const HOUSE_PLOTS = [[14,11],[12,12],[8,3],[13,3]];      // pořadí odpovídá `plots` v map.js (dum1 až dum4)
+const HOUSE_PLOTS = [[14,11],[12,12],[8,3],[13,3],[26,14],[28,11],[28,5],[29,14],[21,25],[4,26]];      // pořadí odpovídá `plots` v map.js (dum1 až dum4)
 const HOUSE_ALIASES = ['Mlynářovi'=>'dum2','Hrubí'=>'dum3','Sedláčkovi'=>'dum4'];
 const HOUSE_CAPACITY = 6;
 const COTTAGE_CAPACITY = 4;
@@ -359,6 +359,7 @@ function householdDaily(PDO $db,array &$world): void {
     resolveOrphans($db,$world);
     $wanted=null;
     if ($needs && count($world['homesBuilt']??[])<HOME_LIMIT) $wanted=max($needs)>COTTAGE_CAPACITY ? 'dum' : 'domek';
+    if ($wanted===null && count($world['homesBuilt']??[])<HOME_LIMIT && settlersNeedHouse($world)) $wanted='dum';
     if (!empty($world['houseProject']['kind'])) $wanted=$world['houseProject']['kind'];
     $world['houseWanted']=$wanted;
 }

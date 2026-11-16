@@ -137,6 +137,7 @@ function economyDefaults(): array {
         'barley'=>0.0,'malt'=>0.0,'hops'=>0.0,'beerYoung'=>0.0,'beer'=>0.0,'brewProject'=>null,'ore'=>0.0,'iron'=>0.0,'ironTools'=>0.0,'salt'=>0.0,'cloth'=>0.0,'hides'=>0.0,'grapes'=>0.0,'wine'=>0.0,'barrels'=>0.0,'barrelWork'=>0.0,'leather'=>0.0,'boots'=>0.0,'flax'=>0.0,'milk'=>0.0,'cheese'=>0.0,'pond'=>['fish'=>0.0,'stocked'=>false],'school'=>['lastDay'=>-1,'lessons'=>0],
         'hives'=>0,'apiary'=>['season'=>-1,'care'=>0.0,'crop'=>0.0,'done'=>false,'prepared'=>0.0,'swarm'=>false,'founded'=>false],'honey'=>0.0,'wax'=>0.0,'candles'=>0.0,
         'clay'=>0.0,'bricks'=>0.0,'roofs'=>[],'roofProject'=>null,'hygiene'=>0.0,
+        'settlers'=>['arrived'=>0,'nextDay'=>0,'nextId'=>1,'log'=>[],'lastHunger'=>-999,'hungerStreak'=>0,'lastLeave'=>-999],'rank'=>'osada',
         'wineBatch'=>['state'=>'idle','end'=>0,'yield'=>0.0],'vineyard'=>['season'=>-1,'care'=>0.0,'crop'=>0.0,'done'=>false,'frost'=>false],
         'trade'=>['credit'=>0.0,'visits'=>0,'lastMonth'=>-1,'kettle'=>false],'tribute'=>['paid'=>[],'log'=>[]],'beerLog'=>['brews'=>0,'drunk'=>0.0,'dry'=>0],'hopYard'=>['season'=>-1,'care'=>0.0,'crop'=>0.0,'done'=>false],
         'garden'=>['season'=>-1,'sown'=>0.0,'care'=>0.0,'crop'=>0.0,'done'=>false],

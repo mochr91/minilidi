@@ -225,14 +225,14 @@ check($world['houseWanted']==='domek' && homeOf($world['people']['ded'])==='Hru�
 $world['homesBuilt']=[(int)$world['minute']]; $world['houseKinds']=[0=>'domek']; $world['houseWanted']=null;
 householdDaily($db,$world);
 check(homeOf($world['people']['ded'])==='dum1' && homeOf($world['people']['baba'])==='dum1' && $world['houseWanted']===null,'Po dostavbě domku se prarodiče odstěhují');
-// Při čtyřech postavených domech se nic dalšího nestaví.
+// Při dosaženém limitu postavených domů se nic dalšího nestaví.
 [$db,$world]=$crowd();
 foreach (array_keys(HOUSE_SITES) as $h) if ($h!=='Hruškovi') foreach ($filler($h,6) as $spec) { $p=$person($world,...$spec); $world['people'][$p['id']]=$p; }
 $world['people']['ded']['spouse']='baba'; $world['people']['baba']['spouse']='ded';
-$world['homesBuilt']=[1,2,3,4];
-for ($i=1;$i<=4;$i++) foreach ($filler('dum'.$i,6) as $spec) { $p=$person($world,...$spec); $world['people'][$p['id']]=$p; }
+$world['homesBuilt']=array_fill(0,HOME_LIMIT,1);
+for ($i=1;$i<=HOME_LIMIT;$i++) foreach ($filler('dum'.$i,6) as $spec) { $p=$person($world,...$spec); $world['people'][$p['id']]=$p; }
 householdDaily($db,$world);
-check($world['houseWanted']===null,'Strop čtyř nových domů: žádná další poptávka');
+check($world['houseWanted']===null,'Strop '.HOME_LIMIT.' nových domů: žádná další poptávka');
 // Mladý pár s dítětem se odstěhuje, když nejsou prarodiče.
 [$db,$world]=$village([
     ['otec','Otec Starý',45,'m','Starých','Hruškovi'],['matka','Matka Stará',43,'f','Starých','Hruškovi'],

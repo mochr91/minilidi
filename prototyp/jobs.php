@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-const HOME_LIMIT = 4;
+const HOME_LIMIT = 10;
 const HOUSE_WOOD = 12;
 const HOUSE_STONE = 6;
 

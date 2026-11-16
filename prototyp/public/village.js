@@ -297,7 +297,7 @@
         +(trend===null?'':' · změna '+(trend>0?'+':'')+fmt(trend));
       chip.setAttribute('aria-label',chip.title);
     }
-    const growth=counted(Object.keys(state.people).length,'obyvatel','obyvatelé','obyvatel')+' · '+
+    const growth=(state.rankLabel?state.rankLabel+' · ':'')+counted(Object.keys(state.people).length,'obyvatel','obyvatelé','obyvatel')+' · '+
       counted(state.homesBuilt.length,'nový dům','nové domy','nových domů');
     write(map.growth,growth,growth+' · kámen u lomu: '+fmt(state.quarryStone));
     const remaining=Math.max(0,Math.ceil(state.nextAutoMinute-state.minute));

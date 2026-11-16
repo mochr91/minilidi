@@ -148,7 +148,7 @@ Kalendář prací je v samostatném grafu (v konverzaci). Zásada: pole a zahrad
 
 | F | Špýchar, mlékárna, rybník, koželužna a ševcovna, tkalcovna, fara a škola | řemesla navazující na kožky, mléko a len; víc jídla a zboží | **hotovo 15. 11.**, podrobnosti v KOORDINACE.md bod 5 (nové budovy na konci pořadí, každá ze zásob; grafika jako vyměnitelné obrázky) |
 | G | Včelín, cihelna, lázeň | med, vosk a svíčky, opylení; střechy z došek na tašky proti požáru; hygiena a teplo v zimě | **hotovo 15. 11.** (schváleno a naprogramováno), podrobnosti v bodě 12 a v KOORDINACE.md bod 5 |
-| H | Přistěhovalci podle prosperity, sňatky a děti, víc stavebních parcel, hodnost vesnice | vesnice roste z 20 na 40 až 64 lidí a postupně se mění z osady na městys | **návrh 16. 11.**, podrobnosti v bodě 13, čeká na schválení |
+| H | Přistěhovalci podle prosperity, sňatky a děti, víc stavebních parcel, hodnost vesnice | vesnice roste z 20 na 40 až 64 lidí a postupně se mění z osady na městys | **hotovo 16. 11.** (schváleno a naprogramováno), podrobnosti v bodě 13 a v KOORDINACE.md bod 5 |
 
 Doporučené pořadí A, B, C, D, E. A musí být první, protože zavádí kažení a pestrost, na kterých stojí zbytek. C lze před B, pokud chcete pivo dřív; vozy a uhlí pak jen počkají.
 
@@ -250,7 +250,7 @@ Rozbor současných článků, které už ve hře jsou, ale nemají dost užitku
 
 ## 13. Fáze H: růst vesnice (návrh 16. 11. 2026)
 
-Stav: **jen návrh, nic není naprogramované ani schválené.** Vznikl na pokyn uživatele po zjištění, že se obě vesnice přestaly rozvíjet („nikam se nerozvíjí“). Čísla jsou výchozí odhady k vyladění simulací.
+Stav: **schváleno uživatelem 16. 11. 2026 („Schválit vše“, včetně doporučení u otevřených otázek) a naprogramováno** (skutečná čísla a odchylky jsou v KOORDINACE.md bod 5, nasazeno do souborů 16. 11., v běhu po restartu). Vznikl na pokyn uživatele po zjištění, že se obě vesnice přestaly rozvíjet („nikam se nerozvíjí“). Čísla jsou výchozí odhady k vyladění simulací.
 
 ### 13.1 Co se stalo (měření 16. 11., den hry 184)
 - **Hotovo vše:** v AI i ve větvi bez AI stojí všech 33 budov, `project` je prázdný a stavět není co. Vše se postavilo za zhruba 150 dní (půl herního roku).
@@ -288,9 +288,9 @@ Dát vesnici **příčinu růst**: lidé přicházejí, protože se jim tu dař�
 - Domek (4 místa) pro mladé páry a osamělé, dům (6 míst) pro rodiny s dětmi (stávající `houseKindWanted`).
 
 **H4 Hodnost a stupně vesnice:**
-- `popCap` roste s hodností (stropy 24, 36, 48, 64) a s počtem postavených domů; hodnost se počítá z populace a budov a ukazuje se v záhlaví mapy: **Osada** (do 20 lidí), **Ves** (21 až 40), **Větší ves** (41 až 60), **Městys** (61 a víc a aspoň 30 budov).
+- `popCap` = nejvýš 64 a nejvýš kapacita domů (původní stropy 24, 36, 48, 64 podle hodnosti se nepoužily, aby růst nezastavily); hodnost se počítá z populace a budov a ukazuje se v záhlaví mapy: **Osada** (do 20 lidí), **Ves** (21 až 40), **Větší ves** (41 až 60), **Městys** (61 a víc a aspoň 30 budov).
 - Cíle: `pop` tiery 12, 16, 20, 30, **40, 50, 64**; `homes` tiery 1 až 4 a **6, 8, 10**; nový cíl `settlers` (počet přistěhovalých rodin: 3, 6, 10).
-- Odměny za hodnost (minimální, bez další složitosti): Ves zkrátí obchodníkovu návštěvu z měsíce na tři týdny, Větší ves na dva týdny, Městys přidá týdenní trh (čtvrtý stánek na mapě a mírný nárůst nálady o 2 body v sobotu).
+- Odměny za hodnost (minimální, bez další složitosti): Ves zkrátí obchodníkovu návštěvu z měsíce na tři týdny, Větší ves a Městys na dva týdny, Městys přidá sobotní trh (+2 nálada všem; nový stánek na mapě se nedělal).
 
 **H5 Zátěž a zázemí při růstu:**
 - Plánovač s modelem dělí lidi do skupin po osmi; při 64 lidech je to osm skupin za plán a při dnešních 12 s na skupinu zhruba 100 s na šestihodinový plán, což se vejde do 300 s reálného času (měřit; v nejhorším se zkrátí dávky nebo se část lidí plánuje pravidly).

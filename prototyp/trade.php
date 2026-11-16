@@ -78,8 +78,15 @@ function tradeDaily(PDO $db,array &$world): void {
     $now=(int)$world['minute'];
     $calendar=calendarAt($now,$world['calendarOriginDay']);
     $monthKey=$calendar['year']*12+$calendar['monthIndex'];
-    if ($calendar['day']!==TRADE_DAY || intdiv($now,1440)<TRADE_FIRST_DAY || !hasBuilding($world,'hospoda') || ($world['trade']['lastMonth']??-1)===$monthKey) return;
+    $day=intdiv($now,1440);
+    if ($day<TRADE_FIRST_DAY || !hasBuilding($world,'hospoda')) return;
+    // Osada: jednou měsíčně 15. dne; větší vesnice se obchodníkovi vyplatí, takže jezdí po třech, dvou a týdnech (TRADE_INTERVALS).
+    $rank=villageRank($world);
+    if ($rank==='osada') {
+        if ($calendar['day']!==TRADE_DAY || ($world['trade']['lastMonth']??-1)===$monthKey) return;
+    } elseif ($day-(int)($world['trade']['lastDay']??-999)<TRADE_INTERVALS[$rank]) return;
     $world['trade']['lastMonth']=$monthKey;
+    $world['trade']['lastDay']=$day;
     tradeVisit($db,$world);
 }
 

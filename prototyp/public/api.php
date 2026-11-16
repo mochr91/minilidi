@@ -68,6 +68,10 @@ try {
         $world['housingCapacity'] = housingCapacity($world);
         $world['housing'] = housingSummary($world);
         $world['roofMap'] = roofMap($world);
+        $world['rankLabel'] = RANKS[villageRank($world)];
+        $world['popCap'] = popCap($world);
+        $world['settlerInterval'] = settlerInterval($world);
+        $world['settlerBlocked'] = settlersBlocked($world,intdiv((int)$world['minute'],1440));
         $world['reserveDays'] = round(foodReserve($world)/max(1,dailyFoodNeed($world)),1);
         foreach ($world['people'] as &$person) {
             if (!empty($person['pregnant']) && empty($person['pregnant']['revealed'])) $person['pregnant'] = ['revealed'=>false];

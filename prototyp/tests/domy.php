@@ -62,8 +62,8 @@ check(!houseWorkAvailable($world),'Bez materiálu se dům nezačne');
 $world['houseWanted']=null;
 check(!houseWorkAvailable($world),'Bez potřeby bydlení se dům nezačne');
 [$db,$world]=$prepare();
-$world['homesBuilt']=[1,2,3,4];
-check(!houseWorkAvailable($world),'Nejvýš čtyři domy nebo domky');
+$world['homesBuilt']=array_fill(0,HOME_LIMIT,1);
+check(!houseWorkAvailable($world),'Nejvýš '.HOME_LIMIT.' domů nebo domků');
 // 5. Starý uložený stav bez klíče houseProject.
 [$db,$world]=$prepare();
 unset($world['houseProject']);

@@ -192,6 +192,15 @@ function renderEconomy() {
       if (has('fara')) parts.push('lekcí ve škole ' + (state.school?.lessons ?? 0));
       box.append(make('p', 'Řemesla a zásobárny: ' + parts.join(' · '), 'dev-note'));
     }
+    if (state.rankLabel) {
+      const blockers = { rozestup: 'čeká se na rozestup', zima: 'zima', krize: 'krize', strop: 'nejsou volná místa v domech', jidlo: 'málo jídla', drevo: 'málo dřeva', nalada: 'špatná nálada', hlad: 'nedávný hlad' };
+      const day = Math.floor(state.minute / 1440);
+      const people = Object.keys(state.people ?? {}).length;
+      const next = state.settlers?.nextDay ?? 0;
+      box.append(make('p', 'Růst vesnice: ' + state.rankLabel + ' · ' + people + ' lidí z ' + state.popCap + ' možných · přistěhovaných skupin ' + (state.settlers?.arrived ?? 0)
+        + ' · další příchod ' + (next > day ? 'nejdřív za ' + (next - day) + ' dní' : 'možný hned') + ' (rozestup ' + (state.settlerInterval ?? '–') + ' dní)'
+        + (state.settlerBlocked ? ' · teď brzdí: ' + (blockers[state.settlerBlocked] ?? state.settlerBlocked) : ' · nic nebrzdí'), 'dev-note'));
+    }
     if (['vcelin', 'cihelna', 'lazen'].some(key => state.buildings?.[key] !== undefined)) {
       const has = key => state.buildings?.[key] !== undefined;
       const parts = [];

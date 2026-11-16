@@ -58,7 +58,7 @@ function createVillageMap(root) {
   const HOME_TILES = { Kovářovi:[2,6], Doležalovi:[4,6], Hruškovi:[6,6], Novákovi:[15,6], Královi:[2,11], Veselí:[4,11],
     Hrubí:[6,13], Sedláčkovi:[4,13], Mlynářovi:[12,12] };
   const homes = Object.fromEntries(Object.entries(HOME_TILES).map(([family,[x,y]])=>[family,[x+.5,y+1.4]]));
-  const plots = [[14,11],[12,12],[8,3],[13,3]];
+  const plots = [[14,11],[12,12],[8,3],[13,3],[26,14],[28,11],[28,5],[29,14],[21,25],[4,26]];   // pořadí odpovídá HOUSE_PLOTS v household.php
   // Postavené domy a domky (dum1 až dum4) jsou na stavebních parcelách; lidé bydlí v domě `home`.
   plots.forEach(([x,y],i)=>{ homes['dum'+(i+1)]=[x+.5,y+1.4]; });
   const places = { yard:[5,9.3], market:[10.5,9.8], forest:[1.2,9.3], field:[13,14.6], river:[15.6,12.1], pasture:[7.4,19.5],
