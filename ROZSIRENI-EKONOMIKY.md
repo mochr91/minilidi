@@ -164,7 +164,7 @@ Doporučené pořadí A, B, C, D, E. A musí být první, protože zavádí kaž
 1. Úrok a obchod jsou zavedené (pokyn uživatele 14. 11.: „pracuj na fázi D a E“).
 3. Mají pivo a víno **opíjet** (únava, hádky), nebo jen zvedat náladu?
 5. Mají se před přidáním nové práce **zkrátit plánovací dávky** (víc úkolů)?
-6. Fáze A až F jsou hotové; další směr navrhuje **fáze G (bod 12, schváleno a hotovo 15. 11. 2026)**: včelín, cihelna, lázeň. Kolárna se do G nezařazuje a ovčín je kandidát na H (zdůvodnění v bodě 12).
+6. Fáze A až F jsou hotové; další směr navrhuje **fáze G (bod 12, schváleno a hotovo 15. 11. 2026)**: včelín, cihelna, lázeň. Kolárna se do G nezařazuje; ovčín se přesunul do **fáze I (bod 14, jen návrh 16. 11. 2026: chov, maso a vlna)**; **fáze J (bod 15, jen návrh: obec, zdraví a slavnosti)** a pořadí s měřením jsou v bodě 16.
 
 ## 12. Fáze G: včelín, cihelna, lázeň (návrh 15. 11. 2026)
 
@@ -314,3 +314,119 @@ Dát vesnici **příčinu růst**: lidé přicházejí, protože se jim tu dař�
 4. Má odliv rodiny při hladu být zapnutý? (Návrh: ano, ale jen jednou za dva měsíce a nikdy to nesmí být poslední dospělý v domě.)
 5. Má se Městys odměňovat týdenním trhem (nový stánek a nálada), nebo má být hodnost jen popisek? (Návrh: stánek a nálada.)
 6. Má se při větším počtu lidí zkrátit plánovací dávka AI (otázka 5 z bodu 11)? Teď je 6 herních hodin a osm lidí na skupinu.
+
+## 14. Fáze I: chov, maso a vlna (návrh 16. 11. 2026)
+
+Stav: **jen návrh, nic se nemění ani nenaprogramovalo**. Čeká na schválení a odpovědi v bodě 14.7. Čísla jsou výchozí odhady, které se mají doladit simulací z živého snímku jako ve fázích G a H. Fáze I je nezávislá na J (bod 15), obě lze dělat v libovolném pořadí.
+
+### 14.1 Proč právě chov (měření 16. 11., den hry 210)
+- **Chlív a ohrada dnes nic nechovají.** Chlív dává jen kožky (`HIDES_FROM_PIG` .04 denně) a ohrada kožky a tah volů (`HIDES_FROM_COW`, `CART_OX`); obě jen přidávají malý bonus k činnosti `livestock`. Prase nemá krmení, váhu ani maso, žádné zvíře nemá následek při nedostatku krmiva (kromě slepic a `hayShort`).
+- **Zimě chybí maso.** `meatSmoked` je 0 a vzniká jen z lovu (`gameStock`). Udírna tak nemá z domácího chovu co udit.
+- **Přebytky, které nic nespotřebuje:** jídlo 3 487 (rezerva 124 dní), obilí 518, seno 367, dřevo 793 (AI) a 555 (bez AI). Zvířata by obilí a seno skutečně spotřebovala.
+- **Tkalcovna má jen len** (`flax`, 6 jednotek lnu dá 3 látky); ovčí vlna ve hře není, přestože v původním řetězci F byla uvedena jako kandidát.
+- **Pozor, kámen:** `stone` je 0,3 a `quarryStone` 0 v obou větvích (tři vozy jsou postavené, ale není co vozit). Dosavadní stavby byly hotové dřív, ale domy (6 kamene), ovčín i budoucí radnice (bod 15) ho potřebují. Viz otázka 4 v bodě 14.7.
+
+### 14.2 Prasata a zabijačka
+- **Stav:** `pigs` (počet, před osazením `null` jako `hens`; po dostavění chlívu 2 kusy, strop min(10, 2 + počet lidí děleno 8)), `pigWeight` (0 až 1, průměrná vykrmenost), `pigHungry` (dnů bez krmiva), zásoby `pork` (čerstvé maso, kazí se za 6 dní) a `lard` (sádlo, nekazí se).
+- **Krmení (denní hook `pigsDaily`, bez úkolu):** prase sní 0,15 obilí a 0,1 zeleniny z odpadu denně; krmí se jen když je obilí nad rezervou (tři týdny mouky). Při krmení váha +1/240 denně, bez krmiva −1/60 a `pigHungry`++. Po 10 dnech hladu prase zahyne a zapíše se do kroniky.
+- **Činnosti** (skupina „Zvířata“, místo `pigsty`): `slaughter_pig` (zabijačka, listopad až prosinec, jen když je mráz nebo sníh, 120 min na prase, bere prasata s váhou aspoň 0,7 a nechá aspoň 2 na chov; maso = 14 × váha, sádlo = 3 × váha, kožka jako dnes), uzení se nedělá novou činností: stávající `smoke_meat` (`forest.php`, udírna, dnes z `game` do `meatSmoked`) se rozšíří o vstup `pork` (čerstvé maso se uzuje přednostně, pak zvěřina); čerstvé maso, které se včas neudí, se sní nebo zkazí.
+- **Rozmnožení:** v březnu přibudou prasata, když zůstaly dvě a je dost obilí (2 selata ročně na dvě prasata, dokud nejsou na stropu); selata mají váhu 0.
+- **Zabijačka jako sousedská událost:** při první zabijačce roku se sejdou sousedé (3 až 5 lidí, krátká scéna `applyMeeting`, vztahy +3, nálada +4) a jídlo té rodiny se na týden zlepší. Je to použití hotového systému setkání, ne nový mechanismus.
+- **Následky:**
+  - **Zima:** `meatSmoked` zvyšuje pestrost stravy (`diet`) a tím snižuje šanci zimnice stejně jako dnes zelenina a luštěniny (hook v `winter.php`); sádlo se používá k lojovým svíčkám (1 sádlo = 3 svíčky, svíčky na školu v zimě jako ve fázi G).
+  - **Obchod:** přebytek uzeného nad zimní rezervu a sádlo se prodají (`tradeSellRules`).
+- **Realita:** zabijačka na počátku zimy byla základem venkovského hospodářství a je ve všech zemích vesnicí. Prase se v zimě nekrmilo, proto se zabíjelo.
+
+### 14.3 Ovčín a vlna
+- **Budova:** `ovcin` (Ovčín), 50 h; dřevo 10, prkna 4, kámen 4; závisí na ohradě a tkalcovně; pořadí v `BUILD_ORDER` na konci za `lazen`.
+- **Stav:** `sheep` (počet; po dostavění 4, strop min(12, 4 + počet lidí děleno 6)), `wool` (vlna, nekazí se, strop 60), `sheepFed`.
+- **Krmení:** v zimě (prosinec až březen) spotřebuje ovce 0,3 sena denně, v létě pase; při `hayShort` se krmivo sníží a vlna příští jaro bude poloviční. Tím se spotřebuje část sena (367, rostoucí).
+- **Činnosti** (místo `pasture`): `shear_sheep` (stříhání v květnu a červnu, 90 min na dávku, vlna = ovce × 0,8 × (0,5 + 0,5 péče)), `tend_sheep` (péče, duben až září, 30 min, jako `tend_bees`); rozšířené `spin_weave`: z 5 vlny vyjde 5 látky (z lnu 3 z 6), takže vlna je výrazně výhodnější a přebytek lnu klesá.
+- **Přírůstek:** v dubnu +1 jehně na dvě ovce (nejvýš po strop); v listopadu se vybraná ovce zabije jen při přetížení pastviny.
+- **Následky:** teplé oděvy (`cloth` z vlny) zvyšují ochranu před zimnicí (hook už existuje: `clothed($world)` v `trade.php` a látka v `winter.php`; vlna přidá druhý stupeň, +0,05 k ochraně nad práh), přebytek vlny a látky se prodá (vlna 2,5, látka podle stávajícího ceníku).
+- **Realita:** ovce byly na vsi hlavním zdrojem vlny, často společné na obecní pastvě. Sýr ani maso z ovcí se nezavádí (překrývaly by mlékárnu a zabijačku).
+
+### 14.4 Co se nezařazuje
+| Kandidát | Důvod |
+|---|---|
+| **Medovina** | Z medu a vody, ale přidala by druhý nápoj do hospody bez nového následku, dokud není rozhodnuto, jestli pivo a víno opíjejí (otázka 3 z bodu 11). Zařadit až po tomto rozhodnutí. |
+| **Kozy, husy, králíci** | Další druhy by jen kopírovaly slepice a ovce. |
+| **Mýdlo** | Lůj/sádlo a potaš by byl další řetězec bez nového následku (stejně jako v G). |
+
+### 14.5 Dopad na kód a rozhraní (zatím se nemění)
+- **Nové soubory:** `husbandry.php` (prasata, ovce, zabijačka, vlna, hook `husbandryDaily`).
+- **Úpravy:** `economy.php` (budova `ovcin`, pořadí, výchozí hodnoty `pigs`, `pigWeight`, `pigHungry`, `pork`, `lard`, `sheep`, `wool`), `crafts.php` (vlna v `spin_weave`), `winter.php` (maso v pestrosti, vlna v ochraně), `forest.php` (`smoke_meat` o vstup `pork`), `jobs.php` a `auto.php` (činnosti, plánovač), `world.php` (ACTIONS, `decodeWorld`), `goals.php` (cíle `pigs`, `sheep`, `winter_meat`), `trade.php` (prodej), `skills.php` (kategorie), `api.php` (`resourceLabels`, `buildinfo.php` popisy), mapa (`map.js` místa `pigsty` a `pasture`, sprite ovčína, počet prasat v chlívu jako u slepic).
+- **Rozhraní (zapsat do KOORDINACE bod 4 před použitím):** `pigs`, `pigWeight`, `pigHungry`, `pork`, `lard`, `sheep`, `wool`, `sheepFed`; budova `ovcin`; místa `pigsty`, `pasture`; činnosti `slaughter_pig`, `shear_sheep`, `tend_sheep` (a rozšířené `smoke_meat`, `spin_weave`). GUI musí chybějící klíče snést (starý stav bez chovu).
+- **Testy:** `chov.php` (krmení a hlad, váha, zabijačka v sezóně a mimo ni, minimální chovné stádo, množení, vlna, strop, starý stav bez klíčů), úprava `remesla.php` (spin_weave z vlny), `budovy.php` (pořadí), soak 720 dní bez varování a simulace z živého snímku.
+- **Kritéria úspěchu simulace:** žádný hlad a žádné varování; po první zabijačce aspoň 60 jednotek uzeného; v zimě ani jedno prase hladové; prasata a ovce spotřebují aspoň 20 % ročního přebytku obilí a sena; zimnice klesne proti stavu bez chovu; zátěž neroste víc než o 10 % času na herní den (`zatez.php`).
+- **Odhad práce:** zhruba tři čtvrtě fáze G (jeden soubor, jedna budova, sedm úprav).
+
+### 14.6 Pořadí a nasazení
+Stejný postup jako G a H: vývojová kopie, záloha originálů, ověření hashů, sprity ovčína na kód (pixel-art na tabuli), restart jen s výslovným pokynem. Na rozdíl od G a H je tato fáze ve hře viditelná hned, protože chlív a ohrada už stojí.
+
+### 14.7 Otevřené otázky k I
+1. Schvalujete prase (zabijačka) a ovce (vlna), nebo jen jedno z nich? (Návrh: obojí; zabijačka dává nejvíc užitku.)
+2. Má prase při hladu hynout, nebo jen hubnout a zdržet zabijačku? (Návrh: po deseti dnech zahyne, ale kronika to řekne; je to jediný trest za špatné hospodaření.)
+3. Má se zabijačka dělat jen při mrazu (návrh), nebo vždy v pevný termín?
+4. **Kámen:** `stone` je 0,3 a u lomu nic. Má se před fází I (nebo v ní) vyřešit zásobování kamenem (dnes se lom těží jen, když jsou potřeba, a vozy jezdí podle prahu 12 kusů)? (Návrh: ano, jako malou první úpravu `jobs.php`/`forest.php`: lom se těží průběžně, když je kamene pod zimní a stavební rezervou. Souvisí s odloženým `dev11`.)
+5. Má `slaughter_pig` počítat i s krávou nebo koněm? (Návrh: ne.)
+
+## 15. Fáze J: obec, zdraví a slavnosti (návrh 16. 11. 2026)
+
+Stav: **jen návrh, nic se nemění ani nenaprogramovalo**. Čeká na schválení a odpovědi v bodě 15.7. Navazuje na H (vesnice na 40 až 64 lidí potřebuje společné instituce) a na G (cihly mají dnes jen jednu spotřebu, přestavbu střech).
+
+### 15.1 Proč právě obec
+- **Větší vesnice nemá správu.** Při 20 lidech stačí, že se spolu lidé domluví; při 40 až 64 se objevují spory (`quarrel` při vztahu pod 42), nikdo je neřeší a nikdo vesnici nezastupuje. Hodnost Městys z fáze H je zatím jen popisek a trh +2 nálada.
+- **Cihly zůstávají bez dalšího užitku.** Po přestavbě střech je cihlami nic nespotřebovává (zásoba 25); zděná radnice je přirozená druhá spotřeba (poznámka z bodu 12.3: „zděné stavby jsou H/I“).
+- **Nemoc je jen individuální.** Zimnice (`winter.php`) postihuje jednotlivce a léčí ji odpočinek, byliny a med. Při 40 až 64 lidech, kteří žijí v těsnu, by bylo realistické i rozšíření nemoci. `crisis.php` zná dnes jen požár a povodeň.
+- **Slavnost chybí.** Svatba je hotová a v září a říjnu se zvyšuje šance zasnoubení, ale společné posvícení s přípravou, jídlem a hosty neexistuje (nápad na tabuli „Posvícení a výroční trh jako slavnost“).
+
+### 15.2 Radnice a rychtář
+- **Budova:** `radnice` (Radnice), 150 h; cihly 30, dřevo 10, prkna 6, kámen 12; závisí na faře a cihelně; staví se až při hodnosti Ves (21 a víc lidí), aby malá vesnice nestavěla zbytečně. Pořadí v `BUILD_ORDER` na konci.
+- **Rychtář:** osoba (`reeve`, id) zvolená na posvícení každé 4 herní roky (jinak při smrti nebo odstěhování) z dospělých od 30 let podle dovednosti `neighbors`, nálady a věku; kronika zapíše volbu.
+- **Činnost `council`** (schůze v radnici, neděle po mši, 60 min, rychtář a 3 až 5 dalších): na schůzi se (1) usmíří nejhorší dvojice (vztah pod 42: bond +8 obou, dohoda se zapíše do kroniky), (2) zapíše souhrn měsíce do kroniky (stávající týdenní souhrn se jen pomocí rychtáře převypráví do věty), (3) rychtář oznámí nejbližší nedostatek (`settlerBlocked`, `foodShort`, `hayShort`) a plánovač dostane na týden bonus +3 k úkolu, který ho řeší. Je to přenos informace do plánu, ne nové pravidlo.
+- **Následky:** s radnicí a rychtářem klesne šance hádky `quarrel` o čtvrtinu a `reconcile` mezi hádajícími se se zvýší o polovinu; od hodnosti Větší ves přibude jedno místo v panelu Rozvoj „Obec“ (rychtář, poslední schůze, spory).
+- **Realita:** rychtář (fojt) a obecní schůze byly běžnou součástí českých vsí 15. a 16. století; radnice patřila městysům a městům, ve vsi se scházelo v hospodě nebo u rychtáře, proto je radnice zděná budova až pro větší místo.
+- **Nezařazuje se:** peníze, obecní pokladna a desátek vrchnosti (čeká na rozhodnutí „společný sklad, nebo rodiny“ na tabuli).
+
+### 15.3 Bylinkářka a epidemie
+- **Bylinkářka:** osoba (`healer`, id) vybraná z žen od 25 let s nejvyšší dovedností `neighbors` (kategorie, kterou dnes používá `nurse`; jinak z dospělých); sbírá byliny (`gather_herbs`, dnes už existuje) a **léčí** (`heal`, 40 min, nemocný člověk, nemoc se zkrátí o 30 % navíc k bylinám a medu, strop 80 %). Bez bylinkářky platí dnešní pravidla.
+- **Epidemie** (nový typ krize v `crisis.php`, `epidemic`): šance za rok stoupá s počtem lidí (od 30), s nízkou hygienou (bez lázně), s hladem a se zlou zimou, pod 30 lidí je nulová. Postihne 3 až 6 lidí najednou, trvá 14 dní, nemoc se přenáší na sousedy v domě; lidé v lázni a s bylinkářkou jsou chráněnější. **Smrt:** ve výchozím nastavení epidemie nepřidává nová úmrtí (jen únava, výpadek práce a hlad); rozhodnutí o zpřísnění čeká na kartu „Realismus smrti“ (otázka 4).
+- **Následky:** `healer` a `heal` jsou nový zdroj užitku z bylin (dnes jen `nurse`); lázeň (hygiena) a med mají proti epidemii měřitelný účinek, tím se G stává obranou a ne jen bonusem.
+- **Realita:** morové a nakažlivé nemoci byly v 15. a 16. století časté hlavně ve městech; vesnice, které je zažily, měly lazebníka nebo ženu znalou bylin.
+
+### 15.4 Posvícení a výroční trh
+- **Termín:** posvícení po sklizni (září, v neděli po sv. Václavu), výroční trh v květnu (po setí). Každý trvá jeden herní den.
+- **Příprava (`prepare_feast`, 90 min, 3 až 5 lidí, týden předem):** spotřebuje část jídla, piva, vína a medu (podle toho, co je na skladě; bez piva a vína stačí jídlo), 2 dřeva na stoly a 6 svíček na večer.
+- **Slavnost:** nálada všem +8 (posvícení) nebo +5 (trh), vztahy mezi všemi účastníky +2, šance zasnoubení po dobu slavnosti ×3 (rozšíření stávajících ×2 v `checkRomance`). Na výroční trh přijede obchodník mimo pravidelný termín a přebytek se prodá s příplatkem 10 % (`tradeDaily`).
+- **Přistěhovalci:** 30 dní po posvícení je rozestup příchodu osadníků o třetinu kratší (přivedou je pověst a hosté); platí podmínky fáze H (zásoby, bydlení, mráz).
+- **Následky:** při nedostatku jídla slavnost proběhne chudší (nálada +3) nebo se vůbec nekoná (kronika to uvede).
+- **Realita:** posvícení (výročí vysvěcení kostela) bylo hlavním svátkem vsi, roční trhy bývaly v městečkách; městys z fáze H jej logicky pořádá.
+
+### 15.5 Co se nezařazuje
+| Kandidát | Důvod |
+|---|---|
+| **Peníze, pokladna, daně** | Rozhodnutí „společný sklad, nebo rodiny“ čeká na uživatele a bez něj by byl návrh zbytečně nejistý. |
+| **Škola s víc třídami, univerzita** | Nepatří do vsi 15. až 16. století. |
+| **Hradba, brána, strážný** | Nová hrozba (útok, loupež) by se musela navrhnout od základu a dosud na ni nic ve hře nenarážejí. |
+
+### 15.6 Dopad na kód a rozhraní (zatím se nemění)
+- **Nový soubor:** `civic.php` (rychtář, schůze, bylinkářka, slavnosti, hook `civicDaily`).
+- **Úpravy:** `economy.php` (budova `radnice`, pořadí), `crisis.php` (typ `epidemic`), `winter.php` (hook ochrany a léčby), `life.php` (`checkRomance` při slavnosti), `settlers.php` (rozestup po posvícení), `social.php` (hádky a smír při radnici), `trade.php` (výroční trh), `jobs.php`, `auto.php` a `world.php` (činnosti, plánovač, ACTIONS), `goals.php` (`council_hall`, `feasts`), `buildinfo.php`, `api.php`, `rozvoj.js` (panel Obec), `map.js` (sprite radnice, místa `townhall`, `feastplace`).
+- **Rozhraní (zapsat do KOORDINACE bod 4 před použitím):** `reeve`, `healer`, `feast` (= `{next, last, kind, prepared}`), `epidemic` (stav krize), `council` (= `{last, resolved}`); budova `radnice`; místa `townhall`, `feastplace`; činnosti `council`, `heal`, `prepare_feast`. GUI musí chybějící klíče snést.
+- **Testy:** `obec.php` (volba rychtáře, schůze a smír, léčba bylinkářkou, epidemie: práh 30 lidí, bez lázně vyšší riziko, bez nových úmrtí; posvícení s přípravou i bez zásob; rozestup příchodu po slavnosti), úprava `rust.php` a `budovy.php`, soak 1 500 dní z živého snímku.
+- **Kritéria úspěchu simulace:** žádný hlad, žádné varování; při 40 lidech aspoň jedna schůze a smír za čtvrtletí; epidemie nezpůsobí hlad a nesníží populaci pod strop z H; za rok proběhne aspoň jedno posvícení a jeden trh s chudším průběhem, když chybí zásoby; cihly se spotřebují na radnici.
+- **Odhad práce:** zhruba jako fáze H (jeden soubor, jedna budova, osm úprav, panel).
+
+### 15.7 Otevřené otázky k J
+1. Schvalujete radnici a rychtáře jako obecní instituci bez peněz a daní? (Návrh: ano.)
+2. Má epidemie ve výchozím stavu zabíjet? (Návrh: ne; až podle rozhodnutí v kartě „Realismus smrti“.)
+3. Má se rychtář volit, nebo zůstat navždy tentýž? (Návrh: volba každé 4 roky na posvícení; rychtář může být i žena.)
+4. Mají posvícení a trh spotřebovat pivo a víno (a tak bylo příčinou pro jejich výrobu)? (Návrh: ano, ale bez nich se koná chudší slavnost.)
+5. Má radnice čekat na hodnost Ves (21 lidí a víc), nebo se smí postavit hned po faře? (Návrh: čekat.)
+
+## 16. Pořadí I a J a co změřit před zahájením (16. 11. 2026)
+- **Doporučené pořadí: I, pak J.** I je pro hráče viditelné hned (chlív a ohrada stojí) a spotřebuje přebytky obilí a sena. J se vyplatí až při populaci kolem 30 lidí, kterou fáze H teprve má přivést.
+- **Změřit před I:** (1) první příchod osadníků ve hře (`settlers.arrived` je ke dni 210 stále 0; po restartu uplynulo jen několik herních dní) a `settlerBlocked`; (2) zásobování kamenem (`stone` 0,3, `quarryStone` 0, tři vozy stojí) kvůli domům, ovčínu a radnici; (3) skutečný denní přírůstek obilí a sena, aby se ověřila spotřeba zvířat.
+- **Změřit před J:** čas plánování AI při 40 a víc lidech (dosud neověřeno, bod 13.3 H5) a počet sporů `quarrel` za měsíc.
+- **Úkoly na tabuli:** karta „Další chovné řetězce podle vzoru slepic“ je tímto návrhem pokryta (prase a ovce; krávy mají ohradu a mlékárnu); po schválení se rozdělí na úkoly I a J.
