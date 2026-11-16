@@ -148,6 +148,7 @@ Kalendář prací je v samostatném grafu (v konverzaci). Zásada: pole a zahrad
 
 | F | Špýchar, mlékárna, rybník, koželužna a ševcovna, tkalcovna, fara a škola | řemesla navazující na kožky, mléko a len; víc jídla a zboží | **hotovo 15. 11.**, podrobnosti v KOORDINACE.md bod 5 (nové budovy na konci pořadí, každá ze zásob; grafika jako vyměnitelné obrázky) |
 | G | Včelín, cihelna, lázeň | med, vosk a svíčky, opylení; střechy z došek na tašky proti požáru; hygiena a teplo v zimě | **hotovo 15. 11.** (schváleno a naprogramováno), podrobnosti v bodě 12 a v KOORDINACE.md bod 5 |
+| H | Přistěhovalci podle prosperity, sňatky a děti, víc stavebních parcel, hodnost vesnice | vesnice roste z 20 na 40 až 64 lidí a postupně se mění z osady na městys | **návrh 16. 11.**, podrobnosti v bodě 13, čeká na schválení |
 
 Doporučené pořadí A, B, C, D, E. A musí být první, protože zavádí kažení a pestrost, na kterých stojí zbytek. C lze před B, pokud chcete pivo dřív; vozy a uhlí pak jen počkají.
 
@@ -246,3 +247,70 @@ Rozbor současných článků, které už ve hře jsou, ale nemají dost užitku
 5. Má lázeň při nedostatku dřeva zavřít (návrh), nebo se koupat i na úkor topiva?
 6. Má se při větším množství práce zkrátit plánovací dávka (otázka 5 z bodu 11)? G přidává osm činností.
 7. Má se levný **včelín předřadit** před špýchar až fara, aby opylení a med fungovaly dřív? (Návrh: ano, za `lis`, než se dostaví zbytek F; rozdíl je v jednom řádku pole pořadí.)
+
+## 13. Fáze H: růst vesnice (návrh 16. 11. 2026)
+
+Stav: **jen návrh, nic není naprogramované ani schválené.** Vznikl na pokyn uživatele po zjištění, že se obě vesnice přestaly rozvíjet („nikam se nerozvíjí“). Čísla jsou výchozí odhady k vyladění simulací.
+
+### 13.1 Co se stalo (měření 16. 11., den hry 184)
+- **Hotovo vše:** v AI i ve větvi bez AI stojí všech 33 budov, `project` je prázdný a stavět není co. Vše se postavilo za zhruba 150 dní (půl herního roku).
+- **Populace uvízla na 19 a 20 lidech** (v týdenním souhrnu šest týdnů po sobě 0 narození, 0 svateb, 0 úmrtí). Příčiny v kódu:
+  - přistěhovalci jsou napevno jen čtyři (`NEWCOMERS` v `jobs.php`, příchod od 40. dne po 20 dnech); je to konec přílivu lidí,
+  - mezi stávajícími lidmi vzniká sňatek jen při vzájemném vztahu aspoň 62 (zamilování) a 70 (zasnoubení), tedy zřídka (`checkRomance` v `life.php`: zamilování 1 % denně na dvojici, zasnoubení 4 % denně),
+  - porodní interval je 540 dní a šance na početí .0035 denně na ženu do 30 let (`checkConception`), takže plodné páry jsou dva až tři a rodí se pomalu,
+  - v AI větvi jsou dva svobodní dospělí (29 a 30 let) bez partnera a tři dospívající (15 až 16 let) bez vrstevníků.
+- **Bydlení volné:** kapacita domů je 48 míst (6 pevných domů, 2 postavené), obsazeno 19. Růstu tedy nebrání bydlení, ale nikdo nový nepřichází a rodí se málo.
+- **Zásoby přebývají:** jídlo 3 100 (rezerva 108 dní), dřevo 500, seno 366, kyselé zelí a luštěniny po 200. Při dvaceti lidech nic nechybí, takže není co řešit.
+- **Pole a stavby bez rozšíření:** pole jsou tři pevná, domů je nejvýš čtyři postavené (`HOME_LIMIT`, `HOUSE_PLOTS`), cíle populace končí na 30 (`pop` tiery 12, 16, 20, 30).
+- **Dobrá zpráva:** hladu není (0 hladových jídel), zima je ošetřená (příprava 100 %), úmrtnost je přirozená (stáří od 60 let, nemoc), kapacita jídla by zvládla víc lidí.
+
+### 13.2 Cíl fáze H
+Dát vesnici **příčinu růst**: lidé přicházejí, protože se jim tu daří, páry se berou a rodí děti, vesnice potřebuje další domy a roste v hodnosti. Zásada z bodu 1 platí: každá nová věc má zdroj, podmínku, následek a spotřebu.
+
+### 13.3 Mechaniky
+**H1 Přistěhovalci podle prosperity** (místo pevného seznamu `NEWCOMERS`, který zůstane jako první čtyři):
+- Příchod kontroluje `settlersDaily` jednou denně. Podmínky (všechny): březen až listopad (v zimě nikdo nepřichází), není krize, rezerva jídla aspoň 40 dní, dřevo aspoň tři zimní dny, průměrná nálada aspoň 55, žádný hlad za poslední měsíc, je volné bydlení pro celou skupinu a populace je pod stropem (`popCap`, viz H4).
+- Rozestup: základ 30 dní, zkracuje ho prosperita (rezerva jídla nad 80 dní, spokojenost nad 70, postavené budovy): nejméně 14, nejvíc 45 dní. Vychází to na zhruba 8 až 12 skupin za herní rok.
+- Skupiny (váhy): osamělý dospělý 25 až 35 let 35 %, mladý pár 25 %, rodina se dvěma až třemi dětmi 30 %, vdova nebo vdovec s dítětem 10 %. Každá skupina přijde s vlastním příjmením a bydlí v jednom domě (`homeForNewFamily` rozšířený o `freeHouses`).
+- Role podle potřeby: vybere se místo práce, kde je nejméně lidí (`work` místo se zvolí podle zastoupení; pole, les, dílna, řemesla), zkušenost 40 až 75 a rodinný příběh z krátké sady vět („přišli před zimou z kraje, kde zdražilo“).
+- Jména: z `GIRL_NAMES` a `BOY_NAMES` (rozšířit na 30 jmen) a z nové sady 30 příjmení; id `host1`, `host2` ... Každý příchod je zápis v kronice a zvedne zvědavost sousedů (vztahy 48 jako u stávajících přistěhovalců).
+- Odliv: vesnice, kde nastane hlad delší než týden, přijde o jednu rodinu (nejmladší nejnovější příchozí), aby růst nebyl bez rizika.
+
+**H2 Sňatky a děti:**
+- Dohazování: svobodný dospělý (od 20 let) bez zasnoubení 60 dní dostane v `checkRomance` trojnásobnou šanci zamilování; hranice vztahu pro zamilování klesne z 62 na 55 a pro zasnoubení z 70 na 62; posvícení (po sklizni) zdvojnásobí šanci; páry vzniknou i mezi přistěhovalci a domácími.
+- Porodní interval klesne z 540 na 400 dní, šance na početí z .0035 na .005 denně (věkové koeficienty zůstávají); plodnost se zvýší úměrně počtu dětí v rodině (dobrá rodina bez hladu a těsnoty).
+- Děti dospívají do práce (15 let, roste zkušenost v oboru, který vykonávají; škola z fáze F to zrychluje).
+- Úmrtnost se nemění (stáří od 60 let, nemoc, porod).
+
+**H3 Bydlení:**
+- `HOME_LIMIT` a `HOUSE_PLOTS` z 4 na 10 stavebních parcel (6 pevných domů plus až 10 postavených, kapacita až 6×6 + 10×6 = 96 míst); `plots` v `map.js` dostane šest nových míst (ověřit na mapě, kam se vejdou; mapu lze zvětšit o tři dlaždice jako ve fázi F).
+- Dům se zadá, když je volných míst míň než šest a zároveň jsou na cestě noví lidé, nebo když je těsno (stávající `houseWanted` zůstává). Zásoba kamene a prken na další dům se chystá předem (`materialNeeds` se rozšíří o „stavební rezervu“: 6 kamene, 6 prken, 12 dřeva, když je populace do šesti míst od kapacity).
+- Domek (4 místa) pro mladé páry a osamělé, dům (6 míst) pro rodiny s dětmi (stávající `houseKindWanted`).
+
+**H4 Hodnost a stupně vesnice:**
+- `popCap` roste s hodností (stropy 24, 36, 48, 64) a s počtem postavených domů; hodnost se počítá z populace a budov a ukazuje se v záhlaví mapy: **Osada** (do 20 lidí), **Ves** (21 až 40), **Větší ves** (41 až 60), **Městys** (61 a víc a aspoň 30 budov).
+- Cíle: `pop` tiery 12, 16, 20, 30, **40, 50, 64**; `homes` tiery 1 až 4 a **6, 8, 10**; nový cíl `settlers` (počet přistěhovalých rodin: 3, 6, 10).
+- Odměny za hodnost (minimální, bez další složitosti): Ves zkrátí obchodníkovu návštěvu z měsíce na tři týdny, Větší ves na dva týdny, Městys přidá týdenní trh (čtvrtý stánek na mapě a mírný nárůst nálady o 2 body v sobotu).
+
+**H5 Zátěž a zázemí při růstu:**
+- Plánovač s modelem dělí lidi do skupin po osmi; při 64 lidech je to osm skupin za plán a při dnešních 12 s na skupinu zhruba 100 s na šestihodinový plán, což se vejde do 300 s reálného času (měřit; v nejhorším se zkrátí dávky nebo se část lidí plánuje pravidly).
+- Spotřeba jídla roste lineárně s populací; výroba roste s počtem lidí na poli, takže přebytek se postupně spotřebuje. Pokud výnos nestačí (míň než 20 dní rezervy), plánovač dá přednost poli a zahradě (stávající `foodShort`), případně se otevře **nové pole** (čtvrté a páté, stejné pravidlo jako stávající pole, jen víc míst na mapě; ověřit, jestli je potřeba).
+- Mapa vykreslí víc postav; v `village.js` je zobrazí seznam s posuvníkem (už dnes existuje).
+
+### 13.4 Co se nemění
+- Pevné pořadí a ceny stávajících 33 budov, počasí, sezóny, úmrtnost a chování AI (výběr z platných činností).
+- Pravidla bez AI a s AI zůstávají stejná; růst platí pro obě větve.
+
+### 13.5 Dopad na kód a rozhraní
+- **Nový soubor** `settlers.php` (příchody, jména, skupiny, odliv, hodnost), denní hook vedle `householdDaily`. Úpravy `life.php` (`checkRomance`, `checkConception`, `BIRTH_INTERVAL_DAYS`), `jobs.php` (`HOME_LIMIT`, `NEWCOMERS` zůstane), `household.php` (`HOUSE_PLOTS`), `economy.php` (stavební rezerva), `goals.php` (cíle), `public\map.js` (`plots`, záhlaví s hodností, případně týdenní trh), `village.js` (hodnost v záhlaví), `rozvoj.js` (panel Růst vesnice).
+- **Stav světa:** `settlers` = `{arrived, nextDay, log}` (počet příchozích skupin, kdy zase může někdo přijít, posledních pár zápisů), `rank` (`osada`, `ves`, `vetsi_ves`, `mestys`), `popCap`; osoba má `arrivedDay` a `origin` (krátký popisek původu). Rozhraní zapsat do KOORDINACE bod 4 před použitím; GUI musí chybějící klíče snést.
+- **Testy:** `rust.php` (podmínky příchodu v zimě, při hladu, bez bydlení, nad stropem; složení skupin, jména bez duplicit, přidělení domu; dohazování a porodní interval; stavební rezerva; hodnosti), úprava `bydleni.php` a `rodina.php` (starší pevný seznam, `HOME_LIMIT`), soak 1 500 dní s kontrolou: populace roste na 40 až 60, nikdo nehladoví, žádné varování PHP, `zatez.php` pro 64 lidí.
+- **Odhad práce:** zhruba stejně jako fáze F (jeden nový soubor, šest úprav, mapa a testy).
+
+### 13.6 Otevřené otázky k H
+1. Strop populace 64 a hodnosti Osada až Městys: schvalujete, nebo má být strop jiný (např. 40 pro menší hru)?
+2. Má příchod osadníků vyžadovat také aspoň jednu dílnu volných míst (např. tesař, kovář), nebo stačí bydlení a zásoby? (Návrh: stačí bydlení a zásoby.)
+3. Mají se stávající dva svobodní dospělí rychleji zasnoubit hned po restartu (dohazování ze starého stavu), nebo jen nově? (Návrh: i ze starého stavu, platí stejná pravidla.)
+4. Má odliv rodiny při hladu být zapnutý? (Návrh: ano, ale jen jednou za dva měsíce a nikdy to nesmí být poslední dospělý v domě.)
+5. Má se Městys odměňovat týdenním trhem (nový stánek a nálada), nebo má být hodnost jen popisek? (Návrh: stánek a nálada.)
+6. Má se při větším počtu lidí zkrátit plánovací dávka AI (otázka 5 z bodu 11)? Teď je 6 herních hodin a osm lidí na skupinu.
