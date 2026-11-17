@@ -403,7 +403,7 @@ Stav: **jen návrh, nic se nemění ani nenaprogramovalo**. Čeká na schválen�
 
 ### 15.2 Radnice a rychtář
 - **Budova:** `radnice` (Radnice), 150 h; cihly 30, dřevo 10, prkna 6, kámen 12; závisí na faře a cihelně; staví se až při hodnosti Ves (21 a víc lidí), aby malá vesnice nestavěla zbytečně. Pořadí v `BUILD_ORDER` na konci.
-- **Rychtář:** osoba (`reeve`, id) zvolená na posvícení každé 4 herní roky (jinak při smrti nebo odstěhování) z dospělých od 30 let podle dovednosti `neighbors`, nálady a věku; kronika zapíše volbu.
+- **Rychtář:** po zařazení fáze K (bod 17) je rychtářem **zvolený starosta** (`mayor`); volby, povaha a odvolání se nezavádějí podruhé, `reeve` i `civic.php` na něj jen navazují. Bez K by platil původní návrh: osoba (`reeve`, id) zvolená na posvícení každé 4 herní roky z dospělých od 30 let podle dovednosti `neighbors`, nálady a věku; kronika zapíše volbu.
 - **Činnost `council`** (schůze v radnici, neděle po mši, 60 min, rychtář a 3 až 5 dalších): na schůzi se (1) usmíří nejhorší dvojice (vztah pod 42: bond +8 obou, dohoda se zapíše do kroniky), (2) zapíše souhrn měsíce do kroniky (stávající týdenní souhrn se jen pomocí rychtáře převypráví do věty), (3) rychtář oznámí nejbližší nedostatek (`settlerBlocked`, `foodShort`, `hayShort`) a plánovač dostane na týden bonus +3 k úkolu, který ho řeší. Je to přenos informace do plánu, ne nové pravidlo.
 - **Následky:** s radnicí a rychtářem klesne šance hádky `quarrel` o čtvrtinu a `reconcile` mezi hádajícími se se zvýší o polovinu; od hodnosti Větší ves přibude jedno místo v panelu Rozvoj „Obec“ (rychtář, poslední schůze, spory).
 - **Realita:** rychtář (fojt) a obecní schůze byly běžnou součástí českých vsí 15. a 16. století; radnice patřila městysům a městům, ve vsi se scházelo v hospodě nebo u rychtáře, proto je radnice zděná budova až pro větší místo.
@@ -450,3 +450,70 @@ Stav: **jen návrh, nic se nemění ani nenaprogramovalo**. Čeká na schválen�
 - **Změřit před I:** (1) první příchod osadníků ve hře (`settlers.arrived` je ke dni 210 stále 0; po restartu uplynulo jen několik herních dní) a `settlerBlocked`; (2) zásobování kamenem: při fázi I ověřeno, že plánovač kámen těží a váží až když ho stavba potřebuje, takže se nemění; (3) skutečný denní přírůstek obilí a sena, aby se ověřila spotřeba zvířat (ve fázi I změřeno: zvířata spotřebují jen zlomek přebytku obilí, viz 14.8).
 - **Změřit před J:** čas plánování AI při 40 a víc lidech (dosud neověřeno, bod 13.3 H5) a počet sporů `quarrel` za měsíc.
 - **Úkoly na tabuli:** karta „Další chovné řetězce podle vzoru slepic“ je tímto návrhem pokryta (prase a ovce; krávy mají ohradu a mlékárnu); po schválení se rozdělí na úkoly I a J.
+- **Doplnění 17. 11. 2026:** na přání uživatele přibývá fáze K (starosta a volby, bod 17). Doporučené pořadí je nově **I (hotovo), K, pak J**. K nepotřebuje novou budovu, J (radnice) na ní staví.
+
+## 17. Fáze K: starosta a volby (návrh 17. 11. 2026)
+
+Stav: **jen návrh, nic se nemění ani nenaprogramovalo**. Zadání uživatele: vesnice zatím nemá vládu (bezvládí); lidé se mají na hromadné schůzi sejít a zvolit starostu, který bude vesnici řídit. Starosta nevyhoví všem, bude buď **rozumný**, nebo **paličatý**, a podle toho bude vesnici vést jinak. Čeká na schválení a odpovědi v bodě 17.9.
+
+### 17.1 Co dnes platí a proč to nestačí
+- **Rozhoduje plánovač, ne nikdo z lidí.** `villageCandidates` (auto.php) skóruje činnosti každému zvlášť podle zásob a nutnosti; lidé se spolu domlouvají jen v rozhovorech (`social.php`). Nikdo nevolí směr, nikdo nenese odpovědnost, spory (`quarrel`) řeší jen náhoda (`reconcile`).
+- **Povaha je jen věta.** `trait` je volný text (jen ho čte model); číselně žádná povaha neexistuje. Z čísel dnes jsou `charisma`, `trust`, `faith`, `fear`, `mood`, vztahy `bonds` a dovednosti.
+- **Bezvládí je výchozí a smí zůstat.** Vesnice s 30 a víc lidmi funguje i bez vedení, jen bez smyslu pro směr. Tato fáze to neopravuje silou, nabízí volby.
+
+### 17.2 Povaha jako čísla
+Každý člověk dostane dvě hodnoty 0 až 100: **`reason` (rozvaha)** a **`stubborn` (paličatost)**; jedna jejich kombinace není vždy dokonalý protiklad (člověk může být zároveň rozvážný i tvrdohlavý). Odvozují se jednou a uloží:
+- **Původní lidé:** z textu povahy (Anna „Rozvážná“ → rozvaha vysoká; Jan „Pracovitý a paličatý“ → paličatost vysoká; ostatní podle klíčových slov a `crc32` id).
+- **Přistěhovalci a děti:** děti zdědí průměr rodičů ±10, přistěhovalci dostanou hodnoty z `noise` generátoru fáze H.
+- **Typ starosty** se ze dvou čísel vyčte jako `rozumný` (reason − stubborn ≥ 15), `paličatý` (stubborn − reason ≥ 15) nebo `vyvážený`. Typ vidí hráč v panelu.
+- Texty povahy (`trait`) se nemění, jen se do promptu AI připojí „rozvážný“ nebo „paličatý“.
+
+### 17.3 Schůze a volby
+- **Činnost `assembly` (hromadná schůze):** na návsi (`market`) v neděli po mši; dospělí od 18 let, kteří nejsou nemocní ani na cestě; 90 min; trvá den svolání (`election.next`).
+- **Kdy:** první schůze **den po nasazení**, kdy je ve vsi aspoň 8 dospělých a nikdo nevládne (volby v bezvládí). Poté se **starosta volí každé 2 roky** (720 herních dní; 20 min = 1 den, tedy zhruba 10 dní reálného času), mimořádně při smrti, odstěhování a odvolání.
+- **Kandidáti:** dospělí od 25 let, žijící ve vsi aspoň 1 rok, bez nemoci, nanejvýš 3; vybírá se podle ambice (`charisma`, paličatost ×0,3, dovednost `neighbors`, věk 30 až 60 výhodou); bez kandidáta se koná po týdnu znovu.
+- **Hlas každého dospělého:** skóre kandidáta = důvěra v něj (`bonds` voliče → kandidát) + 0,4 × dovednost `neighbors` + shoda povah + rodina +15 − zášť (`grudges`) 20 + šum ±6. **Shoda povah:** klidná vesnice (nálada ≥ 60, bez krize a hladu) dává rozumnému kandidátovi +8; strach, hlad nebo krize (`crisis`, `hayShort`, nízká zásoba) dává paličatému +10; „silná ruka v nouzi“ je výrazný, ale ne jistý efekt, aby volby někdy dopadly překvapivě.
+- **Výsledek:** zapsat do kroniky („Na návsi se sešlo 23 dospělých. Starostou je zvolen X, 14 hlasů, druhý Y, 7“); těsný výsledek (rozdíl pod 15 %) vytvoří opozici (mírné zášti mezi stranami, `bonds` −2) a snižuje souhlas obce.
+- **Jméno úřadu:** `starosta` (mluví se o starostovi nebo starostce; v 16. století by byl rychtář nebo purkmistr, proto text v panelu „starosta (rychtář)“).
+
+### 17.4 Co starosta dělá a jak se projeví povaha
+Starosta má denní práci pro obec (1 hodina z jeho dne, ubývá mu práce na poli) a **zásadu** na celé období (např. „Zásoby“, „Stavba“, „Obchod a řemesla“, „Víra a klid“, „Chov a pole“):
+- **Rozumný** vybere zásadu podle toho, co vesnici nejvíc chybí (stejná data jako `materialNeeds`, `settlersBlocked`, `hayShort`, `foodShort`); nejvíc usmiřuje: šance `quarrel` je o čtvrtinu menší a `reconcile` větší, týdně usmíří nejhorší dvojici (vztah +8); bonus zásady je menší (+5), ale chyby se oznamují včas; pomalejší v nouzi.
+- **Paličatý** vybere zásadu podle vlastního oboru a názoru (kdo je dřevorubec, chce dřevo a stavět), prosazuje ji tvrději: bonus +10 k činnostem té zásady, výkon vesnice v oboru zásady o 4 % vyšší; vedlejší cena: nálada nesouhlasících o 2 nižší a přibývají hádky o čtvrtinu; **v nouzi** (požár, povodeň, hlad) reaguje nejrychleji (`firefight`, `flood_defense`, těžba jídla + 10).
+- **Vyvážený** má menší, ale vyrovnané účinky.
+- **Nevyhoví všem:** denně se počítá **souhlas** každého s úřadem (−100 až +100): zásada souhlasí s oborem člověka (+), je v rodině nebo je přítel (+), je ve zášti (−), dostal dřevo a jídlo (+), zásada zanedbává jeho obor (−). Průměr je **souhlas obce**. Souhlas posouvá náladu o ±2 denně (v mezích), určuje, kdo se hádá o starostovi, a vstupuje do odvolání.
+
+### 17.5 Konec úřadu
+- **Řádný konec** po 2 letech: nová volba (starosta smí být zvolen znovu; souhlas > 60 mu dává +10 k hlasům).
+- **Odvolání:** souhlas obce pod 30 po 30 dní po sobě → mimořádná schůze o odvolání; hlasuje stejná skupina, odvolán při 55 %.
+- **Smrt, odstěhování, nemoc nad 14 dní:** vesnici zastupuje nejstarší dospělý hospodář 14 dní, pak nová volba.
+- **Bezvládí:** do prvních voleb a mezi koncem úřadu a novou volbou. Bezvládí nemá trest při méně než 16 dospělých; od 16 dospělých roste šance hádek o 15 % (nikdo nesmiřuje) a plánovač nedostane zásadu. Návrh: tento trest zapnout, aby volby měly smysl.
+
+### 17.6 Co zůstává mimo
+| Kandidát | Důvod |
+|---|---|
+| Daně, pokladna, zákony, tresty | Čekají na rozhodnutí „společný sklad, nebo rodiny“ (tabule). |
+| Více stran, převrat, vzpoura | Zatím příliš daleko od jednoduchého základu; po první měřené sezóně. |
+| Vrchnost (pán, který dosazuje rychtáře) | Hra nemá vnější vládce; volba odpovídá spíše obecnímu samosprávnému modelu. |
+| AI rozhoduje o výsledku voleb | Výsledek počítají pravidla; AI může jen napsat vyprávění (projev, odůvodnění hlasu) jako dnes u rozhovorů. |
+
+### 17.7 Dopad na kód a rozhraní (zatím se nemění)
+- **Nový soubor:** `mayor.php` (povaha, kandidáti, hlasování, zásada, souhlas, odvolání, hook `mayorDaily`, `mayorScore`).
+- **Úpravy:** `world.php` (`decodeWorld` doplní `reason`, `stubborn`, `mayor`, `election`, `ACTIONS['assembly']`), `settlers.php` a `life.php` (povaha nových lidí a dětí), `auto.php` (`mayorScore` ve `villageCandidates`, `TASK_STEMS`), `skills.php` (kategorie činnosti), `jobs.php` (zákaz pro děti), `social.php` (úprava šance `quarrel` a `reconcile`), `goals.php` (cíl `mayor_elected`), `ai.php` (povaha v promptu), `public/api.php`, `public/rozvoj.js` (panel Obec: starosta, povaha, zásada, souhlas, volby), `public/map.js` (štítek starosty u jména), `economy.php` (volání `mayorDaily`).
+- **Rozhraní (zapsat do KOORDINACE bod 4 před použitím):** osoba `reason`, `stubborn`; stav `mayor` = `{id, since, until, policy, approval, temper}`, `election` = `{next, last:{day, turnout, tally, winner}, reason}`, `anarchySince`; činnost `assembly`; místo `market`. GUI musí chybějící klíče snést.
+- **Testy:** nový `starosta.php` (povaha z textu a děd, volby bez kandidátů, výsledek podle důvěry, účinek krize na paličatého, rozumný snižuje hádky, paličatý zvyšuje výkon a snižuje náladu, odvolání, zastupování po smrti, bezvládí s malým a velkým počtem lidí), úprava `rust.php` a `budovy.php`, soak 720 a 1 500 dní z živého snímku.
+- **Kritéria úspěchu simulace:** první volby do 7 dnů po nasazení, účast aspoň 70 % dospělých, v různých semenech zvítězí rozumný i paličatý, souhlas obce mezi 35 a 80, odvolání méně než 1 za 3 roky, žádný hlad, žádné PHP varování, výkon vesnice s paličatým o ne víc než 5 % vyšší než s rozumným.
+- **Odhad práce:** menší než H (jeden soubor, jedna činnost, osm úprav, panel).
+
+### 17.8 Realita a zjednodušení
+V 16. století vesnici vedl rychtář (fojt), často dosazený vrchností nebo z usedlých sedláků; o obecních věcech rozhodovala **obecní schůze** hospodářů (usedlých), ženy hlasovaly zřídka. Hra to zjednodušuje: hlasují všichni dospělí a vedoucí je zvolen, protože to odpovídá zadání hráče. Panel pojmenuje funkci „starosta“, ale kronika může použít i „rychtář“.
+
+### 17.9 Otevřené otázky ke K
+1. Schvalujete fázi K? (Návrh: ano, **před** J.)
+2. Funkční období 2 herní roky (zhruba 10 dní reálného času)? (Návrh: ano; kratší není vidět, delší je dlouho.)
+3. Mají hlasovat všichni dospělí, nebo jen hlavy rodin? (Návrh: všichni dospělí od 18 let, ženy i muži.)
+4. Má mít bezvládí trest při 16 a víc dospělých? (Návrh: ano, malý, +15 % hádek.)
+5. Smí paličatý v nouzi vyhrát i přes menší důvěru? (Návrh: ano, je to žádaný dramatický prvek.)
+6. První volby ihned po nasazení, nebo až po restartu a prvním dni? (Návrh: první neděle po restartu.)
+7. Má volby doprovodit AI vyprávění (projev kandidátů, hlasování)? (Návrh: ano, jen text, výsledek počítají pravidla.)
+8. Mají se v kronice a v panelu použít slova „starosta“ a „starostka“, nebo „rychtář“? (Návrh: starosta/starostka.)
