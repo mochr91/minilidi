@@ -69,6 +69,7 @@ try {
         $world['housing'] = housingSummary($world);
         $world['roofMap'] = roofMap($world);
         $world['pigCap'] = pigCap($world);
+        $world['mayorInfo'] = mayorInfo($world);
         $world['sheepCap'] = sheepCap($world);
         $world['rankLabel'] = RANKS[villageRank($world)];
         $world['popCap'] = popCap($world);

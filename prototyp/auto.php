@@ -55,11 +55,12 @@ function villageCandidates(array $world, array $queued=[]): array {
                 'construct'=>38,'saw'=>isset($needs['planks'])?28:($world['planks']<8?10:2),
                 'mill'=>$world['grain']>=4?26:8,'bake'=>$world['flour']>=3?36:10,
                 'craft'=>$world['tools']<$toolNeed?22:4,'mow'=>($world['hay']<25?24:8)+winterScore($world,'mow'),
-                'firefight','flood_defense'=>120,default=>winterScore($world,$key)+forestScore($world,$key)+beerScore($world,$key)+forgeScore($world,$key)+wineScore($world,$key)+craftScore($world,$key)+beesScore($world,$key)+husbandryScore($world,$key)+bricksScore($world,$key)+bathScore($world,$key),
+                'firefight','flood_defense'=>120,default=>winterScore($world,$key)+forestScore($world,$key)+beerScore($world,$key)+forgeScore($world,$key)+wineScore($world,$key)+craftScore($world,$key)+beesScore($world,$key)+husbandryScore($world,$key)+mayorActionScore($world,$key)+bricksScore($world,$key)+bathScore($world,$key),
             };
             if ($key===($p['lastPlanAction']??null)) $score-=9;
             $score+=(skillFactor($p,actionCategory($world,$key))-.82)*15;
             $score+=$action['score']??0;
+            $score+=mayorScore($world,$key);
             $candidates[$id][$key]=$score;
         }
         if (isset($candidates[$id])) arsort($candidates[$id]);
@@ -98,6 +99,7 @@ const TASK_STEMS = [
     'dig_clay'=>'hlín|cihel|cihelna|cihelny|hliniště', 'fire_bricks'=>'cihl|tašk|pálit|pálí|výpal|cihelna|cihelny', 'reroof'=>'střech|došk|tašk',
     'bathe'=>'lázn|lázeň|koupel|koupat|koupá',
     'slaughter_pig'=>'zabija|vepř|prase|prasat|chlív|chlév|porážk', 'shear_sheep'=>'ovc|ovčín|stříh|střiž|vln', 'tend_sheep'=>'ovc|ovčín|jehn|pastv',
+    'mayor_round'=>'starost|obchůz|obejít|usmíř|\bnávs',
     'pickle'=>'zelí|nakl|sklep', 'gather_herbs'=>'bylin|léč|bylink', 'dry_herbs'=>'bylin|suš|usuš', 'nurse'=>'ošetř|nemoc|odvar|bylin|nemocn',
 ];
 const BAD_WORDS = '/\b(?:rádám|rádá|doněla|odpocítn\p{L}*|peknout|mlýnit|nečum)\b/iu';
@@ -190,6 +192,7 @@ function prepareVillagePlan(PDO $db,array $world,bool $withAi): array {
             'rozvoj'=>developmentBrief($world,$needs),
             'poradi_udaju'=>['jméno','věk','role','povaha','hlad','únava','zábava','nálada','víra','důvěra','strach','práce','vztahy','zamilovanost','paměť','místo','nemoc'],
             'nabozenstvi'=>$world['religions'],'neopakuj'=>array_slice($world['recentLines'],-2),
+            'starosta'=>mayorBrief($world),
         ];
         $merged=['plan'=>[],'memories'=>[]];
         $total=null; $detail=null;

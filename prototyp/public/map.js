@@ -1402,13 +1402,13 @@ function createVillageMap(root) {
       const old = previous.get(person.id);
       const sleeping = person.activity?.startsWith('Spí') ?? false;
       const prop=task||person.place===person.work?person.place:'';
-      if (!old || old.tx!==x || old.ty!==y || old.sleeping!==sleeping || old.cart!==cart || old.prop!==prop) needsPaint=true;
+      if (!old || old.tx!==x || old.ty!==y || old.sleeping!==sleeping || old.cart!==cart || old.prop!==prop || old.mayor!==(development.mayor?.id===person.id)) needsPaint=true;
       const portraitKey=[person.age<12,person.color].join('|');
       if (portraits.get(person.id)?.key!==portraitKey) {
         portraits.set(person.id,{key:portraitKey,frames:[0,1,2].map(step=>personSprite(person,step))});
       }
       const frames=portraits.get(person.id).frames;
-      return { id:person.id, place:person.place, art:frames[0], frames, sleeping,cart,prop, position,offsetX,offsetY,phase:noise(x,y),
+      return { id:person.id, place:person.place, art:frames[0], frames, sleeping,cart,prop, mayor:development.mayor?.id===person.id, position,offsetX,offsetY,phase:noise(x,y),
         x:old?.x??x, y:old?.y??y, tx:x, ty:y, moving:false };
     });
   }
@@ -1426,6 +1426,14 @@ function createVillageMap(root) {
     if(sprite.cart)wheelbarrow(ctx,x+21,y);
     else if(!sprite.sleeping && !sprite.moving) workProp(ctx,x,y,sprite.prop,time+sprite.phase);
     ctx.drawImage(sprite.frames[step],x-sprite.art.width/2,y-sprite.art.height-bob);
+    if (sprite.mayor) {
+      // Starosta: zlatý řetěz s medailí na hrudi.
+      const chest=y-Math.round(sprite.art.height*.42)-bob;
+      line(ctx,'#caa13a',1,[x-4,chest-3],[x,chest+2]);
+      line(ctx,'#caa13a',1,[x+4,chest-3],[x,chest+2]);
+      rect(ctx,'#6b4a12',x-3,chest+1,6,6);
+      rect(ctx,'#f2cd55',x-2,chest+2,4,4);
+    }
     if (selected) {
       const top=y-sprite.art.height-bob;
       shape(ctx,'#f8dc91',[[x-5,top-9],[x+5,top-9],[x,top-3]]);

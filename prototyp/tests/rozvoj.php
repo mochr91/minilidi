@@ -86,9 +86,10 @@ foreach ($db->query("SELECT data FROM weekly") as $row) { $totalBirths+=json_dec
 $totalBirths+=$world['counters']['births'];
 $graves=count($world['graveyard']);
 check($world['people']['tomas']['age']===$ageBefore+6,'Stárnutí o šest let: '.$world['people']['tomas']['age']);
-check($totalBirths>=1 && $totalBirths<=14,'Počet narození za 6 let: '.$totalBirths);
+// Od fáze H vesnice za pár let roste na strop 64 lidí, proto je horní mez narození a úmrtí úměrná (dřív 14 a 8).
+check($totalBirths>=1 && $totalBirths<=45,'Počet narození za 6 let: '.$totalBirths);
 check(count($world['people'])<=housingCapacity($world),'Kapacita bydlení se neprolomí');
-check($graves<=8,'Úmrtí za 6 let: '.$graves);
+check($graves<=25,'Úmrtí za 6 let: '.$graves);
 check($summary>=300,'Týdenní souhrny se ukládají: '.$summary);
 echo "Šest let: narozeno $totalBirths, zemřelo $graves, populace ".count($world['people'])." OK\n";
 

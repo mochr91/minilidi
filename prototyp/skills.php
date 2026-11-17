@@ -23,6 +23,7 @@ const ACTION_CATEGORY = [
     'quarrying'=>'build','haul_stone'=>'build','build_house'=>'build','construct'=>'build','fix_fence'=>'build',
     'help'=>'neighbors','bring_water'=>'neighbors','deliver_meal'=>'neighbors','withhold_tools'=>'neighbors',
     'rest'=>'home','visit'=>'home','market'=>'home','gather_neighbors'=>'home',
+    'assembly'=>'neighbors','mayor_round'=>'neighbors',
     'prayer'=>'faith','wedding'=>'faith','firefight'=>'crisis','flood_defense'=>'crisis',
 ];
 
@@ -163,5 +164,5 @@ function inheritedSkills(array $mother,array $father): array {
 // Činnost osoby s přihlédnutím ke zkušenosti (úkol, rutinní práce).
 function taskSkillFactor(array $world,string $id,string $key,?array $task=null): float {
     $person=$world['people'][$id]??null;
-    return $person===null ? 1.0 : skillFactor($person,actionCategory($world,$key,$task));
+    return $person===null ? 1.0 : skillFactor($person,actionCategory($world,$key,$task))*mayorYield($world,$key);
 }

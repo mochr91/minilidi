@@ -95,7 +95,7 @@ function socialOptions(array $world): ?array {
     $a=$world['people'][$id]; $b=$world['people'][$other];
     $bond=min($a['bonds'][$other]??48,$b['bonds'][$id]??48);
     $types=['talk','comfort','gossip'];
-    if ($bond<42 && doctrineFor($world,$id)!=='peace' && doctrineFor($world,$other)!=='peace') $types[]='quarrel';
+    if ($bond<42*mayorQuarrelFactor($world) && doctrineFor($world,$id)!=='peace' && doctrineFor($world,$other)!=='peace') $types[]='quarrel';
     if ($bond<48) $types[]='reconcile';
     if ($world['food']>=count($world['people'])+1) $types[]='share';
     if ($a['age']>=18 && $b['age']>=18 && $a['family']!==$b['family'] &&

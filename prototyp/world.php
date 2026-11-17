@@ -18,6 +18,7 @@ require_once __DIR__ . '/bees.php';
 require_once __DIR__ . '/bricks.php';
 require_once __DIR__ . '/bath.php';
 require_once __DIR__ . '/husbandry.php';
+require_once __DIR__ . '/mayor.php';
 require_once __DIR__ . '/buildinfo.php';
 require_once __DIR__ . '/settlers.php';
 require_once __DIR__ . '/life.php';
@@ -104,6 +105,8 @@ const ACTIONS = [
     'slaughter_pig' => ['label'=>'Zabijačka prasete','place'=>'pigsty','work'=>'Dělá zabijačku','minutes'=>120,'fatigue'=>2.2,'appeal'=>-2,'group'=>'Zvířata'],
     'shear_sheep' => ['label'=>'Ostříhat ovce','place'=>'pasture','work'=>'Střiží ovce','minutes'=>90,'fatigue'=>1.6,'appeal'=>2,'group'=>'Zvířata'],
     'tend_sheep' => ['label'=>'Prohlédnout ovce','place'=>'pasture','work'=>'Stará se o ovce','minutes'=>30,'fatigue'=>.8,'appeal'=>3,'group'=>'Zvířata'],
+    'assembly' => ['label'=>'Obecní schůze na návsi','place'=>'market','work'=>'Účastní se obecní schůze','minutes'=>90,'fatigue'=>-.3,'appeal'=>2,'group'=>'Obec'],
+    'mayor_round' => ['label'=>'Obejít ves jako starosta','place'=>'market','work'=>'Obchází ves a mluví se sousedy','minutes'=>MAYOR_ROUND_MINUTES,'fatigue'=>.6,'appeal'=>2,'group'=>'Obec'],
     'bathe' => ['label'=>'Sobotní koupel v lázni','place'=>'bathhouse','work'=>'Koupe se v lázni','minutes'=>75,'fatigue'=>-1.2,'appeal'=>8,'group'=>'Domov'],
     'press_wine' => ['label'=>'Lisovat víno','place'=>'press','work'=>'Lisuje víno','minutes'=>120,'fatigue'=>2.0,'appeal'=>3,'group'=>'Víno'],
     'make_barrel' => ['label'=>'Vyrobit sud na víno','place'=>'workshop','work'=>'Dělá sud','minutes'=>240,'fatigue'=>1.8,'appeal'=>-2,'group'=>'Víno'],
@@ -197,6 +200,7 @@ function decodeWorld(string $state): array {
     $world += economyDefaults() + ['crisis'=>null,'crisisCooldown'=>0,'graveyard'=>[],'pendingDeaths'=>[],'nextChild'=>0,
         'goals'=>['done'=>[]],'winters'=>0,'winterBad'=>false,'winterChecked'=>0,'lastWeek'=>0,'counters'=>newCounters()];
     $world['counters']+=newCounters();
+    $world += ['mayor'=>null,'election'=>null,'anarchySince'=>null];
     $absDay=intdiv((int)$world['minute'],1440);
     foreach ($world['people'] as &$person) {
         $person += ['fun'=>62.0,'grudges'=>[],'faith'=>40,'fear'=>12,'trust'=>50,'lastPrayer'=>-1440,
@@ -279,6 +283,7 @@ function tick(PDO $db, array &$world): void {
         journal($db, $world, '', 'Začal další den', 'Topení a vaření spotřebovalo ' . number_format($woodUsed,1,',',' ') . ' dřeva z denní potřeby ' . $weather['woodNeed'] . '.', 'Hra');
         lifeDaily($db,$world);
         economyDaily($db,$world);
+        mayorDaily($db,$world);
         goalsDaily($db,$world);
         weeklyClose($db,$world);
     }
@@ -413,6 +418,7 @@ function tick(PDO $db, array &$world): void {
         welcomeNewcomer($db,$world);
         welcomeMillerFamily($db,$world);
         weddingHour($db,$world);
+        mayorHour($db,$world);
         sampleVillage($db,$world);
     }
 }

@@ -219,6 +219,21 @@ function renderEconomy() {
       if (has('ovcin')) parts.push('ovcí ' + fmt(state.sheep ?? 0) + ' z ' + (state.sheepCap ?? '?') + ' · péče ' + Math.round((state.sheepCare ?? 0) * 100) + ' % · vlna ' + fmt(state.wool ?? 0) + (state.woolCrop >= 1 ? ' (k ostříhání ' + fmt(state.woolCrop) + ')' : '') + ' · látka ' + fmt(state.cloth ?? 0));
       box.append(make('p', 'Chov: ' + parts.join(' · '), 'dev-note'));
     }
+    if (state.mayorInfo) {
+      const info = state.mayorInfo, day = info.day ?? Math.floor(state.minute / 1440), m = info.mayor;
+      const left = target => target > day ? ' (za ' + (target - day) + ' dní)' : ' (dnes)';
+      const last = info.last ? ' · poslední ' + (info.last.kind === 'recall' ? 'hlasování o odvolání' : 'volby') + ': den ' + info.last.day + ', přišlo ' + info.last.turnout + ' z ' + info.last.adults + ' dospělých'
+        + (info.last.tally?.length ? ', hlasy ' + info.last.tally.map(row => row.name + ' ' + row.votes).join(', ') : info.last.against != null ? ', proti ' + info.last.against + ' z ' + info.last.voted : '') : '';
+      if (m) {
+        box.append(make('p', 'Obec: ' + (m.sex === 'f' ? 'starostka ' : 'starosta ') + m.name + ' (' + m.typeLabel + ', rozvaha ' + m.reason + ', paličatost ' + m.stubborn + ') · zásada: ' + m.policyLabel
+          + ' · souhlas obce ' + Math.round(m.approval) + ' %' + (m.lowDays ? ' (pod mezí ' + m.lowDays + ' dní)' : '') + ' · ' + m.terms + '. období do dne ' + m.until + left(m.until)
+          + (info.kind === 'recall' ? ' · svolána schůze o odvolání' : '') + last, 'dev-note'));
+      } else {
+        box.append(make('p', 'Obec: bezvládí' + (info.anarchySince != null ? ' od dne ' + info.anarchySince : '') + ' · dospělých ' + info.adults
+          + (info.adults < 8 ? ' (volí se od 8)' : info.nextElection != null ? ' · volby ve dni ' + info.nextElection + left(info.nextElection) : '')
+          + (info.anarchyPenalty ? ' · bez starosty je o 15 % víc hádek' : '') + last, 'dev-note'));
+      }
+    }
     const list = make('ul', '', 'dev-buildings');
     for (const [key, def] of Object.entries(state.buildingDefs)) {
       const built = state.buildings?.[key] !== undefined;

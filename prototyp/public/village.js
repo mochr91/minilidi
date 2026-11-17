@@ -366,7 +366,9 @@
     write(fields.family,person?counted(person.age,'rok','roky','let')+' · '+person.family+(person.pregnant?.revealed?' · čeká dítě':'')
       +(state.crisis&&person.task?.action&&['firefight','flood_defense'].includes(person.task.action)?' · zasahuje':''):'–');
     write(fields.activity,person?person.role+' · '+person.activity:'Postava není v této vesnici dostupná');
-    write(fields.trait,person?.trait??'–');
+    const gap=(person?.stubborn??0)-(person?.reason??0);
+    const mayorTag=state?.mayorInfo?.mayor?.id===selected?(person?.sex==='f'?'Starostka':'Starosta')+' · ':'';
+    write(fields.trait,person?mayorTag+(person.trait??'–')+(person.reason!=null?(gap>=15?' · Povaha: paličatá':gap<=-15?' · Povaha: rozvážná':''):''):'–');
     const task=person?.task;
     const pending=state?.pending.some(job=>job.kind==='inspiration'&&job.person===selected);
     const description=pending?'Zvažuje vnuknutí…':task

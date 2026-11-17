@@ -47,6 +47,8 @@ function workAvailable(array $world, string $id, string $key): bool {
     if ($bees !== null) return $bees;
     $husbandry = husbandryWorkAvailable($world,$id,$key);
     if ($husbandry !== null) return $husbandry;
+    $mayorWork = mayorWorkAvailable($world,$id,$key);
+    if ($mayorWork !== null) return $mayorWork;
     $bricks = bricksWorkAvailable($world,$id,$key);
     if ($bricks !== null) return $bricks;
     $bath = bathWorkAvailable($world,$id,$key);
@@ -149,6 +151,8 @@ function completeWorkCore(PDO $db, array &$world, string $id): string {
     if ($bees !== null) return $bees;
     $husbandry = completeHusbandryWork($db,$world,$id,$key);
     if ($husbandry !== null) return $husbandry;
+    $mayorWork = completeMayorWork($db,$world,$id,$key);
+    if ($mayorWork !== null) return $mayorWork;
     $bricks = completeBricksWork($db,$world,$id,$key);
     if ($bricks !== null) return $bricks;
     $bath = completeBathWork($db,$world,$id,$key);
